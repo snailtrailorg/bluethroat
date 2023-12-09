@@ -1,0 +1,185 @@
+menu "Bluethroat Paragliding Variometer Configurations"
+    choice BLUETHROAD_TARGET_DEVICE
+	    prompt "Target device - Auto selected according to environment variable, DO NOT modify it!"
+		default BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS if $(BLUETHROAD_PIOENV) = "m5stack-stickcplus"
+		default BLUETHROAD_TARGET_DEVICE_M5CORE2AWS if $(BLUETHROAD_PIOENV) = "m5stack-core2aws"
+		default BLUETHROAD_TARGET_DEVICE_M5CORES3 if $(BLUETHROAD_PIOENV) = "m5stack-cores3"
+		config BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS
+			bool "M5Stack M5StickC PLUS"
+		config BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+			bool "M5Stack Core2 for AWS"
+		config BLUETHROAD_TARGET_DEVICE_M5CORES3
+			bool "M5Stack CoreS3"
+		help
+		In most circumstances, this configuration will be automatically generated based on
+		the environment variables set in platformio.ini configuration file.
+		In case it is not automatically generated, manually input is absolutely necessary.
+		Please refer to the extra_scripts option in env section in platformio.ini.
+	endchoice
+    menu "Display resolution"
+
+        config LV_HOR_RES_MAX
+            int "Display horizontal resolution"
+            default 240
+        config LV_VER_RES_MAX
+            int "Display vertical resolution"
+            default 135
+
+    endmenu
+
+    menu "Enable user-defined fonts"
+
+        config ANTONIO_REGULAR_10
+            bool "Enable Antonio Regular 10"
+            default y
+        config ANTONIO_REGULAR_12
+            bool "Enable Antonio Regular 12"
+        config ANTONIO_REGULAR_14
+            bool "Enable Antonio Regular 14"
+        config ANTONIO_REGULAR_16
+            bool "Enable Antonio Regular 16"
+            default y
+        config ANTONIO_REGULAR_18
+            bool "Enable Antonio Regular 18"
+        config ANTONIO_REGULAR_20
+            bool "Enable Antonio Regular 20"
+        config ANTONIO_REGULAR_24
+            bool "Enable Antonio Regular 24"
+        config ANTONIO_REGULAR_36
+            bool "Enable Antonio Regular 36"
+        config ANTONIO_REGULAR_48
+            bool "Enable Antonio Regular 48"
+        config ANTONIO_REGULAR_60
+            bool "Enable Antonio Regular 60"
+        config ANTONIO_REGULAR_64
+            bool "Enable Antonio Regular 64"
+        config ANTONIO_REGULAR_68
+            bool "Enable Antonio Regular 68"
+            default y
+        config ANTONIO_REGULAR_72
+            bool "Enable Antonio Regular 72"
+        config ANTONIO_REGULAR_80
+            bool "Enable Antonio Regular 80"
+        config ANTONIO_REGULAR_96
+            bool "Enable Antonio Regular 96"
+
+        config AWESOME6_12
+            bool "Enable Awesome 6.40 Free Solid 12"
+        config AWESOME6_14
+            bool "Enable Awesome 6.40 Free Solid 14"
+        config AWESOME6_16
+            bool "Enable Awesome 6.40 Free Solid 16"
+            default y
+
+    endmenu
+
+    menu "Enablel user-defined images"
+    endmenu
+
+    menu "ESP_I2C Port Configuration"
+
+        menu "ESP I2C Port 0"
+
+            config ESP_I2C_PORT_0_ENABLED
+                bool "Enable ESP I2C port 0"
+                
+            if ESP_I2C_PORT_0_ENABLED
+                config ESP_I2C_PORT_0_SDA
+                    int "SDA (GPIO pin)"
+                    default 0
+                config ESP_I2C_PORT_0_SCL
+                    int "SCL (GPIO pin)"
+                    default 26
+                config ESP_I2C_PORT_0_FREQ_HZ
+                    int "Frequency (Hz)"
+                    default 400000
+                    range 100000 5000000
+                    help
+                        The clock speed in Hz. Ranges from 100000 (100 kHz) to
+                        5000000 (5 Mhz). I2C busses that involve external wires may
+                        have to be slower, and the real maximum speed the bus will
+                        support depends on the value of the pullup resistors and the
+                        design of the overall circuit. 
+                config ESP_I2C_PORT_0_TIMEOUT
+                    int "R/W timeout (ms)"
+                    default 20
+                    range 10 1000
+                    help
+                        Timeout for I2C read and write operations. This does not
+                        include the time waiting for a lock.
+                config ESP_I2C_PORT_0_LOCK_TIMEOUT
+                    int "Stale lock override (ms)"
+                    default 50
+                    range 10 1000
+                    help
+                        Timeout at which point an operation waiting for its turn on
+                        the port will assume that whatever set the lock has died and
+                        overrides it. Set this somewhat larger than the previous
+                        timeout.
+                config ESP_I2C_PORT_0_PULLUPS
+                    bool "Use ESP32 built-in bus pull-up resistors"
+                    default n
+                    help
+                        The I2C bus needs resistors to make sure it's in a defined
+                        state when nobody is talking. Many circuits have external
+                        pullup resistors already and turning these on will increase
+                        power consumption slightly and may limit the speed your bus
+                        can attain. Try with these off first if you don't know.
+            endif
+
+        endmenu
+
+        menu "ESP I2C Port 1"
+            
+            config ESP_I2C_PORT_1_ENABLED
+                bool "Enable ESP I2C port 1"
+                
+            if ESP_I2C_PORT_1_ENABLED
+                config ESP_I2C_PORT_1_SDA
+                    int "SDA (GPIO pin)"
+                    default 21
+                config ESP_I2C_PORT_1_SCL
+                    int "SCL (GPIO pin)"
+                    default 22
+                config ESP_I2C_PORT_1_FREQ_HZ
+                    int "Frequency (Hz)"
+                    default 1000000
+                    range 100000 5000000
+                    help
+                        The clock speed in Hz. Ranges from 100000 (100 kHz) to
+                        5000000 (5 Mhz). I2C busses that involve external wires may
+                        have to be slower, and the real maximum speed the bus will
+                        support depends on the value of the pullup resistors and the
+                        design of the overall circuit. 
+                config ESP_I2C_PORT_1_TIMEOUT
+                    int "R/W timeout (ms)"
+                    default 20
+                    range 10 1000
+                    help
+                        Timeout for I2C read and write operations. This does not
+                        include the time waiting for a lock. Default should be fine.
+                config ESP_I2C_PORT_1_LOCK_TIMEOUT
+                    int "Stale lock override (ms)"
+                    default 50
+                    help
+                        Timeout at which point an operation waiting for its turn on
+                        the port will assume that whatever set the lock has died and
+                        overrides it. Set this somewhat larger than the previous
+                        timeout. Default should be fine.
+                    range 30 1000
+                config ESP_I2C_PORT_1_PULLUPS
+                    bool "Use ESP32 built-in bus pull-up resistors"
+                    default n
+                    help
+                        The I2C bus needs resistors to make sure it's in a defined
+                        state when nobody is talking. Many circuits have external
+                        pullup resistors already and turning these on will increase
+                        power consumption slightly and may limit the speed your bus
+                        can attain. Try with these off first if you don't know.
+            endif
+
+        endmenu
+
+    endmenu
+
+endmenu
