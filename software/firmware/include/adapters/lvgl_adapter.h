@@ -1,5 +1,11 @@
+#pragma once
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Screen resolution definition, if it was defined elsewhere, use that definition.
    If not defined elsewhere, check and use the definition in sdkconfig.
@@ -35,3 +41,7 @@ extern SemaphoreHandle_t lvgl_token;
 
 /* LVGL initialization routine */
 void lvgl_init(void);
+
+#ifdef __cplusplus
+}
+#endif
