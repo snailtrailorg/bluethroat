@@ -8,7 +8,7 @@
     #include "lvgl_i2c/i2c_manager.h"
 #endif
 
-#include "drivers/esp_i2c.h"
+#include "drivers/i2c_master.h"
 #include "drivers/bm8563.h"
 
 static uint8_t bcd_to_uint8(uint8_t bcd);
