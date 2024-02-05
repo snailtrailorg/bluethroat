@@ -49,32 +49,64 @@
 static const char * TAG = "I2C_MASTER";
 
 I2cMaster::I2cMaster(i2c_port_t port, int sda_io_num, int scl_io_num, bool sda_pullup_en, bool scl_pullup_en, uint32_t clk_speed, uint16_t lock_timeout, uint16_t timeout) : m_mutex(NULL) {
-    (void)this->init(port, sda_io_num, scl_io_num, sda_pullup_en, scl_pullup_en, clk_speed, lock_timeout, timeout);
+    (void)this->init_controller(port, sda_io_num, scl_io_num, sda_pullup_en, scl_pullup_en, clk_speed, lock_timeout, timeout);
 }
 
 I2cMaster::~I2cMaster() {
-	(void)this->deinit();
+	(void)this->deinit_controller();
 }
 
-esp_err_t I2cMaster::Read(uint16_t addr, uint32_t reg, uint8_t * buffer, uint16_t size) {
+esp_err_t I2cMaster::ProbeDevice(int16_t device_addr) {
 	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX, "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
-	I2C_MASTER_LOGV("Reading port %d, addr 0x%03x, reg 0x%04lx", this->m_port, addr, reg);
+	I2C_MASTER_LOGI("Testing port %d, device_addr 0x%03x.", this->m_port, device_addr);
 
 	esp_err_t result = ESP_OK;
 
 	if (this->lock() == ESP_OK) {
 		i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 
-		if (!(reg & I2C_NO_REG_FLAG)) {
-			/* When reading specific register set the addr pointer first. */
+		i2c_master_start(cmd);
+		this->send_address(cmd, device_addr, I2C_MASTER_READ);
+		i2c_master_stop(cmd);
+
+		result = i2c_master_cmd_begin(this->m_port, cmd, this->m_timeout);
+
+		i2c_cmd_link_delete(cmd);
+
+		this->unlock();
+
+		if (result != ESP_OK) {
+			I2C_MASTER_LOGI("Receive response from device_addr 0x%03x, port %d", device_addr, this->m_port);
+		} else {
+			I2C_MASTER_LOGI("No response from device_addr 0x%03x, port %d", device_addr, this->m_port);
+		}
+	} else {
+		I2C_MASTER_LOGE("Lock could not be obtained for port %d.", this->m_port);
+		return ESP_ERR_TIMEOUT;
+	}
+
+	return result;
+}
+
+esp_err_t I2cMaster::ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t * buffer, uint16_t size) {
+	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX, "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
+	I2C_MASTER_LOGV("Reading port %d, device_addr 0x%03x, reg_addr 0x%04lx", this->m_port, device_addr, reg_addr);
+
+	esp_err_t result = ESP_OK;
+
+	if (this->lock() == ESP_OK) {
+		i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+
+		if (!(reg_addr & I2C_NO_REG_FLAG)) {
+			/* When reading specific register set the device_addr pointer first. */
 			i2c_master_start(cmd);
-			this->send_address(cmd, addr, I2C_MASTER_WRITE);
-			this->send_register(cmd, reg);
+			this->send_address(cmd, device_addr, I2C_MASTER_WRITE);
+			this->send_register(cmd, reg_addr);
 		}
 
 		/* Read size bytes from the current pointer. */
 		i2c_master_start(cmd);
-		this->send_address(cmd, addr, I2C_MASTER_READ);
+		this->send_address(cmd, device_addr, I2C_MASTER_READ);
 		i2c_master_read(cmd, buffer, size, I2C_MASTER_LAST_NACK);
 		i2c_master_stop(cmd);
 
@@ -97,9 +129,9 @@ esp_err_t I2cMaster::Read(uint16_t addr, uint32_t reg, uint8_t * buffer, uint16_
 	return result;
 }
 
-esp_err_t I2cMaster::Write(uint16_t addr, uint32_t reg, const uint8_t * buffer, uint16_t size) {
+esp_err_t I2cMaster::WriteBuffer(uint16_t device_addr, uint32_t reg_addr, const uint8_t * buffer, uint16_t size) {
 	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX, "Invalid I2C port number: %d, Maximum valid port number is: %d.", this->m_port, I2C_MASTER_NUM_MAX-1);
-	I2C_MASTER_LOGV("Writing port %d, addr 0x%03x, reg 0x%04lx", this->m_port, addr, reg);
+	I2C_MASTER_LOGV("Writing port %d, device_addr 0x%03x, reg_addr 0x%04lx", this->m_port, device_addr, reg_addr);
 
 	esp_err_t result = ESP_OK;
 
@@ -108,9 +140,9 @@ esp_err_t I2cMaster::Write(uint16_t addr, uint32_t reg, const uint8_t * buffer, 
 		i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 
 		i2c_master_start(cmd);
-		this->send_address(cmd, addr, I2C_MASTER_WRITE);
-		if (!(reg & I2C_NO_REG_FLAG)) {
-			this->send_register(cmd, reg);
+		this->send_address(cmd, device_addr, I2C_MASTER_WRITE);
+		if (!(reg_addr & I2C_NO_REG_FLAG)) {
+			this->send_register(cmd, reg_addr);
 		}
 		i2c_master_write(cmd, (uint8_t *)buffer, size, true);
 		i2c_master_stop(cmd);
@@ -132,8 +164,15 @@ esp_err_t I2cMaster::Write(uint16_t addr, uint32_t reg, const uint8_t * buffer, 
 
 	return result;
 }
+inline esp_err_t I2cMaster::ReadByte(uint16_t device_addr, uint32_t reg_addr, uint8_t * p_byte) {
+	return this->ReadBuffer(device_addr, reg_addr, p_byte, sizeof(uint8_t));
+}
 
-esp_err_t I2cMaster::init(i2c_port_t port, int sda_io_num, int scl_io_num, bool sda_pullup_en, bool scl_pullup_en, uint32_t clk_speed, uint16_t lock_timeout, uint16_t timeout) {
+inline esp_err_t I2cMaster::WriteByte(uint16_t device_addr, uint32_t reg_addr, const uint8_t byte_value) {
+	return this->WriteBuffer(device_addr, reg_addr, &byte_value, sizeof(uint8_t));
+}
+
+esp_err_t I2cMaster::init_controller(i2c_port_t port, int sda_io_num, int scl_io_num, bool sda_pullup_en, bool scl_pullup_en, uint32_t clk_speed, uint16_t lock_timeout, uint16_t timeout) {
 	I2C_MASTER_ASSERT(port >= 0 && port < I2C_MASTER_NUM_MAX,  "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
 	I2C_MASTER_ASSERT(this->m_mutex == NULL, "I2C master instance has already initialized");
 	I2C_MASTER_LOGI("Starting initialize I2C master instance.");
@@ -193,7 +232,7 @@ esp_err_t I2cMaster::init(i2c_port_t port, int sda_io_num, int scl_io_num, bool 
 	return ESP_OK;
 }
 
-esp_err_t I2cMaster::deinit() {
+esp_err_t I2cMaster::deinit_controller() {
 	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX,  "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
 	I2C_MASTER_ASSERT(I2cMaster::instance[this->m_port] == this, "I2C master instance was not properly initialized or I2C port %d was binded to other master instance.");
 	I2C_MASTER_LOGI("Starting deinitialize I2C master instance.");
@@ -248,22 +287,22 @@ esp_err_t I2cMaster::unlock() {
 	}
 }
 
-inline void I2cMaster::send_address(i2c_cmd_handle_t cmd, uint16_t addr, i2c_rw_t rw){
-	if (addr & I2C_ADDR_10_BIT_FLAG)
+inline void I2cMaster::send_address(i2c_cmd_handle_t cmd, uint16_t device_addr, i2c_rw_t rw){
+	if (device_addr & I2C_ADDR_10_BIT_FLAG)
 	{
-		i2c_master_write_byte(cmd, 0xF0 | ((addr & 0x3FF) >> 7) | rw, true);
-		i2c_master_write_byte(cmd, addr & 0xFF, true);
+		i2c_master_write_byte(cmd, 0xF0 | ((device_addr & 0x3FF) >> 7) | rw, true);
+		i2c_master_write_byte(cmd, device_addr & 0xFF, true);
 	}
 	else
 	{
-		i2c_master_write_byte(cmd, (addr << 1) | rw, true);
+		i2c_master_write_byte(cmd, (device_addr << 1) | rw, true);
 	}
 }
 
-inline void I2cMaster::send_register(i2c_cmd_handle_t cmd, uint32_t reg) {
-	if (reg & I2C_REG_16_BIT_FLAG)
+inline void I2cMaster::send_register(i2c_cmd_handle_t cmd, uint32_t reg_addr) {
+	if (reg_addr & I2C_REG_16_BIT_FLAG)
 	{
-		i2c_master_write_byte(cmd, (reg & 0xFF00) >> 8, true);
+		i2c_master_write_byte(cmd, (reg_addr & 0xFF00) >> 8, true);
 	}
-	i2c_master_write_byte(cmd, reg & 0xFF, true);
+	i2c_master_write_byte(cmd, reg_addr & 0xFF, true);
 }
