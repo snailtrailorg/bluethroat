@@ -1,5 +1,6 @@
 #include <esp_log.h>
 #include "drivers/i2c_device.h"
+#include "bluethroat_msg_proc.h"
 
 #define I2C_DEVICE_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
 #define I2C_DEVICE_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
@@ -29,6 +30,13 @@
 
 static const char * TAG = "I2C_DEVICE";
 
+I2cDevice::I2cDevice(I2cMaster * p_i2c_master, uint16_t device_addr) : m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), m_task_handle(NULL) {
+	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
+	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x");
+	I2C_DEVICE_LOGI("Initialize I2C device");
+	this->init_device();
+}
+
 I2cDevice::I2cDevice(I2cMaster * p_i2c_master, uint16_t device_addr, char * task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle) : 
 m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
 m_task_name(task_name), m_task_stack_size(task_stack_size), m_task_priority(task_priority), m_task_core_id(task_core_id), 
@@ -46,8 +54,10 @@ I2cDevice::~I2cDevice() {
 	I2C_DEVICE_LOGI("Destroy I2C device at port %d, device_addr 0x%3x.");
 	I2C_DEVICE_LOGI("Initialize I2C device.");
 	this->deinit_device();
-	I2C_DEVICE_LOGI("Delete I2C device task %s.", this->m_task_name);
-	this->delete_task();
+	if (this->m_task_handle != NULL) {
+		I2C_DEVICE_LOGI("Delete I2C device task %s.", this->m_task_name);
+		this->delete_task();
+	}
 }
 
 
@@ -84,17 +94,20 @@ inline esp_err_t I2cDevice::delete_task() {
 	vTaskDelete(this->m_task_handle);
 }
 
+#define MAX_RAW_DATA_BUFFER_LENGTH		(32)
 inline void I2cDevice::task_loop() {
-	uint8_t query_data[32]; //should change to struct
-	uint8_t calc_data[32]; //should change to struct
+	uint8_t raw_data[MAX_RAW_DATA_BUFFER_LENGTH];
+	BluethroatMsg_t  message;
 	for ( ; ; ) {
-		if (ESP_OK == this->query_data(query_data, sizeof(query_data))) {
-			I2C_DEVICE_LOGI("Create I2C device task %s failed.", this->m_task_name);
+		if (ESP_OK == this->fetch_data(raw_data, sizeof(raw_data))) {
+			if(ESP_OK == this->calculate_data(raw_data, MAX_RAW_DATA_BUFFER_LENGTH, &message)) {
+				(void)xQueueSend(this->m_queue_handle, &message, 0);
+			} else {
+				I2C_DEVICE_LOGD("Send message to queue failed.");
+			}
 		} else {
-			I2C_DEVICE_LOGE("Create I2C device task %s failed.", this->m_task_name);
+			I2C_DEVICE_LOGD("Fetch I2C data failed.");
 		}
-		this->calculate_data(query_data, 32, calc_data, 32);
-		xQueueSend(this->m_queue_handle, NULL, 0);
 	}
 }
 

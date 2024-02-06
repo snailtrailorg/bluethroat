@@ -19,6 +19,7 @@ public:
     QueueHandle_t m_queue_handle;
 
 public:
+    I2cDevice(I2cMaster * p_i2c_master, uint16_t device_addr);
     I2cDevice(I2cMaster * p_i2c_master, uint16_t device_addr, char * task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle);
     ~I2cDevice();
 
@@ -31,8 +32,8 @@ private:
     inline esp_err_t delete_task();
     virtual esp_err_t init_device();
     virtual esp_err_t deinit_device();
-    virtual esp_err_t query_data(uint8_t * data, uint8_t size);
-    virtual esp_err_t calculate_data(uint8_t * in_data, uint8_t in_size, uint8_t * out_data, uint8_t ut_size);
+    virtual esp_err_t fetch_data(uint8_t * data, uint8_t size);
+    virtual esp_err_t calculate_data(uint8_t * in_data, uint8_t in_size, BluethroatMsg_t * p_message);
 
 public:
     inline void task_loop();

@@ -31,31 +31,60 @@ static const char * TAG = "MSG_PROC";
 
 BluethroatMsgProc::BluethroatMsgProc(char * task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval) : 
 m_task_name(task_name), m_task_stack_size(task_stack_size), m_task_priority(task_priority), m_task_core_id(task_core_id) {
-	MSG_PROC_LOGI("Create message process task %s", this->m_task_name);
+	MSG_PROC_LOGI("Start blurthraot message procedure.");
+	this->m_queue_handle = xQueueCreate(BLUETHROAT_MSG_QUEUE_LENGTH, sizeof(BluethroatMsg_t));
+	if (this->m_queue_handle != NULL) {
+		MSG_PROC_LOGI("Create message queue %s success.", this->m_task_name);
+	} else {
+		MSG_PROC_LOGE("Create message queue %s failed", this->m_task_name);
+	}
 
+	if (pdPASS == xTaskCreatePinnedToCore(message_loop_c_entry, this->m_task_name, this->m_task_stack_size, this, this->m_task_priority, &(this->m_task_handle), m_task_core_id)) {
+		MSG_PROC_LOGI("Create message task %s successfully.", this->m_task_name);
+	} else {
+		MSG_PROC_LOGE("Create message task %s failed.", this->m_task_name);
+	}
 }
 
 BluethroatMsgProc::~BluethroatMsgProc() {
     MSG_PROC_ASSERT(false, "Message process instance should not be destroyed in any condition.");
 }
 
-inline QueueHandle_t BluethroatMsgProc::GetMsgQueueHandle() {
-    return m_queue_handle;
-}
+void BluethroatMsgProc::message_loop() {
+    MSG_PROC_ASSERT(this->m_queue_handle != NULL, "Invalid message queue handle.");
+	static BluethroatMsg_t message;
 
-void BluethroatMsgProc::create_task() {
-	if (pdPASS == xTaskCreatePinnedToCore(bluethroat_msg_proc_func, this->m_task_name, this->m_task_stack_size, this, this->m_task_priority, &(this->m_task_handle), m_task_core_id)) {
-		MSG_PROC_LOGV("Create message process task %s successfully.", this->m_task_name);
-	} else {
-		MSG_PROC_LOGV("Create message process task %s failed.", this->m_task_name);
+	for ( ; ; ) {
+		if (pdTRUE == xQueueReceive(this->m_queue_handle, &message, portMAX_DELAY)) {
+			switch (message.type) {
+			case BLUETHROAT_MSG_PRESSURE:
+				break;
+    		case BLUETHROAT_MSG_TEMPERATURE:
+				break;
+    		case BLUETHROAT_MSG_HUMIDITY:
+				break;
+    		case BLUETHROAT_MSG_AIR_SPEED:
+				break;
+    		case BLUETHROAT_MSG_ACCELERATION:
+				break;
+    		case BLUETHROAT_MSG_ROTATION:
+				break;
+    		case BLUETHROAT_MSG_GEOMAGNATIC:
+				break;
+    		case BLUETHROAT_MSG_POWER:
+				break;
+    		case BLUETHROAT_MSG_GPS:
+				break;
+    		default:
+				MSG_PROC_ASSERT(false, "Unknown message type."); 
+			}
+		} else {
+			MSG_PROC_LOGD("Receive message from queue timeout.");
+		}
 	}
 }
 
-void BluethroatMsgProc::task_loop() {
-    
-}
-
-static void bluethroat_msg_proc_func(void * p_param) {
+static void message_loop_c_entry(void * p_param) {
 	BluethroatMsgProc * p_bluethroat_msg_proc = (BluethroatMsgProc *)p_param;
-    p_bluethroat_msg_proc->task_loop();
+    p_bluethroat_msg_proc->message_loop();
 }
