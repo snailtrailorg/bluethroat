@@ -4,18 +4,18 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "drivers/bm8563.h"
+#include "drivers/bm8563rtc.h"
 
 #include "bluethroat_ui.h"
 
-static void bluethroat_clock_task(void * arg);
+static void bluethroat_clock_task(void *arg);
 
 void bluethroat_clock_Init(void) {
     bm_8563_init();
     xTaskCreate(bluethroat_clock_task, "bluethroat_clock_task", 1024*2, NULL, 0, NULL);
 }
 
-static void bluethroat_clock_task(void * arg) {
+static void bluethroat_clock_task(void *arg) {
     (void) arg;
     while (pdTRUE) {
         /* Delay 1 tick (assumes FreeRTOS tick is 10ms */

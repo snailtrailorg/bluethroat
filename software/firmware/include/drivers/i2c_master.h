@@ -10,7 +10,7 @@
 
 class I2cMaster {
 private:
-    static I2cMaster * m_instance[I2C_NUM_MAX];
+    static I2cMaster *m_instance[I2C_NUM_MAX];
     SemaphoreHandle_t m_mutex;
     i2c_port_t m_port;
     TickType_t m_lock_timeout;
@@ -22,7 +22,7 @@ public:
     esp_err_t ProbeDevice(int16_t device_addr);
     esp_err_t ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t *buffer, uint16_t size);
     esp_err_t WriteBuffer(uint16_t device_addr, uint32_t reg_addr, const uint8_t *buffer, uint16_t size);
-    inline esp_err_t ReadByte(uint16_t device_addr, uint32_t reg_addr, uint8_t * byte);
+    inline esp_err_t ReadByte(uint16_t device_addr, uint32_t reg_addr, uint8_t *byte);
     inline esp_err_t WriteByte(uint16_t device_addr, uint32_t reg_addr, const uint8_t byte);
 
 private:

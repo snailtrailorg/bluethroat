@@ -27,9 +27,9 @@
 #define MSG_PROC_ASSERT(condition, format, ...) void
 #endif
 
-static const char * TAG = "MSG_PROC";
+static const char *TAG = "MSG_PROC";
 
-BluethroatMsgProc::BluethroatMsgProc(char * task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval) : 
+BluethroatMsgProc::BluethroatMsgProc(char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval) : 
 m_task_name(task_name), m_task_stack_size(task_stack_size), m_task_priority(task_priority), m_task_core_id(task_core_id) {
 	MSG_PROC_LOGI("Start blurthraot message procedure.");
 	this->m_queue_handle = xQueueCreate(BLUETHROAT_MSG_QUEUE_LENGTH, sizeof(BluethroatMsg_t));
@@ -57,6 +57,18 @@ void BluethroatMsgProc::message_loop() {
 	for ( ; ; ) {
 		if (pdTRUE == xQueueReceive(this->m_queue_handle, &message, portMAX_DELAY)) {
 			switch (message.type) {
+			case BLUETHROAT_MSG_SYSTEM_TIME:
+				struct tm stm_time = {
+					.tm_sec = message.time.second,
+					.tm_min = message.time.minute,
+					.tm_hour = message.time.hour,
+					.tm_mday = message.time.day,
+					.tm_mon = message.time.month,
+					.tm_year =message.time.year,
+				};
+				Bm8563Rtc::SetSysTime(&stm_time);
+				break;
+
 			case BLUETHROAT_MSG_PRESSURE:
 				break;
     		case BLUETHROAT_MSG_TEMPERATURE:
@@ -84,7 +96,7 @@ void BluethroatMsgProc::message_loop() {
 	}
 }
 
-static void message_loop_c_entry(void * p_param) {
-	BluethroatMsgProc * p_bluethroat_msg_proc = (BluethroatMsgProc *)p_param;
+static void message_loop_c_entry(void *p_param) {
+	BluethroatMsgProc *p_bluethroat_msg_proc = (BluethroatMsgProc *)p_param;
     p_bluethroat_msg_proc->message_loop();
 }

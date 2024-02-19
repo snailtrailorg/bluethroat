@@ -46,7 +46,7 @@
 #define I2C_MASTER_ASSERT(condition, format, ...) void
 #endif
 
-static const char * TAG = "I2C_MASTER";
+static const char *TAG = "I2C_MASTER";
 
 I2cMaster::I2cMaster(i2c_port_t port, int sda_io_num, int scl_io_num, bool sda_pullup_en, bool scl_pullup_en, uint32_t clk_speed, uint16_t lock_timeout, uint16_t timeout) : m_mutex(NULL) {
     (void)this->init_controller(port, sda_io_num, scl_io_num, sda_pullup_en, scl_pullup_en, clk_speed, lock_timeout, timeout);
@@ -88,7 +88,7 @@ esp_err_t I2cMaster::ProbeDevice(int16_t device_addr) {
 	return result;
 }
 
-esp_err_t I2cMaster::ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t * buffer, uint16_t size) {
+esp_err_t I2cMaster::ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t *buffer, uint16_t size) {
 	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX, "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
 	I2C_MASTER_LOGV("Reading port %d, device_addr 0x%03x, reg_addr 0x%04lx", this->m_port, device_addr, reg_addr);
 
@@ -129,7 +129,7 @@ esp_err_t I2cMaster::ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t
 	return result;
 }
 
-esp_err_t I2cMaster::WriteBuffer(uint16_t device_addr, uint32_t reg_addr, const uint8_t * buffer, uint16_t size) {
+esp_err_t I2cMaster::WriteBuffer(uint16_t device_addr, uint32_t reg_addr, const uint8_t *buffer, uint16_t size) {
 	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX, "Invalid I2C port number: %d, Maximum valid port number is: %d.", this->m_port, I2C_MASTER_NUM_MAX-1);
 	I2C_MASTER_LOGV("Writing port %d, device_addr 0x%03x, reg_addr 0x%04lx", this->m_port, device_addr, reg_addr);
 
@@ -164,7 +164,7 @@ esp_err_t I2cMaster::WriteBuffer(uint16_t device_addr, uint32_t reg_addr, const 
 
 	return result;
 }
-inline esp_err_t I2cMaster::ReadByte(uint16_t device_addr, uint32_t reg_addr, uint8_t * p_byte) {
+inline esp_err_t I2cMaster::ReadByte(uint16_t device_addr, uint32_t reg_addr, uint8_t *p_byte) {
 	return this->ReadBuffer(device_addr, reg_addr, p_byte, sizeof(uint8_t));
 }
 

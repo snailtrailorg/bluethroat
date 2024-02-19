@@ -3,10 +3,13 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
+#include "drivers/bm8563rtc.h"
+
 #define BLUETHROAT_MSG_QUEUE_LENGTH     (32)
 
 typedef enum {
-    BLUETHROAT_MSG_PRESSURE = 0,
+    BLUETHROAT_MSG_SYSTEM_TIME = 0,
+    BLUETHROAT_MSG_PRESSURE,
     BLUETHROAT_MSG_TEMPERATURE,
     BLUETHROAT_MSG_HUMIDITY,
     BLUETHROAT_MSG_AIR_SPEED,
@@ -15,10 +18,12 @@ typedef enum {
     BLUETHROAT_MSG_GEOMAGNATIC,
     BLUETHROAT_MSG_POWER,
     BLUETHROAT_MSG_GPS,
+    // ensure to occupy 4 byte space to avoid efficiency reduction caused by misalignment
+    BLUETHROAT_MSG_INVALID = 0x7fffffff,
 } BluethroatMsgType_t;
 
 typedef struct {
-
+    
 } GpsData_t;
 
 typedef struct {
@@ -38,14 +43,9 @@ typedef struct {
 } PowerData_t;
 
 typedef struct {
-    uint8_t bcd_hour;
-    uint8_t bcd_minute;
-    uint8_t bcd_second;
-} ClockData_t;
-
-typedef struct {
     BluethroatMsgType_t type;
     union {
+        SystemTime_t time;
         uint32_t pressure;
         uint32_t temperature;
         uint32_t humidity;
@@ -66,12 +66,12 @@ private:
     BaseType_t m_task_core_id;
 
 public:
-    const char * m_task_name;
+    const char *m_task_name;
     TickType_t m_task_interval;
     QueueHandle_t m_queue_handle;
 
 public:
-    BluethroatMsgProc(char * task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval);
+    BluethroatMsgProc(char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval);
 	~BluethroatMsgProc();
 
 public:
@@ -79,4 +79,4 @@ public:
 
 };
 
-extern "C" static void message_loop_c_entry(void * p_param);
+extern "C" static void message_loop_c_entry(void *p_param);

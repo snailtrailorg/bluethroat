@@ -35,8 +35,8 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-static void lvgl_tick_task(void * arg);
-static void lvgl_work_task(void * arg);
+static void lvgl_tick_task(void *arg);
+static void lvgl_work_task(void *arg);
 
 /* Creates a semaphore to handle concurrent call to lvgl stuff
  * If you wish to call *any* lvgl function from other threads/tasks
@@ -49,11 +49,11 @@ void lvgl_init(void) {
     /* Initialize SPI or I2C bus used by the drivers */
     lvgl_driver_init();
 
-    lv_color_t * buf1 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_color_t *buf1 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf1 != NULL);
     /* Use double buffered when not working with monochrome displays */
 #ifndef CONFIG_LV_TFT_DISPLAY_MONOCHROME
-    lv_color_t * buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_color_t *buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf2 != NULL);
 #else
     static lv_color_t *buf2 = NULL;
@@ -116,7 +116,7 @@ void lvgl_init(void) {
     xTaskCreatePinnedToCore(lvgl_work_task, "lvgl_work_task", 4096*2, NULL, 0, NULL, 1);
 }
 
-static void lvgl_work_task(void * arg) {
+static void lvgl_work_task(void *arg) {
     (void) arg;
     while (pdTRUE) {
         /* Delay 1 tick (assumes FreeRTOS tick is 10ms */
