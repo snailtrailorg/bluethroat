@@ -3,7 +3,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
-#include "drivers/bm8563rtc.h"
+#include "drivers/bm8563_rtc.h"
 
 #define BLUETHROAT_MSG_QUEUE_LENGTH     (32)
 

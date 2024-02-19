@@ -101,7 +101,11 @@ inline void I2cDevice::task_loop() {
 	for ( ; ; ) {
 		if (ESP_OK == this->fetch_data(raw_data, sizeof(raw_data))) {
 			if(ESP_OK == this->calculate_data(raw_data, MAX_RAW_DATA_BUFFER_LENGTH, &message)) {
-				(void)xQueueSend(this->m_queue_handle, &message, 0);
+				if (this->m_queue_handle != NULL) {
+					(void)xQueueSend(this->m_queue_handle, &message, 0);
+				} else {
+					; // not valid queue handle provided, needn't send message
+				}
 			} else {
 				I2C_DEVICE_LOGD("Send message to queue failed.");
 			}
