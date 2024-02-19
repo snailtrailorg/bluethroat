@@ -4,7 +4,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "drivers/bm8563rtc.h"
+#include "drivers/bm8563_rtc.h"
 
 #include "bluethroat_ui.h"
 
