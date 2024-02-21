@@ -32,7 +32,7 @@ static const char *TAG = "I2C_DEVICE";
 
 I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr) : m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
 m_task_name(NULL), m_task_handle(NULL), 
-m_queue_handle(queue_handle) {
+m_queue_handle(NULL) {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
 	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
 }
@@ -60,7 +60,7 @@ esp_err_t I2cDevice::Run() {
 	esp_err_t result;
 
 	I2C_DEVICE_LOGI("Initialize I2C device");
-	if ((result = this->init_device()) != ESPS_OK) {
+	if ((result = this->init_device()) != ESP_OK) {
 		I2C_DEVICE_LOGE("Initialize I2C device failed, error code: %d.", result);
 		return result;
 	}
