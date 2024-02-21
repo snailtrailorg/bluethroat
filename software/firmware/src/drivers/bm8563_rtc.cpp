@@ -32,7 +32,7 @@
 		}                                        \
 	} while (0)
 #else
-#define BM8563RTC_ASSERT(condition, format, ...) void
+#define BM8563RTC_ASSERT(condition, format, ...)
 #endif
 
 static const char *TAG = "BM8563RTC";
@@ -125,11 +125,11 @@ esp_err_t Bm8563Rtc::SetSysTime(struct tm *stm_time) {
 }
 
 esp_err_t Bm8563Rtc::init_device() {
-
+    return ESP_OK;
 }
 
 esp_err_t Bm8563Rtc::deinit_device() {
-
+    return ESP_OK;
 }
 
 esp_err_t Bm8563Rtc::fetch_data(uint8_t *data, uint8_t size) {
@@ -141,14 +141,14 @@ esp_err_t Bm8563Rtc::calculate_data(uint8_t *in_data, uint8_t in_size, Bluethroa
     BM8563RTC_ASSERT(in_size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
     bm8563rtc_time_regs_t *regs = (bm8563rtc_time_regs_t *)in_data;
 
-    p_message->type = BLUETHROAT_MSG_SYSTEM_TIME;
-    p_message->time.second = bcd_to_uint8(regs->second);
-    p_message->time.minute = bcd_to_uint8(regs->minute);
-    p_message->time.hour = bcd_to_uint8(regs->hour);
-    p_message->time.weekday = bcd_to_uint8(regs->weekday);
-    p_message->time.day = bcd_to_uint8(regs->day);
-    p_message->time.month = bcd_to_uint8(regs->month) - 1;
-    p_message->time.year = bcd_to_uint8(regs->year) + ((regs->c == 0) ? 100 : 200);
+    p_message->type = BLUETHROAT_MSG_RTC;
+    p_message->rtc_data.second = bcd_to_uint8(regs->second);
+    p_message->rtc_data.minute = bcd_to_uint8(regs->minute);
+    p_message->rtc_data.hour = bcd_to_uint8(regs->hour);
+    p_message->rtc_data.weekday = bcd_to_uint8(regs->weekday);
+    p_message->rtc_data.day = bcd_to_uint8(regs->day);
+    p_message->rtc_data.month = bcd_to_uint8(regs->month) - 1;
+    p_message->rtc_data.year = bcd_to_uint8(regs->year) + ((regs->c == 0) ? 100 : 200);
 
     return ESP_OK;
 }
@@ -171,7 +171,7 @@ inline uint8_t Bm8563Rtc::bcd_to_uint8(uint8_t bcd) {
 }
 
 inline uint16_t Bm8563Rtc::calc_year_day(uint16_t year, uint8_t month, uint8_t day) {
-    static const uint8_t month_day_diff[12] = {0, 1, -1, 0, 0, 1, 1, 2, 3, 3, 4, 4};
+    static const int8_t month_day_diff[12] = {0, 1, -1, 0, 0, 1, 1, 2, 3, 3, 4, 4};
     return
         day 
         + 30 * month 

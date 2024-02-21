@@ -43,7 +43,7 @@
 		}                                        \
 	} while (0)
 #else
-#define I2C_MASTER_ASSERT(condition, format, ...) void
+#define I2C_MASTER_ASSERT(condition, format, ...)
 #endif
 
 static const char *TAG = "I2C_MASTER";
@@ -54,6 +54,141 @@ I2cMaster::I2cMaster(i2c_port_t port, int sda_io_num, int scl_io_num, bool sda_p
 
 I2cMaster::~I2cMaster() {
 	(void)this->deinit_controller();
+}
+
+esp_err_t I2cMaster::init_controller(i2c_port_t port, int sda_io_num, int scl_io_num, bool sda_pullup_en, bool scl_pullup_en, uint32_t clk_speed, uint16_t lock_timeout, uint16_t timeout) {
+	I2C_MASTER_ASSERT(port >= 0 && port < I2C_MASTER_NUM_MAX,  "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
+	I2C_MASTER_ASSERT(this->m_mutex == NULL, "I2C master instance has already initialized");
+	I2C_MASTER_LOGI("Starting initialize I2C master instance.");
+
+	if (I2cMaster::m_instance[port] == NULL) {
+		I2cMaster::m_instance[port] = this;
+		I2C_MASTER_LOGI("Binding I2C master instance to port %d.", this->m_port);
+	} else {
+		I2C_MASTER_LOGE("I2C port %d has already binded.", port);
+		return ESP_FAIL;
+	}
+
+	this->m_port = port;
+	this->m_lock_timeout = pdMS_TO_TICKS(lock_timeout);
+	this->m_timeout = pdMS_TO_TICKS(timeout);
+
+	i2c_config_t conf = {
+		.mode = I2C_MODE_MASTER,
+		.sda_io_num = sda_io_num,
+		.scl_io_num = scl_io_num,
+		.sda_pullup_en = sda_pullup_en,
+		.scl_pullup_en = scl_pullup_en,
+		.master = {.clk_speed = clk_speed},
+#ifdef HAS_CLK_FLAGS
+		.clk_flags = 0,
+#endif
+	};
+
+	esp_err_t result = i2c_param_config(this->m_port, &conf);
+	
+	if (result == ESP_OK) {
+		I2C_MASTER_LOGI("Configure I2C master port %d parameters (SDA: %d, SCL: %d, speed: %lu Hz.).", this->m_port, sda_io_num, scl_io_num, clk_speed);
+	} else {
+		I2C_MASTER_LOGE("Failed to configureelse  I2C master port %d.", this->m_port);
+		return result;
+	}
+
+	result = i2c_driver_install(this->m_port, conf.mode, 0, 0, 0);
+
+	if (result == ESP_OK) {
+		I2C_MASTER_LOGI("Install I2C driver for port %d.", this->m_port);
+	} else {
+		I2C_MASTER_LOGE("Failed to install I2C driver for port %d.", this->m_port);
+		return result;
+	}
+
+	this->m_mutex = xSemaphoreCreateMutex();
+
+	if (this->m_mutex != NULL) {
+		I2C_MASTER_LOGI("Create I2C access mutex.");
+	} else {
+		I2C_MASTER_LOGE("Failed to reate I2C access mutex.");
+		i2c_driver_delete(this->m_port);
+		return ESP_FAIL;
+	}
+
+	return ESP_OK;
+}
+
+esp_err_t I2cMaster::deinit_controller() {
+	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX,  "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
+	I2C_MASTER_ASSERT(I2cMaster::instance[this->m_port] == this, "I2C master instance was not properly initialized or I2C port %d was binded to other master instance.");
+	I2C_MASTER_LOGI("Starting deinitialize I2C master instance.");
+
+	I2cMaster::m_instance[this->m_port] = NULL;
+	I2C_MASTER_LOGI("Unbinding I2C master instance from port %d.", this->m_port);
+
+	esp_err_t result = ESP_OK;
+
+	if (this->m_mutex != NULL) {
+		I2C_MASTER_LOGI("Wait I2C access mutex for free.");
+		xSemaphoreTake(this->m_mutex, portMAX_DELAY);
+		I2C_MASTER_LOGI("Delete I2C access mutex.");
+		vSemaphoreDelete(this->m_mutex);
+		this->m_mutex = NULL;
+
+		result = i2c_driver_delete(this->m_port);
+		if (result == ESP_OK) {
+			I2C_MASTER_LOGI("Uninstall I2C driver for port %d.", this->m_port);
+		} else {
+			I2C_MASTER_LOGE("Uninstall I2C driver for port %d failed.", this->m_port);
+		}
+	}
+
+	return result;
+}
+
+esp_err_t I2cMaster::lock() {
+	I2C_MASTER_ASSERT(this->m_mutex != NULL, "Invalid access mutex handle");
+	I2C_MASTER_LOGV("Try to lock mutex for port %d.", this->m_port);
+	
+	if (xSemaphoreTake(this->m_mutex, this->m_lock_timeout) == pdTRUE) {
+		I2C_MASTER_LOGV("Locking mutex for port %d succeeded.", this->m_port);
+		return ESP_OK;
+	} else {
+		I2C_MASTER_LOGE("Locking mutex for port %d failed.", this->m_port);
+		return ESP_FAIL;
+	}
+}
+	I2C_MASTER_ASSERT(this->m_mutex != NULL, "Invalid access mutex handle");
+
+esp_err_t I2cMaster::unlock() {
+	I2C_MASTER_ASSERT(this->m_mutex != NULL, "Invalid access mutex handle");
+	I2C_MASTER_LOGV("Try to unlock mutex for port %d.", this->m_port);
+
+	if (xSemaphoreGive(this->m_mutex) == pdTRUE) {
+		I2C_MASTER_LOGV("Unlocking mutex for port %d succeeded.", this->m_port);
+		return ESP_OK;
+	} else {
+		I2C_MASTER_LOGE("Unlocking mutex for port %d failed.", this->m_port);
+		return ESP_FAIL;
+	}
+}
+
+void I2cMaster::send_address(i2c_cmd_handle_t cmd, uint16_t device_addr, i2c_rw_t rw){
+	if (device_addr & I2C_ADDR_10_BIT_FLAG)
+	{
+		i2c_master_write_byte(cmd, 0xF0 | ((device_addr & 0x3FF) >> 7) | rw, true);
+		i2c_master_write_byte(cmd, device_addr & 0xFF, true);
+	}
+	else
+	{
+		i2c_master_write_byte(cmd, (device_addr << 1) | rw, true);
+	}
+}
+
+void I2cMaster::send_register(i2c_cmd_handle_t cmd, uint32_t reg_addr) {
+	if (reg_addr & I2C_REG_16_BIT_FLAG)
+	{
+		i2c_master_write_byte(cmd, (reg_addr & 0xFF00) >> 8, true);
+	}
+	i2c_master_write_byte(cmd, reg_addr & 0xFF, true);
 }
 
 esp_err_t I2cMaster::ProbeDevice(int16_t device_addr) {
@@ -164,145 +299,10 @@ esp_err_t I2cMaster::WriteBuffer(uint16_t device_addr, uint32_t reg_addr, const 
 
 	return result;
 }
-inline esp_err_t I2cMaster::ReadByte(uint16_t device_addr, uint32_t reg_addr, uint8_t *p_byte) {
+esp_err_t I2cMaster::ReadByte(uint16_t device_addr, uint32_t reg_addr, uint8_t *p_byte) {
 	return this->ReadBuffer(device_addr, reg_addr, p_byte, sizeof(uint8_t));
 }
 
-inline esp_err_t I2cMaster::WriteByte(uint16_t device_addr, uint32_t reg_addr, const uint8_t byte_value) {
+esp_err_t I2cMaster::WriteByte(uint16_t device_addr, uint32_t reg_addr, const uint8_t byte_value) {
 	return this->WriteBuffer(device_addr, reg_addr, &byte_value, sizeof(uint8_t));
-}
-
-esp_err_t I2cMaster::init_controller(i2c_port_t port, int sda_io_num, int scl_io_num, bool sda_pullup_en, bool scl_pullup_en, uint32_t clk_speed, uint16_t lock_timeout, uint16_t timeout) {
-	I2C_MASTER_ASSERT(port >= 0 && port < I2C_MASTER_NUM_MAX,  "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
-	I2C_MASTER_ASSERT(this->m_mutex == NULL, "I2C master instance has already initialized");
-	I2C_MASTER_LOGI("Starting initialize I2C master instance.");
-
-	if (I2cMaster::m_instance[port] == NULL) {
-		I2cMaster::m_instance[port] = this;
-		I2C_MASTER_LOGI("Binding I2C master instance to port %d.", this->m_port);
-	} else {
-		I2C_MASTER_LOGE("I2C port %d has already binded.", port);
-		return ESP_FAIL;
-	}
-
-	this->m_port = port;
-	this->m_lock_timeout = pdMS_TO_TICKS(lock_timeout);
-	this->m_timeout = pdMS_TO_TICKS(timeout);
-
-	i2c_config_t conf = {
-		.mode = I2C_MODE_MASTER,
-		.sda_io_num = sda_io_num,
-		.scl_io_num = scl_io_num,
-		.sda_pullup_en = sda_pullup_en,
-		.scl_pullup_en = scl_pullup_en,
-		.master = {.clk_speed = clk_speed},
-#ifdef HAS_CLK_FLAGS
-		.clk_flags = 0,
-#endif
-	};
-
-	esp_err_t result = i2c_param_config(this->m_port, &conf);
-	
-	if (result == ESP_OK) {
-		I2C_MASTER_LOGI("Configure I2C master port %d parameters (SDA: %d, SCL: %d, speed: %lu Hz.).", this->m_port);
-	} else {
-		I2C_MASTER_LOGE("Failed to configureelse  I2C master port %d.", this->m_port);
-		return result;
-	}
-
-	result = i2c_driver_install(this->m_port, conf.mode, 0, 0, 0);
-
-	if (result == ESP_OK) {
-		I2C_MASTER_LOGI("Install I2C driver for port %d.", this->m_port);
-	} else {
-		I2C_MASTER_LOGE("Failed to install I2C driver for port %d.", this->m_port);
-		return result;
-	}
-
-	this->m_mutex = xSemaphoreCreateMutex();
-
-	if (this->m_mutex != NULL) {
-		I2C_MASTER_LOGI("Create I2C access mutex.");
-	} else {
-		I2C_MASTER_LOGE("Failed to reate I2C access mutex.");
-		i2c_driver_delete(this->m_port);
-		return ESP_FAIL;
-	}
-
-	return ESP_OK;
-}
-
-esp_err_t I2cMaster::deinit_controller() {
-	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX,  "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
-	I2C_MASTER_ASSERT(I2cMaster::instance[this->m_port] == this, "I2C master instance was not properly initialized or I2C port %d was binded to other master instance.");
-	I2C_MASTER_LOGI("Starting deinitialize I2C master instance.");
-
-	I2cMaster::m_instance[this->m_port] = NULL;
-	I2C_MASTER_LOGI("Unbinding I2C master instance from port %d.", this->m_port);
-
-	esp_err_t result = ESP_OK;
-
-	if (this->m_mutex != NULL) {
-		I2C_MASTER_LOGI("Wait I2C access mutex for free.");
-		xSemaphoreTake(this->m_mutex, portMAX_DELAY);
-		I2C_MASTER_LOGI("Delete I2C access mutex.");
-		vSemaphoreDelete(this->m_mutex);
-		this->m_mutex = NULL;
-
-		result = i2c_driver_delete(this->m_port);
-		if (result == ESP_OK) {
-			I2C_MASTER_LOGI("Uninstall I2C driver for port %d.", this->m_port);
-		} else {
-			I2C_MASTER_LOGE("Uninstall I2C driver for port %d failed.", this->m_port);
-		}
-	}
-
-	return result;
-}
-
-inline esp_err_t I2cMaster::lock() {
-	I2C_MASTER_ASSERT(this->m_mutex != NULL, "Invalid access mutex handle");
-	I2C_MASTER_LOGV("Try to lock mutex for port %d.", this->m_port);
-	
-	if (xSemaphoreTake(this->m_mutex, this->m_lock_timeout) == pdTRUE) {
-		I2C_MASTER_LOGV("Locking mutex for port %d succeeded.", this->m_port);
-		return ESP_OK;
-	} else {
-		I2C_MASTER_LOGE("Locking mutex for port %d failed.", this->m_port);
-		return ESP_FAIL;
-	}
-}
-	I2C_MASTER_ASSERT(this->m_mutex != NULL, "Invalid access mutex handle");
-
-esp_err_t I2cMaster::unlock() {
-	I2C_MASTER_ASSERT(this->m_mutex != NULL, "Invalid access mutex handle");
-	I2C_MASTER_LOGV("Try to unlock mutex for port %d.", this->m_port);
-
-	if (xSemaphoreGive(this->m_mutex) == pdTRUE) {
-		I2C_MASTER_LOGV("Unlocking mutex for port %d succeeded.", this->m_port);
-		return ESP_OK;
-	} else {
-		I2C_MASTER_LOGE("Unlocking mutex for port %d failed.", this->m_port);
-		return ESP_FAIL;
-	}
-}
-
-inline void I2cMaster::send_address(i2c_cmd_handle_t cmd, uint16_t device_addr, i2c_rw_t rw){
-	if (device_addr & I2C_ADDR_10_BIT_FLAG)
-	{
-		i2c_master_write_byte(cmd, 0xF0 | ((device_addr & 0x3FF) >> 7) | rw, true);
-		i2c_master_write_byte(cmd, device_addr & 0xFF, true);
-	}
-	else
-	{
-		i2c_master_write_byte(cmd, (device_addr << 1) | rw, true);
-	}
-}
-
-inline void I2cMaster::send_register(i2c_cmd_handle_t cmd, uint32_t reg_addr) {
-	if (reg_addr & I2C_REG_16_BIT_FLAG)
-	{
-		i2c_master_write_byte(cmd, (reg_addr & 0xFF00) >> 8, true);
-	}
-	i2c_master_write_byte(cmd, reg_addr & 0xFF, true);
 }

@@ -1,5 +1,8 @@
 #include <esp_log.h>
+#include <time.h>
+
 #include "bluethroat_msg_proc.h"
+#include "drivers/bm8563_rtc.h"
 
 #define MSG_PROC_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
 #define MSG_PROC_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
@@ -24,7 +27,7 @@
 		}                                        \
 	} while (0)
 #else
-#define MSG_PROC_ASSERT(condition, format, ...) void
+#define MSG_PROC_ASSERT(condition, format, ...)
 #endif
 
 static const char *TAG = "MSG_PROC";
@@ -57,36 +60,41 @@ void BluethroatMsgProc::message_loop() {
 	for ( ; ; ) {
 		if (pdTRUE == xQueueReceive(this->m_queue_handle, &message, portMAX_DELAY)) {
 			switch (message.type) {
-			case BLUETHROAT_MSG_SYSTEM_TIME:
-				struct tm stm_time = {
-					.tm_sec = message.time.second,
-					.tm_min = message.time.minute,
-					.tm_hour = message.time.hour,
-					.tm_mday = message.time.day,
-					.tm_mon = message.time.month,
-					.tm_year =message.time.year,
-				};
+			case BLUETHROAT_MSG_RTC:
+				struct tm stm_time;
+				stm_time.tm_sec = message.rtc_data.second,
+				stm_time.tm_min = message.rtc_data.minute,
+				stm_time.tm_hour = message.rtc_data.hour,
+				stm_time.tm_mday = message.rtc_data.day,
+				stm_time.tm_mon = message.rtc_data.month,
+				stm_time.tm_year =message.rtc_data.year,
 				Bm8563Rtc::SetSysTime(&stm_time);
 				break;
 
-			case BLUETHROAT_MSG_PRESSURE:
+			case BLUETHROAT_MSG_BAROMETER:
 				break;
-    		case BLUETHROAT_MSG_TEMPERATURE:
+
+    		case BLUETHROAT_MSG_HYGROMETER:
 				break;
-    		case BLUETHROAT_MSG_HUMIDITY:
+
+    		case BLUETHROAT_MSG_ANEMOMETER:
 				break;
-    		case BLUETHROAT_MSG_AIR_SPEED:
-				break;
+
     		case BLUETHROAT_MSG_ACCELERATION:
 				break;
+
     		case BLUETHROAT_MSG_ROTATION:
 				break;
+
     		case BLUETHROAT_MSG_GEOMAGNATIC:
 				break;
+
     		case BLUETHROAT_MSG_POWER:
 				break;
+
     		case BLUETHROAT_MSG_GPS:
 				break;
+				
     		default:
 				MSG_PROC_ASSERT(false, "Unknown message type."); 
 			}
@@ -96,7 +104,7 @@ void BluethroatMsgProc::message_loop() {
 	}
 }
 
-static void message_loop_c_entry(void *p_param) {
+void message_loop_c_entry(void *p_param) {
 	BluethroatMsgProc *p_bluethroat_msg_proc = (BluethroatMsgProc *)p_param;
     p_bluethroat_msg_proc->message_loop();
 }

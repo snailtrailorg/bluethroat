@@ -2,20 +2,20 @@
 
 #include <freertos/FreeRTOS.h>
 #include <driver/i2c.h>
+
 #include "drivers/i2c_master.h"
+#include "bluethroat_msg_proc.h"
 
 class I2cDevice {
-private:
+public:
     I2cMaster *m_p_i2c_master;
     uint16_t m_device_addr;
-    TaskHandle_t m_task_handle;
+    const char *m_task_name;
     uint32_t m_task_stack_size;
     UBaseType_t m_task_priority;
     BaseType_t m_task_core_id;
-
-public:
-    const char *m_task_name;
     TickType_t m_task_interval;
+    TaskHandle_t m_task_handle;
     QueueHandle_t m_queue_handle;
 
 public:
@@ -24,21 +24,21 @@ public:
     ~I2cDevice();
 
 public:
-    inline esp_err_t read_byte(uint32_t reg_addr, uint8_t *p_byte);
-    inline esp_err_t write_byte(uint32_t reg_addr, const uint8_t byte_value);
-    inline esp_err_t read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t size);
-    inline esp_err_t write_buffer(uint32_t reg_addr, const uint8_t *buffer, uint16_t size);
+    esp_err_t read_byte(uint32_t reg_addr, uint8_t *p_byte);
+    esp_err_t write_byte(uint32_t reg_addr, const uint8_t byte_value);
+    esp_err_t read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t size);
+    esp_err_t write_buffer(uint32_t reg_addr, const uint8_t *buffer, uint16_t size);
 
 private:
-    inline esp_err_t create_task();
-    inline esp_err_t delete_task();
+    esp_err_t create_task();
+    esp_err_t delete_task();
     virtual esp_err_t init_device();
     virtual esp_err_t deinit_device();
     virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
     virtual esp_err_t calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
 
 public:
-    inline void task_loop();
+    void task_loop();
 };
 
-extern "C" static void i2c_device_task_func(void *p_param);
+extern "C" void i2c_device_task_func(void *p_param);

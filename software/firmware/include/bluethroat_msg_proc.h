@@ -3,16 +3,13 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
-#include "drivers/bm8563_rtc.h"
-
 #define BLUETHROAT_MSG_QUEUE_LENGTH     (32)
 
 typedef enum {
-    BLUETHROAT_MSG_SYSTEM_TIME = 0,
-    BLUETHROAT_MSG_PRESSURE,
-    BLUETHROAT_MSG_TEMPERATURE,
-    BLUETHROAT_MSG_HUMIDITY,
-    BLUETHROAT_MSG_AIR_SPEED,
+    BLUETHROAT_MSG_RTC = 0,
+    BLUETHROAT_MSG_BAROMETER,
+    BLUETHROAT_MSG_HYGROMETER,
+    BLUETHROAT_MSG_ANEMOMETER,
     BLUETHROAT_MSG_ACCELERATION,
     BLUETHROAT_MSG_ROTATION,
     BLUETHROAT_MSG_GEOMAGNATIC,
@@ -23,33 +20,40 @@ typedef enum {
 } BluethroatMsgType_t;
 
 typedef struct {
-    
-} GpsData_t;
+    uint8_t second;
+    uint8_t minute;
+    uint8_t hour;
+    uint8_t weekday;
+    uint8_t day;
+    uint8_t month;
+    uint16_t year;
+} RtcData_t;
 
 typedef struct {
+    uint8_t second;
+    uint8_t minute;
+    uint8_t hour;
+    uint8_t weekday;
+    uint8_t day;
+    uint8_t month;
+    uint16_t year;
+} BarometerData_t;
 
-} AccelerationData_t;
-
-typedef struct {
-
-} RotationData_t;
-
-typedef struct {
-
-} GeomagneticData_t;
-
-typedef struct {
-
-} PowerData_t;
+typedef struct {} HygrometerData_t;
+typedef struct {} AnemometerData_t;
+typedef struct {} AccelerationData_t;
+typedef struct {} RotationData_t;
+typedef struct {} GeomagneticData_t;
+typedef struct {} PowerData_t;
+typedef struct {} GpsData_t;
 
 typedef struct {
     BluethroatMsgType_t type;
     union {
-        SystemTime_t time;
-        uint32_t pressure;
-        uint32_t temperature;
-        uint32_t humidity;
-        uint32_t air_speed;
+        RtcData_t rtc_data;
+        BarometerData_t barometer_data;
+        HygrometerData_t hygrometer_data;
+        AnemometerData_t anemometer_data;
         AccelerationData_t acceleration;
         RotationData_t rotation;
         GeomagneticData_t geomagnatic;
@@ -59,16 +63,16 @@ typedef struct {
 } BluethroatMsg_t;
 
 class BluethroatMsgProc {
-private:
-    TaskHandle_t m_task_handle;
-    uint32_t m_task_stack_size;
-    UBaseType_t m_task_priority;
-    BaseType_t m_task_core_id;
-
 public:
     const char *m_task_name;
     TickType_t m_task_interval;
     QueueHandle_t m_queue_handle;
+
+private:
+    uint32_t m_task_stack_size;
+    UBaseType_t m_task_priority;
+    BaseType_t m_task_core_id;
+    TaskHandle_t m_task_handle;
 
 public:
     BluethroatMsgProc(char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval);
@@ -79,4 +83,4 @@ public:
 
 };
 
-extern "C" static void message_loop_c_entry(void *p_param);
+extern "C" void message_loop_c_entry(void *p_param);
