@@ -30,29 +30,25 @@
 
 static const char *TAG = "I2C_DEVICE";
 
-I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr) : m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), m_task_handle(NULL) {
+I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr) : m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
+m_task_name(NULL), m_task_handle(NULL), 
+m_queue_handle(queue_handle) {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
 	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
-	I2C_DEVICE_LOGI("Initialize I2C device");
-	this->init_device();
 }
 
 I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle) : 
 m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
-m_task_name(task_name), m_task_stack_size(task_stack_size), m_task_priority(task_priority), m_task_core_id(task_core_id), 
+m_task_name(task_name), m_task_stack_size(task_stack_size), m_task_priority(task_priority), m_task_core_id(task_core_id), m_task_handle(NULL), 
 m_queue_handle(queue_handle) {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
 	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
-	I2C_DEVICE_LOGI("Initialize I2C device");
-	this->init_device();
-	I2C_DEVICE_LOGI("Create I2C device task %s", this->m_task_name);
-	this->create_task();
 }
 
 I2cDevice::~I2cDevice() {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer.");
 	I2C_DEVICE_LOGI("Destroy I2C device at port %d, device_addr 0x%3x.", this->m_p_i2c_master->m_port, this->m_device_addr);
-	I2C_DEVICE_LOGI("Initialize I2C device.");
+	I2C_DEVICE_LOGI("Deinitialize I2C device.");
 	this->deinit_device();
 	if (this->m_task_handle != NULL) {
 		I2C_DEVICE_LOGI("Delete I2C device task %s.", this->m_task_name);
@@ -60,6 +56,25 @@ I2cDevice::~I2cDevice() {
 	}
 }
 
+esp_err_t I2cDevice::Run() {
+	esp_err_t result;
+
+	I2C_DEVICE_LOGI("Initialize I2C device");
+	if ((result = this->init_device()) != ESPS_OK) {
+		I2C_DEVICE_LOGE("Initialize I2C device failed, error code: %d.", result);
+		return result;
+	}
+
+	if (this->m_task_name != NULL) {
+		I2C_DEVICE_LOGI("Create I2C device task %s", this->m_task_name);
+		if ((result = this->create_task()) != ESP_OK) {
+			I2C_DEVICE_LOGE("Create I2C device task failed, error code: %d.", result);
+			return result;
+		}
+	}
+
+	return ESP_OK;
+}
 
 esp_err_t I2cDevice::read_byte(uint32_t reg_addr, uint8_t *p_byte) {
     I2C_DEVICE_ASSERT(this->m_pI2cMaster != NULL, "Invalid I2C master pointer.");

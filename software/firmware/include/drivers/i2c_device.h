@@ -22,6 +22,7 @@ public:
     I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr);
     I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle);
     ~I2cDevice();
+    esp_err_t Run();
 
 public:
     esp_err_t read_byte(uint32_t reg_addr, uint8_t *p_byte);
@@ -32,10 +33,10 @@ public:
 private:
     esp_err_t create_task();
     esp_err_t delete_task();
-    virtual esp_err_t init_device();
-    virtual esp_err_t deinit_device();
-    virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
-    virtual esp_err_t calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
+    virtual esp_err_t init_device() = 0;
+    virtual esp_err_t deinit_device() = 0;
+    virtual esp_err_t fetch_data(uint8_t *data, uint8_t size) = 0;
+    virtual esp_err_t calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) = 0;
 
 public:
     void task_loop();
