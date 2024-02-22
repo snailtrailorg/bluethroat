@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-void bluethroat_clock_Init(void);
+void bluethroat_clock_init(void);
 
 #ifdef __cplusplus
 }

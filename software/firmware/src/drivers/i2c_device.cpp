@@ -48,15 +48,9 @@ m_queue_handle(queue_handle) {
 I2cDevice::~I2cDevice() {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer.");
 	I2C_DEVICE_LOGI("Destroy I2C device at port %d, device_addr 0x%3x.", this->m_p_i2c_master->m_port, this->m_device_addr);
-	I2C_DEVICE_LOGI("Deinitialize I2C device.");
-	this->deinit_device();
-	if (this->m_task_handle != NULL) {
-		I2C_DEVICE_LOGI("Delete I2C device task %s.", this->m_task_name);
-		this->delete_task();
-	}
 }
 
-esp_err_t I2cDevice::Run() {
+esp_err_t I2cDevice::Start() {
 	esp_err_t result;
 
 	I2C_DEVICE_LOGI("Initialize I2C device");
@@ -71,6 +65,26 @@ esp_err_t I2cDevice::Run() {
 			I2C_DEVICE_LOGE("Create I2C device task failed, error code: %d.", result);
 			return result;
 		}
+	}
+
+	return ESP_OK;
+}
+
+esp_err_t I2cDevice::Stop() {
+	esp_err_t result;
+
+	if (this->m_task_name != NULL) {
+		I2C_DEVICE_LOGI("Delete I2C device task %s", this->m_task_name);
+		if ((result = this->delete_task()) != ESP_OK) {
+			I2C_DEVICE_LOGE("Delete I2C device task %s failed, error code: %d.", this->m_task_name, result);
+			return result;
+		}
+	}
+
+	I2C_DEVICE_LOGI("Deinitialize I2C device");
+	if ((result = this->deinit_device()) != ESP_OK) {
+		I2C_DEVICE_LOGE("Deinitialize I2C device failed, error code: %d.", result);
+		return result;
 	}
 
 	return ESP_OK;

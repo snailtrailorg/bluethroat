@@ -6,9 +6,13 @@
 
 #include "bluethroat_ui.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static void bluethroat_clock_task(void *arg);
 
-void bluethroat_clock_Init(void) {
+void bluethroat_clock_init(void) {
     xTaskCreate(bluethroat_clock_task, "bluethroat_clock_task", 1024*2, NULL, 0, NULL);
 }
 
@@ -24,3 +28,7 @@ static void bluethroat_clock_task(void *arg) {
         }
     }
 }
+
+#ifdef __cplusplus
+}
+#endif

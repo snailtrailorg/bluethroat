@@ -8,6 +8,6 @@ extern "C" void app_main(void);
 void app_main() {
     lvgl_init();
     bluethroat_ui_init();
-    bluethroat_clock_Init();
+    bluethroat_clock_init();
 }
 
