@@ -37,7 +37,7 @@ m_queue_handle(NULL) {
 	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
 }
 
-I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle) : 
+I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle) : 
 m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
 m_task_name(task_name), m_task_stack_size(task_stack_size), m_task_priority(task_priority), m_task_core_id(task_core_id), m_task_handle(NULL), 
 m_queue_handle(queue_handle) {

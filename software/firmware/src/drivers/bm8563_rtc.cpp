@@ -59,7 +59,7 @@ typedef union {
     };
 } __attribute__ ((packed)) bm8563rtc_time_regs_t;
 
-Bm8563Rtc::Bm8563Rtc(I2cMaster *p_i2c_master, uint16_t device_addr, char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle) : 
+Bm8563Rtc::Bm8563Rtc(I2cMaster *p_i2c_master, uint16_t device_addr, const char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle) : 
 I2cDevice(p_i2c_master, device_addr, task_name, task_stack_size, task_priority, task_core_id, task_interval, queue_handle) {
     //nothing to initialize.
 }

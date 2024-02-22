@@ -32,7 +32,7 @@
 
 static const char *TAG = "MSG_PROC";
 
-BluethroatMsgProc::BluethroatMsgProc(char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval) : 
+BluethroatMsgProc::BluethroatMsgProc(const char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval) : 
 m_task_name(task_name), m_task_stack_size(task_stack_size), m_task_priority(task_priority), m_task_core_id(task_core_id) {
 	MSG_PROC_LOGI("Start blurthraot message procedure.");
 	this->m_queue_handle = xQueueCreate(BLUETHROAT_MSG_QUEUE_LENGTH, sizeof(BluethroatMsg_t));

@@ -48,6 +48,8 @@
 
 static const char *TAG = "I2C_MASTER";
 
+I2cMaster * I2cMaster::m_instance[I2C_NUM_MAX] = {NULL};
+
 I2cMaster::I2cMaster(i2c_port_t port, int sda_io_num, int scl_io_num, bool sda_pullup_en, bool scl_pullup_en, uint32_t clk_speed, uint16_t lock_timeout, uint16_t timeout) : m_mutex(NULL) {
     (void)this->init_controller(port, sda_io_num, scl_io_num, sda_pullup_en, scl_pullup_en, clk_speed, lock_timeout, timeout);
 }
@@ -156,7 +158,6 @@ esp_err_t I2cMaster::lock() {
 		return ESP_FAIL;
 	}
 }
-	I2C_MASTER_ASSERT(this->m_mutex != NULL, "Invalid access mutex handle");
 
 esp_err_t I2cMaster::unlock() {
 	I2C_MASTER_ASSERT(this->m_mutex != NULL, "Invalid access mutex handle");

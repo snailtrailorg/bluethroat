@@ -75,7 +75,7 @@ private:
     TaskHandle_t m_task_handle;
 
 public:
-    BluethroatMsgProc(char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval);
+    BluethroatMsgProc(const char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval);
 	~BluethroatMsgProc();
 
 public:
