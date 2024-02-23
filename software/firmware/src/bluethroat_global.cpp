@@ -1,6 +1,6 @@
 #include "bluethroat_global.h"
 
-const I2cDeviceMap_t g_I2cPortAddrMap[] = {
+const I2cDevice_t g_I2cDeviceMap[] = {
 #if CONFIG_BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS
     {.port = I2C_NUM_1, .addr = 0x51, .model = I2C_DEVICE_MODEL_BM8563_RTC},
     {.port = I2C_NUM_0, .addr = 0x76, .model = I2C_DEVICE_MODEL_DPS310_BAROMETER},

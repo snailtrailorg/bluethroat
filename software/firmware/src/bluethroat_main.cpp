@@ -48,7 +48,7 @@ void app_main() {
     bluethroat_ui_init();
 
     /* third step: init main message process task */
-    BluethroatMsgProc * g_pBluethroatMsgProc = new BluethroatMsgProc("MSG_PROC", configMINIMAL_STACK_SIZE, configMAX_PRIORITIES - 5, tskNO_AFFINITY, pdMS_TO_TICKS(50));
+    BluethroatMsgProc * pBluethroatMsgProc = new BluethroatMsgProc("MSG_PROC", configMINIMAL_STACK_SIZE, configMAX_PRIORITIES - 5, tskNO_AFFINITY, pdMS_TO_TICKS(50));
 
     /* fourth step: init i2c bus master and devices */
     BLUETHROAT_MAIN_ASSERT(I2C_NUM_MAX == 2 && CONFIG_I2C_PORT_0_ENABLED && CONFIG_I2C_PORT_1_ENABLED, "Invalid I2C configuration, run menuconfig and reconfigure it properly");
@@ -56,6 +56,23 @@ void app_main() {
         new I2cMaster(I2C_NUM_0, CONFIG_I2C_PORT_0_SDA, CONFIG_I2C_PORT_0_SCL, CONFIG_I2C_PORT_0_PULLUPS, CONFIG_I2C_PORT_0_PULLUPS, CONFIG_I2C_PORT_0_FREQ_HZ, CONFIG_I2C_PORT_0_LOCK_TIMEOUT, CONFIG_I2C_PORT_0_TIMEOUT), 
         new I2cMaster(I2C_NUM_1, CONFIG_I2C_PORT_1_SDA, CONFIG_I2C_PORT_1_SCL, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_FREQ_HZ, CONFIG_I2C_PORT_1_LOCK_TIMEOUT, CONFIG_I2C_PORT_1_TIMEOUT), 
     };
+
+    for (I2cDevice_t device_map_item in g_I2cDeviceMap) {
+        if (EPS_OK == p_i2c_master[device_map_item.port]->ProbeDevice(device_map_item.addr)) {
+            switch (device_map_item.model) {
+            case I2C_DEVICE_MODEL_BM8563_RTC:
+                Bm8563Rtc *p_bm8563_rtc = new Bm8563Rtc(p_i2c_master[device_map_item.port], device_map_item.addr, "BM8563_RTC", configMINIMAL_STACK_SIZE, configMAX_PRIORITIES - 10, tskNO_AFFINITY, pdMS_TO_TICKS(1000 * 60 * 15), pBluethroatMsgProc->m_queue_handle);
+                p_bm8563_rtc->Start();
+                break;
+            case I2C_DEVICE_MODEL_DPS310_BAROMETER:
+                break;
+            case I2C_DEVICE_MODEL_DPS310_BAROMETER:
+                break;
+            default:
+                BLUETHROAT_MAIN_LOGE("Invalid device model %d", device_map_item.model);
+            }
+        }
+    }
 
     //Bm8563Rtc *g_pBm8563Rtc = new Bm8563Rtc(g_pI2cMaster, 10, "BM8563_RTC", 2048, tskIDLE_PRIORITY, tskNO_AFFINITY, pdMS_TO_TICKS(1000*60*15), g_pBluethroatMsgProc->m_queue_handle);
     //g_pBm8563Rtc->Start();
