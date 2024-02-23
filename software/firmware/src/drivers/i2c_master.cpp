@@ -192,7 +192,7 @@ void I2cMaster::send_register(i2c_cmd_handle_t cmd, uint32_t reg_addr) {
 	i2c_master_write_byte(cmd, reg_addr & 0xFF, true);
 }
 
-esp_err_t I2cMaster::ProbeDevice(int16_t device_addr) {
+esp_err_t I2cMaster::ProbeDevice(uint16_t device_addr) {
 	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX, "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
 	I2C_MASTER_LOGI("Testing port %d, device_addr 0x%03x.", this->m_port, device_addr);
 

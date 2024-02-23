@@ -29,7 +29,7 @@ private:
     static void send_register(i2c_cmd_handle_t cmd, uint32_t reg_addr);
 
 public:
-    esp_err_t ProbeDevice(int16_t device_addr);
+    esp_err_t ProbeDevice(uint16_t device_addr);
     esp_err_t ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t *buffer, uint16_t size);
     esp_err_t WriteBuffer(uint16_t device_addr, uint32_t reg_addr, const uint8_t *buffer, uint16_t size);
     esp_err_t ReadByte(uint16_t device_addr, uint32_t reg_addr, uint8_t *byte);
