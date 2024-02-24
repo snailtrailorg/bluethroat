@@ -1,3 +1,5 @@
+#include <esp_log.h>
+
 #include "adapters/lvgl_adapter.h"
 
 #include "drivers/i2c_master.h"
@@ -57,19 +59,19 @@ void app_main() {
         new I2cMaster(I2C_NUM_1, CONFIG_I2C_PORT_1_SDA, CONFIG_I2C_PORT_1_SCL, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_FREQ_HZ, CONFIG_I2C_PORT_1_LOCK_TIMEOUT, CONFIG_I2C_PORT_1_TIMEOUT), 
     };
 
-    for (I2cDevice_t device_map_item in g_I2cDeviceMap) {
-        if (EPS_OK == p_i2c_master[device_map_item.port]->ProbeDevice(device_map_item.addr)) {
-            switch (device_map_item.model) {
+    for (int i=0; g_I2cDeviceMap[i].model != I2C_DEVICE_MODEL_INVALID; i++) {
+        if (ESP_OK == p_i2c_master[g_I2cDeviceMap[i].port]->ProbeDevice(g_I2cDeviceMap[i].addr)) {
+            switch (g_I2cDeviceMap[i].model) {
             case I2C_DEVICE_MODEL_BM8563_RTC:
-                Bm8563Rtc *p_bm8563_rtc = new Bm8563Rtc(p_i2c_master[device_map_item.port], device_map_item.addr, "BM8563_RTC", configMINIMAL_STACK_SIZE, configMAX_PRIORITIES - 10, tskNO_AFFINITY, pdMS_TO_TICKS(1000 * 60 * 15), pBluethroatMsgProc->m_queue_handle);
+                Bm8563Rtc *p_bm8563_rtc = new Bm8563Rtc(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, "BM8563_RTC", configMINIMAL_STACK_SIZE, configMAX_PRIORITIES - 10, tskNO_AFFINITY, pdMS_TO_TICKS(1000 * 60 * 15), pBluethroatMsgProc->m_queue_handle);
                 p_bm8563_rtc->Start();
                 break;
             case I2C_DEVICE_MODEL_DPS310_BAROMETER:
                 break;
-            case I2C_DEVICE_MODEL_DPS310_BAROMETER:
+            case I2C_DEVICE_MODEL_DPS310_ANEMOMETER:
                 break;
             default:
-                BLUETHROAT_MAIN_LOGE("Invalid device model %d", device_map_item.model);
+                BLUETHROAT_MAIN_LOGE("Invalid device model %d", g_I2cDeviceMap[i].model);
             }
         }
     }
