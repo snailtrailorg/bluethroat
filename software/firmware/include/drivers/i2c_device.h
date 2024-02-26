@@ -4,23 +4,20 @@
 #include <driver/i2c.h>
 
 #include "drivers/i2c_master.h"
+#include "drivers/task_param.h"
 #include "bluethroat_msg_proc.h"
 
 class I2cDevice {
 public:
     I2cMaster *m_p_i2c_master;
     uint16_t m_device_addr;
-    const char *m_task_name;
-    uint32_t m_task_stack_size;
-    UBaseType_t m_task_priority;
-    BaseType_t m_task_core_id;
-    TickType_t m_task_interval;
+    const TaskParam_t *m_p_task_param;
     TaskHandle_t m_task_handle;
     QueueHandle_t m_queue_handle;
 
 public:
     I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr);
-    I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle);
+    I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
     ~I2cDevice();
     esp_err_t Start();
     esp_err_t Stop();

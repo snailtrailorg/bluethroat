@@ -2,14 +2,15 @@
 
 #include "adapters/lvgl_adapter.h"
 
+#include "drivers/task_param.h"
 #include "drivers/i2c_master.h"
 #include "drivers/bm8563_rtc.h"
-#include "drivers/dps310_barometer.h"
+#include "drivers/dps3xx_barometer.h"
 
 #include "bluethroat_global.h"
 #include "bluethroat_ui.h"
 #include "bluethroat_msg_proc.h"
-#include  "bluethroat_clock.h"
+#include "bluethroat_clock.h"
 
 #define BLUETHROAT_MAIN_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
 #define BLUETHROAT_MAIN_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
@@ -39,7 +40,6 @@
 
 static const char *TAG = "BLUETHROAT_MAIN";
 
-
 extern "C" void app_main(void);
 
 void app_main() {
@@ -50,7 +50,7 @@ void app_main() {
     bluethroat_ui_init();
 
     /* third step: init main message process task */
-    BluethroatMsgProc * pBluethroatMsgProc = new BluethroatMsgProc("MSG_PROC", configMINIMAL_STACK_SIZE, configMAX_PRIORITIES - 5, tskNO_AFFINITY, pdMS_TO_TICKS(50));
+    BluethroatMsgProc * pBluethroatMsgProc = new BluethroatMsgProc(&(g_TaskParam[TASK_ID_MSG_PROC]));
 
     /* fourth step: init i2c bus master and devices */
     BLUETHROAT_MAIN_ASSERT(I2C_NUM_MAX == 2 && CONFIG_I2C_PORT_0_ENABLED && CONFIG_I2C_PORT_1_ENABLED, "Invalid I2C configuration, run menuconfig and reconfigure it properly");
@@ -62,16 +62,23 @@ void app_main() {
     for (int i=0; g_I2cDeviceMap[i].model != I2C_DEVICE_MODEL_INVALID; i++) {
         if (ESP_OK == p_i2c_master[g_I2cDeviceMap[i].port]->ProbeDevice(g_I2cDeviceMap[i].addr)) {
             switch (g_I2cDeviceMap[i].model) {
-            case I2C_DEVICE_MODEL_BM8563_RTC:
-                Bm8563Rtc *p_bm8563_rtc = new Bm8563Rtc(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, "BM8563_RTC", configMINIMAL_STACK_SIZE, configMAX_PRIORITIES - 10, tskNO_AFFINITY, pdMS_TO_TICKS(1000 * 60 * 15), pBluethroatMsgProc->m_queue_handle);
-                p_bm8563_rtc->Start();
-                break;
-            case I2C_DEVICE_MODEL_DPS310_BAROMETER:
-                break;
-            case I2C_DEVICE_MODEL_DPS310_ANEMOMETER:
-                break;
-            default:
-                BLUETHROAT_MAIN_LOGE("Invalid device model %d", g_I2cDeviceMap[i].model);
+                case I2C_DEVICE_MODEL_BM8563_RTC: {
+                    Bm8563Rtc *p_bm8563_rtc = new Bm8563Rtc(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, &(g_TaskParam[TASK_ID_BM8563_RTC]), pBluethroatMsgProc->m_queue_handle);
+                    p_bm8563_rtc->Start();
+                    break;
+                }
+                case I2C_DEVICE_MODEL_DPS310_BAROMETER: {
+                    Dps3xxBarometer *p_dps3xx_barometer = new Dps3xxBarometer(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, &(g_TaskParam[TASK_ID_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
+                    p_dps3xx_barometer->Start();
+                    break;
+                }
+                case I2C_DEVICE_MODEL_DPS310_ANEMOMETER: {
+                    break;
+                }
+                default: {
+                    BLUETHROAT_MAIN_LOGE("Invalid device model %d", g_I2cDeviceMap[i].model);
+                    break;
+                }
             }
         }
     }

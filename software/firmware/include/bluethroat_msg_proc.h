@@ -3,6 +3,8 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
+#include "bluethroat_global.h"
+
 #define BLUETHROAT_MSG_QUEUE_LENGTH     (32)
 
 typedef enum {
@@ -64,19 +66,13 @@ typedef struct {
 
 class BluethroatMsgProc {
 public:
-    const char *m_task_name;
-    TickType_t m_task_interval;
+    const TaskParam_t *m_p_task_param;
+    TaskHandle_t m_task_handle;
     QueueHandle_t m_queue_handle;
 
-private:
-    uint32_t m_task_stack_size;
-    UBaseType_t m_task_priority;
-    BaseType_t m_task_core_id;
-    TaskHandle_t m_task_handle;
-
 public:
-    BluethroatMsgProc(const char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval);
-	~BluethroatMsgProc();
+    BluethroatMsgProc(const TaskParam_t *p_task_param);
+    ~BluethroatMsgProc();
 
 public:
 	void message_loop();

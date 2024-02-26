@@ -5,11 +5,12 @@
 #include <time.h>
 
 #include "bluethroat_msg_proc.h"
+#include "drivers/task_param.h"
 #include "drivers/i2c_device.h"
 
 class Bm8563Rtc : public I2cDevice {
 public:
-    Bm8563Rtc(I2cMaster *p_i2c_master, uint16_t device_addr, const char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle);
+    Bm8563Rtc(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
     ~Bm8563Rtc();
 
 public:

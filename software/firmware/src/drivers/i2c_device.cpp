@@ -31,15 +31,15 @@
 static const char *TAG = "I2C_DEVICE";
 
 I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr) : m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
-m_task_name(NULL), m_task_handle(NULL), 
+m_p_task_param(NULL), m_task_handle(NULL), 
 m_queue_handle(NULL) {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
 	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
 }
 
-I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const char *task_name, uint32_t task_stack_size, UBaseType_t task_priority, BaseType_t task_core_id, TickType_t task_interval, QueueHandle_t queue_handle) : 
+I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
 m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
-m_task_name(task_name), m_task_stack_size(task_stack_size), m_task_priority(task_priority), m_task_core_id(task_core_id), m_task_handle(NULL), 
+m_p_task_param(p_task_param), m_task_handle(NULL), 
 m_queue_handle(queue_handle) {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
 	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
@@ -59,8 +59,8 @@ esp_err_t I2cDevice::Start() {
 		return result;
 	}
 
-	if (this->m_task_name != NULL) {
-		I2C_DEVICE_LOGI("Create I2C device task %s", this->m_task_name);
+	if (this->m_p_task_param != NULL) {
+		I2C_DEVICE_LOGI("Create I2C device task %s", this->m_p_task_param->task_name);
 		if ((result = this->create_task()) != ESP_OK) {
 			I2C_DEVICE_LOGE("Create I2C device task failed, error code: %d.", result);
 			return result;
@@ -73,10 +73,10 @@ esp_err_t I2cDevice::Start() {
 esp_err_t I2cDevice::Stop() {
 	esp_err_t result;
 
-	if (this->m_task_name != NULL) {
-		I2C_DEVICE_LOGI("Delete I2C device task %s", this->m_task_name);
+	if (this->m_p_task_param != NULL) {
+		I2C_DEVICE_LOGI("Delete I2C device task %s", this->m_p_task_param->task_name);
 		if ((result = this->delete_task()) != ESP_OK) {
-			I2C_DEVICE_LOGE("Delete I2C device task %s failed, error code: %d.", this->m_task_name, result);
+			I2C_DEVICE_LOGE("Delete I2C device task %s failed, error code: %d.", this->m_p_task_param->task_name, result);
 			return result;
 		}
 	}
@@ -112,11 +112,12 @@ esp_err_t I2cDevice::write_buffer(uint32_t reg_addr, const uint8_t *buffer, uint
 }
 
 esp_err_t I2cDevice::create_task() {
-	if (pdPASS == xTaskCreatePinnedToCore(i2c_device_task_func, this->m_task_name, this->m_task_stack_size, this, this->m_task_priority, &(this->m_task_handle), m_task_core_id)) {
-		I2C_DEVICE_LOGV("Create I2C device task %s successfully.", this->m_task_name);
+	I2C_DEVICE_ASSERT(this->m_p_task_param != NULL, "Invalid I2C device task parameter pointer.");
+	if (pdPASS == xTaskCreatePinnedToCore(i2c_device_task_func, this->m_p_task_param->task_name, this->m_p_task_param->task_stack_size, this, this->m_p_task_param->task_priority, &(this->m_task_handle), this->m_p_task_param->task_core_id)) {
+		I2C_DEVICE_LOGV("Create I2C device task %s successfully.", this->m_p_task_param->task_name);
 		return ESP_OK;
 	} else {
-		I2C_DEVICE_LOGV("Create I2C device task %s failed.", this->m_task_name);
+		I2C_DEVICE_LOGV("Create I2C device task %s failed.", this->m_p_task_param->task_name);
 		return ESP_FAIL;
 	}
 }
