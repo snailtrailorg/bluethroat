@@ -6,7 +6,7 @@
 
 #include "bluethroat_msg_proc.h"
 #include "drivers/task_param.h"
-#include "drivers/low_pass_filter.h"
+#include "utilities/low_pass_filter.h"
 #include "drivers/i2c_device.h"
 
 #define AIR_PRESSURE_DEFAULT_VALUE  (101325)

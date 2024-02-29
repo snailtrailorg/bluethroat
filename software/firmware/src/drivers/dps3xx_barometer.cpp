@@ -5,7 +5,7 @@
 #include <esp_log.h>
 
 #include "drivers/i2c_device.h"
-#include "drivers/low_pass_filter.h"
+#include "utilities/low_pass_filter.h"
 #include "drivers/dps3xx_barometer.h"
 
 #define DPS3XX_BARO_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
