@@ -36,28 +36,6 @@
 
 static const char *TAG = "DPS3XX_BARO";
 
-#define BM8563_DATETIME_REGS_ADDRESS   (0x51)
-
-typedef union {
-    uint8_t bytes[0];
-    struct {
-        uint8_t second:7;
-        uint8_t vl:1;
-        uint8_t minute:7;
-        uint8_t:1;
-        uint8_t hour:6;
-        uint8_t:2;
-        uint8_t day:7;
-        uint8_t:1;
-        uint8_t weekday:3;
-        uint8_t:5;
-        uint8_t month:5;
-        uint8_t:2;
-        uint8_t c:1;
-        uint8_t year:8;
-    };
-} __attribute__ ((packed)) bm8563rtc_time_regs_t;
-
 Dps3xxBarometer::Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
 I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) { 
     m_p_fir_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_POWER_16, AIR_PRESSURE_DEFAULT_VALUE);
