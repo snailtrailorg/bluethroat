@@ -50,6 +50,12 @@ I2cDevice::~I2cDevice() {
 	I2C_DEVICE_LOGI("Destroy I2C device at port %d, device_addr 0x%3x.", this->m_p_i2c_master->m_port, this->m_device_addr);
 }
 
+esp_err_t I2cDevice::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr) {
+	(void)p_i2c_master;
+	(void)device_addr;
+	return ESP_OK;
+}
+
 esp_err_t I2cDevice::Start() {
 	esp_err_t result;
 

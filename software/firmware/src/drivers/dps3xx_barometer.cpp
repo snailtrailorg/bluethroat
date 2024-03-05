@@ -45,6 +45,15 @@ Dps3xxBarometer::~Dps3xxBarometer() {
     delete m_p_fir_filter;
 }
 
+esp_err_t Dps3xxBarometer::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr) {
+    uint8_t pro_rev_id;
+    if (p_i2c_master->ReadByte(device_addr, DPS3XX_REG_PRO_REV_ID, &pro_rev_id) == ESP_OK && pro_rev_id == DPS3XX_PRO_REV_ID) {
+        return ESP_OK;
+    } else {
+        return ESP_FAIL;
+    }
+}
+
 esp_err_t Dps3xxBarometer::init_device() {
     return ESP_OK;
 }

@@ -68,6 +68,12 @@ Bm8563Rtc::~Bm8563Rtc() {
 
 }
 
+esp_err_t Bm8563Rtc::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr) {
+	(void)p_i2c_master;
+	(void)device_addr;
+	return ESP_OK;
+}
+
 esp_err_t Bm8563Rtc::GetRtcTime(struct tm *stm_time) {
     BM8563_RTC_ASSERT(stm_time != NULL, "Get RTC time with NULL parameter.");
     bm8563rtc_time_regs_t regs;

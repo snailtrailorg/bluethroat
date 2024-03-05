@@ -25,7 +25,7 @@
 #define DPS3XX_REG_INT_STS              (0x0A)
 #define DPS3XX_REG_FIFO_STS             (0x0B)
 #define DPS3XX_REG_RESET                (0x0C)
-#define DPS3XX_REG_PRO_ID               (0x0D)
+#define DPS3XX_REG_PRO_REV_ID           (0x0D)
 
 #define DPS3XX_REG_COEF_C0M             (0x10)
 #define DPS3XX_REG_COEF_C0L_C1M         (0x11)
@@ -135,7 +135,7 @@
 #define TMP_COEF_SRCE_MASK              (0x80)
 
 // Chip and revision ID
-#define CHIP_AND_REVISION_ID            (0x10)
+#define DPS3XX_PRO_REV_ID               (0x10)
 
 //Compensation Scale Factors
 #define SCALE_FACTOR_PRC_1              (0x00080000)	//524288
@@ -170,6 +170,9 @@ public:
 public:
     Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
     ~Dps3xxBarometer();
+
+public:
+    static esp_err_t CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr);
 
 public:
     virtual esp_err_t init_device();

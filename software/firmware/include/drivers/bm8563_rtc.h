@@ -14,6 +14,9 @@ public:
     ~Bm8563Rtc();
 
 public:
+    static esp_err_t CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr);
+
+public:
     esp_err_t GetRtcTime(struct tm *stm_time);
     esp_err_t SetRtcTime(struct tm *stm_time);
     static esp_err_t SetSysTime(struct tm *stm_time);

@@ -19,6 +19,11 @@ public:
     I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr);
     I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
     ~I2cDevice();
+
+public:
+    static esp_err_t CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr);
+
+public:
     esp_err_t Start();
     esp_err_t Stop();
 
@@ -28,7 +33,7 @@ public:
     esp_err_t read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t size);
     esp_err_t write_buffer(uint32_t reg_addr, const uint8_t *buffer, uint16_t size);
 
-private:
+public:
     esp_err_t create_task();
     esp_err_t delete_task();
     virtual esp_err_t init_device() = 0;

@@ -62,29 +62,26 @@ void app_main() {
     for (int i=0; g_I2cDeviceMap[i].model != I2C_DEVICE_MODEL_INVALID; i++) {
         if (ESP_OK == p_i2c_master[g_I2cDeviceMap[i].port]->ProbeDevice(g_I2cDeviceMap[i].addr)) {
             switch (g_I2cDeviceMap[i].model) {
-                case I2C_DEVICE_MODEL_BM8563_RTC: {
+            case I2C_DEVICE_MODEL_BM8563_RTC:
+                if (Bm8563Rtc::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK) {
                     Bm8563Rtc *p_bm8563_rtc = new Bm8563Rtc(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, &(g_TaskParam[TASK_ID_BM8563_RTC]), pBluethroatMsgProc->m_queue_handle);
                     p_bm8563_rtc->Start();
-                    break;
                 }
-                case I2C_DEVICE_MODEL_DPS310_BAROMETER: {
+                break;
+            case I2C_DEVICE_MODEL_DPS3XX_BAROMETER:
+                if (Dps3xxBarometer::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK) {
                     Dps3xxBarometer *p_dps3xx_barometer = new Dps3xxBarometer(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, &(g_TaskParam[TASK_ID_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
                     p_dps3xx_barometer->Start();
-                    break;
                 }
-                case I2C_DEVICE_MODEL_DPS310_ANEMOMETER: {
-                    break;
-                }
-                default: {
-                    BLUETHROAT_MAIN_LOGE("Invalid device model %d", g_I2cDeviceMap[i].model);
-                    break;
-                }
+                break;
+            case I2C_DEVICE_MODEL_DPS3XX_ANEMOMETER:
+                break;
+            default:
+                BLUETHROAT_MAIN_LOGE("Invalid device model %d", g_I2cDeviceMap[i].model);
+                break;
             }
         }
     }
 
-    //Bm8563Rtc *g_pBm8563Rtc = new Bm8563Rtc(g_pI2cMaster, 10, "BM8563_RTC", 2048, tskIDLE_PRIORITY, tskNO_AFFINITY, pdMS_TO_TICKS(1000*60*15), g_pBluethroatMsgProc->m_queue_handle);
-    //g_pBm8563Rtc->Start();
-
-    bluethroat_clock_init();
+    //bluethroat_clock_init();
 }
