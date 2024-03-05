@@ -120,15 +120,37 @@ esp_err_t Dps3xxBarometer::get_coefs() {
     c21 = ((uint32_t)coef_regs.c21h << 24) | ((uint32_t)coef_regs.c21l << 16); c21 >>= 16;
     c30 = ((uint32_t)coef_regs.c30h << 24) | ((uint32_t)coef_regs.c30l << 16); c30 >>= 16;
 
-    m_coef_data.scaled_c0  = float32_t(c0,  0);
-    m_coef_data.scaled_c1  = float32_t(c1,  0);
-    m_coef_data.scaled_c00 = float32_t(c00, 0);
-    m_coef_data.scaled_c10 = float32_t(c10, 0);
-    m_coef_data.scaled_c01 = float32_t(c01, 0);
-    m_coef_data.scaled_c11 = float32_t(c11, 0);
-    m_coef_data.scaled_c20 = float32_t(c20, 0);
-    m_coef_data.scaled_c21 = float32_t(c21, 0);
-    m_coef_data.scaled_c30 = float32_t(c30, 0);
+    m_coef_data.scaled_c0   = float32_t(c0,  0);
+    m_coef_data.scaled_c0  /= float32_t(2, 0);
+
+    m_coef_data.scaled_c1   = float32_t(c1,  0);
+    m_coef_data.scaled_c1  /= m_temperature_cfg.scale_factor;
+
+    m_coef_data.scaled_c00  = float32_t(c00, 0);
+
+    m_coef_data.scaled_c10  = float32_t(c10, 0);
+    m_coef_data.scaled_c10 /= m_pressure_cfg.scale_factor;
+
+    m_coef_data.scaled_c01  = float32_t(c01, 0);
+    m_coef_data.scaled_c01 /= m_temperature_cfg.scale_factor;
+
+    m_coef_data.scaled_c11  = float32_t(c11, 0);
+    m_coef_data.scaled_c11 /= m_pressure_cfg.scale_factor;
+    m_coef_data.scaled_c01 /= m_temperature_cfg.scale_factor;
+
+    m_coef_data.scaled_c20  = float32_t(c20, 0);
+    m_coef_data.scaled_c20 /= m_pressure_cfg.scale_factor;
+    m_coef_data.scaled_c20 /= m_pressure_cfg.scale_factor;
+    
+    m_coef_data.scaled_c21  = float32_t(c21, 0);
+    m_coef_data.scaled_c21 /= m_pressure_cfg.scale_factor;
+    m_coef_data.scaled_c21 /= m_pressure_cfg.scale_factor;
+    m_coef_data.scaled_c21 /= m_temperature_cfg.scale_factor;
+
+    m_coef_data.scaled_c30  = float32_t(c30, 0);
+    m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
+    m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
+    m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
 
     return ESP_OK;
 }
