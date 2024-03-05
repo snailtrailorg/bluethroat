@@ -18,6 +18,8 @@ public:
     int32_t e; //exponent
 
 public:
+    float32_t() : m(0), e(0) {}
+
     float32_t(int32_t mantissa, int32_t exponent) : m(mantissa), e(exponent) {
         uint8_t index = get_msb_index_32((uint32_t)this->m);
         if (index < 30) {

@@ -39,6 +39,18 @@ static const char *TAG = "DPS3XX_BARO";
 Dps3xxBarometer::Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
 I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) { 
     m_p_fir_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_POWER_16, AIR_PRESSURE_DEFAULT_VALUE);
+    m_pressure_cfg = {
+        .mesurement_rate = DPS3XX_MEASUREMENT_RATE_4,
+        .oversampling_rate = DPS3XX_OVERSAMPLING_RATE_64,
+        .mesurement_time = pdMS_TO_TICKS(100),
+        .scale_factor = float32_t(SCALE_FACTOR_PRC_64, 0),
+    };
+    m_temperature_cfg = {
+        .mesurement_rate = DPS3XX_MEASUREMENT_RATE_4,
+        .oversampling_rate = DPS3XX_OVERSAMPLING_RATE_32,
+        .mesurement_time = pdMS_TO_TICKS(50),
+        .scale_factor = float32_t(SCALE_FACTOR_PRC_32, 0),
+    };
 }
 
 Dps3xxBarometer::~Dps3xxBarometer() {
@@ -55,6 +67,19 @@ esp_err_t Dps3xxBarometer::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t devic
 }
 
 esp_err_t Dps3xxBarometer::init_device() {
+    // Read chip status and wait for sensor and coefficient data ready
+    uint8_t meas_cfg = 0;
+    while (this->read_byte(DPS3XX_REG_MEAS_CFG, &meas_cfg) != ESP_OK || (meas_cfg & (MEAS_CFG_SENSOR_RDY | MEAS_CFG_COEF_RDY)) != (MEAS_CFG_SENSOR_RDY | MEAS_CFG_COEF_RDY)) {
+        DPS3XX_BARO_LOGD("Waiting for sensor and coefficient data ready");
+        vTaskDelay(pdMS_TO_TICKS(10));
+    };
+
+    // Read coefficient data
+    if (this->get_coefs() != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to read coefficient data");
+        return ESP_FAIL;
+    }
+
     return ESP_OK;
 }
 
@@ -64,14 +89,46 @@ esp_err_t Dps3xxBarometer::deinit_device() {
 
 esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
     DPS3XX_BARO_ASSERT(size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    return this->read_buffer(BM8563_DATETIME_REGS_ADDRESS, data, sizeof(bm8563rtc_time_regs_t));
+    //return this->read_buffer(BM8563_DATETIME_REGS_ADDRESS, data, sizeof(bm8563rtc_time_regs_t));
+    return ESP_OK;
 }
 
 esp_err_t Dps3xxBarometer::calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
     DPS3XX_BARO_ASSERT(in_size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    bm8563rtc_time_regs_t *regs = (bm8563rtc_time_regs_t *)in_data;
+    //bm8563rtc_time_regs_t *regs = (bm8563rtc_time_regs_t *)in_data;
 
     p_message->type = BLUETHROAT_MSG_BAROMETER;
+
+    return ESP_OK;
+}
+
+esp_err_t Dps3xxBarometer::get_coefs() {
+    Dps3xxCoefRegs_t coef_regs;
+    if (this->read_buffer(DPS3XX_REG_COEFS, coef_regs.bytes, sizeof(Dps3xxCoefRegs_t)) != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to read coefficient registers");
+        return ESP_FAIL;
+    }
+
+    int32_t c0, c1, c00, c10, c01, c11, c20, c21, c30;
+    c0  = ((uint32_t)coef_regs.c0h  << 24) | ((uint32_t)coef_regs.c0l  << 20); c0  >>= 20;
+    c1  = ((uint32_t)coef_regs.c1h  << 28) | ((uint32_t)coef_regs.c1l  << 20); c1  >>= 20;
+    c00 = ((uint32_t)coef_regs.c00h << 24) | ((uint32_t)coef_regs.c00m << 16) | ((uint32_t)coef_regs.c00l << 12); c00 >>= 12;
+    c10 = ((uint32_t)coef_regs.c10h << 28) | ((uint32_t)coef_regs.c10m << 20) | ((uint32_t)coef_regs.c10l << 12); c10 >>= 12;
+    c01 = ((uint32_t)coef_regs.c01h << 24) | ((uint32_t)coef_regs.c01l << 16); c01 >>= 16;
+    c11 = ((uint32_t)coef_regs.c11h << 24) | ((uint32_t)coef_regs.c11l << 16); c11 >>= 16;
+    c20 = ((uint32_t)coef_regs.c20h << 24) | ((uint32_t)coef_regs.c20l << 16); c20 >>= 16;
+    c21 = ((uint32_t)coef_regs.c21h << 24) | ((uint32_t)coef_regs.c21l << 16); c21 >>= 16;
+    c30 = ((uint32_t)coef_regs.c30h << 24) | ((uint32_t)coef_regs.c30l << 16); c30 >>= 16;
+
+    m_coef_data.scaled_c0  = float32_t(c0,  0);
+    m_coef_data.scaled_c1  = float32_t(c1,  0);
+    m_coef_data.scaled_c00 = float32_t(c00, 0);
+    m_coef_data.scaled_c10 = float32_t(c10, 0);
+    m_coef_data.scaled_c01 = float32_t(c01, 0);
+    m_coef_data.scaled_c11 = float32_t(c11, 0);
+    m_coef_data.scaled_c20 = float32_t(c20, 0);
+    m_coef_data.scaled_c21 = float32_t(c21, 0);
+    m_coef_data.scaled_c30 = float32_t(c30, 0);
 
     return ESP_OK;
 }

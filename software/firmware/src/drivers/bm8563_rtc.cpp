@@ -42,6 +42,7 @@ static const char *TAG = "BM8563_RTC";
 typedef union {
     uint8_t bytes[0];
     struct {
+#if _BYTE_ORDER == _LITTLE_ENDIAN
         uint8_t second:7;
         uint8_t vl:1;
         uint8_t minute:7;
@@ -56,8 +57,24 @@ typedef union {
         uint8_t:2;
         uint8_t c:1;
         uint8_t year:8;
+#else
+        uint8_t vl:1;
+        uint8_t second:7;
+        uint8_t:1;
+        uint8_t minute:7;
+        uint8_t:2;
+        uint8_t hour:6;
+        uint8_t:1;
+        uint8_t day:7;
+        uint8_t:5;
+        uint8_t weekday:3;
+        uint8_t c:1;
+        uint8_t:2;
+        uint8_t month:5;
+        uint8_t year:8;
+#endif
     };
-} __attribute__ ((packed)) bm8563rtc_time_regs_t;
+} __attribute__ ((packed)) Bm8563rtcTimeRegs_t;
 
 Bm8563Rtc::Bm8563Rtc(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
 I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) {
@@ -76,7 +93,7 @@ esp_err_t Bm8563Rtc::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr
 
 esp_err_t Bm8563Rtc::GetRtcTime(struct tm *stm_time) {
     BM8563_RTC_ASSERT(stm_time != NULL, "Get RTC time with NULL parameter.");
-    bm8563rtc_time_regs_t regs;
+    Bm8563rtcTimeRegs_t regs;
     if (ESP_OK == this->fetch_data(regs.bytes, sizeof(regs))) {
         stm_time->tm_sec = bcd_to_uint8(regs.second);
         stm_time->tm_sec = bcd_to_uint8(regs.minute);
@@ -97,7 +114,7 @@ esp_err_t Bm8563Rtc::GetRtcTime(struct tm *stm_time) {
 esp_err_t Bm8563Rtc::SetRtcTime(struct tm *stm_time) {
     BM8563_RTC_ASSERT(stm_time != NULL, "Set RTC time with NULL parameter.");
 
-    bm8563rtc_time_regs_t regs;
+    Bm8563rtcTimeRegs_t regs;
     regs.second = stm_time->tm_sec;
     regs.vl = 0;
     regs.minute = stm_time->tm_min;
@@ -140,12 +157,12 @@ esp_err_t Bm8563Rtc::deinit_device() {
 
 esp_err_t Bm8563Rtc::fetch_data(uint8_t *data, uint8_t size) {
     BM8563_RTC_ASSERT(size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    return this->read_buffer(BM8563_DATETIME_REGS_ADDRESS, data, sizeof(bm8563rtc_time_regs_t));
+    return this->read_buffer(BM8563_DATETIME_REGS_ADDRESS, data, sizeof(Bm8563rtcTimeRegs_t));
 }
 
 esp_err_t Bm8563Rtc::calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
     BM8563_RTC_ASSERT(in_size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    bm8563rtc_time_regs_t *regs = (bm8563rtc_time_regs_t *)in_data;
+    Bm8563rtcTimeRegs_t *regs = (Bm8563rtcTimeRegs_t *)in_data;
 
     p_message->type = BLUETHROAT_MSG_RTC;
     p_message->rtc_data.second = bcd_to_uint8(regs->second);

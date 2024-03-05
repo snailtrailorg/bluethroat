@@ -27,46 +27,29 @@
 #define DPS3XX_REG_RESET                (0x0C)
 #define DPS3XX_REG_PRO_REV_ID           (0x0D)
 
-#define DPS3XX_REG_COEF_C0M             (0x10)
-#define DPS3XX_REG_COEF_C0L_C1M         (0x11)
-#define DPS3XX_REG_COEF_C1L             (0x12)
-#define DPS3XX_REG_COEF_C00U            (0x13)
-#define DPS3XX_REG_COEF_C00M            (0x14)
-#define DPS3XX_REG_COEF_C00L_C10U       (0x15)
-#define DPS3XX_REG_COEF_C10M            (0x16)
-#define DPS3XX_REG_COEF_C10L            (0x17)
-#define DPS3XX_REG_COEF_C01M            (0x18)
-#define DPS3XX_REG_COEF_C01L            (0x19)
-#define DPS3XX_REG_COEF_C11M            (0x1A)
-#define DPS3XX_REG_COEF_C11L            (0x1B)
-#define DPS3XX_REG_COEF_C20M            (0x1C)
-#define DPS3XX_REG_COEF_C20L            (0x1D)
-#define DPS3XX_REG_COEF_C21M            (0x1E)
-#define DPS3XX_REG_COEF_C21L            (0x1F)
-#define DPS3XX_REG_COEF_C30M            (0x20)
-#define DPS3XX_REG_COEF_C30L            (0x21)
+#define DPS3XX_REG_COEFS                (0x10)
 
 #define DPS3XX_REG_COEF_SRCE            (0x28)
 
 // Pressure measurement rate
-#define PRS_CFG_PM_RATE_1               (0x00)
-#define PRS_CFG_PM_RATE_2               (0x10)
-#define PRS_CFG_PM_RATE_4               (0x20)
-#define PRS_CFG_PM_RATE_8               (0x30)
-#define PRS_CFG_PM_RATE_16              (0x40)
-#define PRS_CFG_PM_RATE_32              (0x50)
-#define PRS_CFG_PM_RATE_64              (0x60)
-#define PRS_CFG_PM_RATE_128             (0x70)
+#define DPS3XX_MEASUREMENT_RATE_1       (0x00)
+#define DPS3XX_MEASUREMENT_RATE_2       (0x01)
+#define DPS3XX_MEASUREMENT_RATE_4       (0x02)
+#define DPS3XX_MEASUREMENT_RATE_8       (0x03)
+#define DPS3XX_MEASUREMENT_RATE_16      (0x04)
+#define DPS3XX_MEASUREMENT_RATE_32      (0x05)
+#define DPS3XX_MEASUREMENT_RATE_64      (0x06)
+#define DPS3XX_MEASUREMENT_RATE_128     (0x07)
 
 // Pressure oversampling rate
-#define PRS_CFG_PM_PRC_1                (0x00)
-#define PRS_CFG_PM_PRC_2                (0x01)
-#define PRS_CFG_PM_PRC_4                (0x02)
-#define PRS_CFG_PM_PRC_8                (0x03)
-#define PRS_CFG_PM_PRC_16               (0x04)
-#define PRS_CFG_PM_PRC_32               (0x05)
-#define PRS_CFG_PM_PRC_64               (0x06)
-#define PRS_CFG_PM_PRC_128              (0x07)
+#define DPS3XX_OVERSAMPLING_RATE_1      (0x00)
+#define DPS3XX_OVERSAMPLING_RATE_2      (0x01)
+#define DPS3XX_OVERSAMPLING_RATE_4      (0x02)
+#define DPS3XX_OVERSAMPLING_RATE_8      (0x03)
+#define DPS3XX_OVERSAMPLING_RATE_16     (0x04)
+#define DPS3XX_OVERSAMPLING_RATE_32     (0x05)
+#define DPS3XX_OVERSAMPLING_RATE_64     (0x06)
+#define DPS3XX_OVERSAMPLING_RATE_128    (0x07)
 
 // Temperature measurement source
 #define TMP_CFG_TMP_EXT_ASIC            (0x00)
@@ -147,25 +130,69 @@
 #define SCALE_FACTOR_PRC_64             (0x000FE000)	//1040384
 #define SCALE_FACTOR_PRC_128            (0x001FE000)	//2088960
 
-typedef struct {
-    float32_t c0;
-    float32_t c1;
-    float32_t c00;
-    float32_t c10;
-    float32_t c01;
-    float32_t c11;
-    float32_t c20;
-    float32_t c21;
-    float32_t c30;
-} Dps3xxCoes_t;
+#define AIR_PRESSURE_DEFAULT_VALUE      (101325)
 
-#define AIR_PRESSURE_DEFAULT_VALUE  (101325)
+typedef union {
+    uint8_t bytes[0];
+    struct {
+        uint8_t c0h;
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+        uint8_t c1h:4;
+        uint8_t c0l:4;
+#else
+        uint8_t c0l:4;
+        uint8_t c1h:4;
+#endif
+        uint8_t c1l;
+        uint8_t c00h;
+        uint8_t c00m;
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+        uint8_t c10h:4;
+        uint8_t c00l:4;
+#else
+        uint8_t c00l:4;
+        uint8_t c10h:4;
+#endif
+        uint8_t c10m;
+        uint8_t c10l;
+        uint8_t c01h;
+        uint8_t c01l;
+        uint8_t c11h;
+        uint8_t c11l;
+        uint8_t c20h;
+        uint8_t c20l;
+        uint8_t c21h;
+        uint8_t c21l;
+        uint8_t c30h;
+        uint8_t c30l;
+    };
+} __attribute__ ((packed)) Dps3xxCoefRegs_t;
+
+typedef struct {
+    uint8_t mesurement_rate;
+    uint8_t oversampling_rate;
+    TickType_t mesurement_time;
+    float32_t scale_factor;
+} Dps3xxConfig_t;
+
+typedef struct {
+    float32_t scaled_c0;
+    float32_t scaled_c1;
+    float32_t scaled_c00;
+    float32_t scaled_c10;
+    float32_t scaled_c01;
+    float32_t scaled_c11;
+    float32_t scaled_c20;
+    float32_t scaled_c21;
+    float32_t scaled_c30;
+} Dps3xxScaledCoefData_t;
 
 class Dps3xxBarometer : public I2cDevice {
 public:
-    /* Scaled coefs */
-    Dps3xxCoes_t m_coes_sc;
-    FirFilter<uint32_t, uint32_t> *m_p_fir_filter;
+    Dps3xxConfig_t m_pressure_cfg;                  /* pressure measurement config */
+    Dps3xxConfig_t m_temperature_cfg;               /* temperature measurement config */
+    Dps3xxScaledCoefData_t m_coef_data;             /* Scaled coef data */
+    FirFilter<uint32_t, uint32_t> *m_p_fir_filter;  /* FIR filter for pressure data */
 
 public:
     Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
@@ -179,4 +206,7 @@ public:
     virtual esp_err_t deinit_device();
     virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
     virtual esp_err_t calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
+
+private:
+    esp_err_t get_coefs();
 };
