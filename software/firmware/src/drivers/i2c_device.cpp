@@ -151,6 +151,10 @@ void I2cDevice::task_loop() {
 		} else {
 			I2C_DEVICE_LOGD("Fetch I2C data failed.");
 		}
+
+		if (this->m_p_task_param->task_interval > 0) {
+			vTaskDelay(this->m_p_task_param->task_interval);
+		}
 	}
 }
 

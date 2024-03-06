@@ -40,16 +40,16 @@ Dps3xxBarometer::Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, 
 I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) { 
     m_p_fir_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_POWER_16, AIR_PRESSURE_DEFAULT_VALUE);
     m_pressure_cfg = {
-        .mesurement_rate = DPS3XX_MEASUREMENT_RATE_4,
-        .oversampling_rate = DPS3XX_OVERSAMPLING_RATE_64,
+        .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
+        .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_64,
         .mesurement_time = pdMS_TO_TICKS(100),
-        .scale_factor = float32_t(SCALE_FACTOR_PRC_64, 0),
+        .scale_factor = float32_t(DPS3XX_SCALE_FACTOR_PRC_64, 0),
     };
     m_temperature_cfg = {
-        .mesurement_rate = DPS3XX_MEASUREMENT_RATE_4,
-        .oversampling_rate = DPS3XX_OVERSAMPLING_RATE_32,
+        .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
+        .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_32,
         .mesurement_time = pdMS_TO_TICKS(50),
-        .scale_factor = float32_t(SCALE_FACTOR_PRC_32, 0),
+        .scale_factor = float32_t(DPS3XX_SCALE_FACTOR_PRC_32, 0),
     };
 }
 
@@ -58,8 +58,8 @@ Dps3xxBarometer::~Dps3xxBarometer() {
 }
 
 esp_err_t Dps3xxBarometer::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr) {
-    uint8_t pro_rev_id;
-    if (p_i2c_master->ReadByte(device_addr, DPS3XX_REG_PRO_REV_ID, &pro_rev_id) == ESP_OK && pro_rev_id == DPS3XX_PRO_REV_ID) {
+    Dps3xxIdReg_t id;
+    if (p_i2c_master->ReadByte(device_addr, DPS3XX_REG_ADDR_ID , &(id.byte)) == ESP_OK && id.byte == DPS3XX_REG_VALUE_ID) {
         return ESP_OK;
     } else {
         return ESP_FAIL;
@@ -68,11 +68,16 @@ esp_err_t Dps3xxBarometer::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t devic
 
 esp_err_t Dps3xxBarometer::init_device() {
     // Read chip status and wait for sensor and coefficient data ready
-    uint8_t meas_cfg = 0;
-    while (this->read_byte(DPS3XX_REG_MEAS_CFG, &meas_cfg) != ESP_OK || (meas_cfg & (MEAS_CFG_SENSOR_RDY | MEAS_CFG_COEF_RDY)) != (MEAS_CFG_SENSOR_RDY | MEAS_CFG_COEF_RDY)) {
-        DPS3XX_BARO_LOGD("Waiting for sensor and coefficient data ready");
-        vTaskDelay(pdMS_TO_TICKS(10));
-    };
+    Dps3xxMeasCfgReg_t meas_cfg = {0};
+    for ( ; ; ) {
+        this->read_byte(DPS3XX_REG_ADDR_MEAS_CFG, &(meas_cfg.byte));
+        if (meas_cfg.sensor_rdy && meas_cfg.coef_rdy) {
+            break;
+        } else {
+            DPS3XX_BARO_LOGD("Waiting for sensor and coefficient data ready");
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+    }
 
     // Read coefficient data
     if (this->get_coefs() != ESP_OK) {
@@ -80,6 +85,39 @@ esp_err_t Dps3xxBarometer::init_device() {
         return ESP_FAIL;
     }
 
+    // Set pressure measurement rate and oversampling rate
+    Dps3xxPrsCfgReg_t prs_cfg = {0};
+    prs_cfg.pm_rate = m_pressure_cfg.mesurement_rate;
+    prs_cfg.pm_prc = m_pressure_cfg.oversampling_rate;
+    if (this->write_byte(DPS3XX_REG_ADDR_PRS_CFG, prs_cfg.byte) != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to set pressure measurement rate and oversampling rate");
+        return ESP_FAIL;
+    }
+
+    // Set temperature measurement rate and oversampling rate
+    Dps3xxTmpCfgReg_t tmp_cfg = {0};
+    tmp_cfg.tmp_rate = m_temperature_cfg.mesurement_rate;
+    tmp_cfg.tmp_prc = m_temperature_cfg.oversampling_rate;
+    if (this->write_byte(DPS3XX_REG_ADDR_TMP_CFG, tmp_cfg.byte) != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to set temperature measurement rate and oversampling rate");
+        return ESP_FAIL;
+    }
+
+    // Set pressure and temperature shift enable
+    Dps3xxCfgReg_t cfg = {0};
+    cfg.p_shift_en = 1;
+    cfg.t_shift_en = 1;
+    if (this->write_byte(DPS3XX_REG_ADDR_CFG_REG, cfg.byte) != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to set pressure and temperature shift enable");
+        return ESP_FAIL;
+    }
+
+    // Set pressure and temperature measurement mode to stop (idle mode, ready for single shot measurement)
+    Dps3xxMeasCfgReg_t meas_cfg = {0};
+    if (this->write_byte(DPS3XX_REG_ADDR_MEAS_CFG, meas_cfg.byte) != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to set pressure and temperature measurement rate");
+        return ESP_FAIL;
+    }
     return ESP_OK;
 }
 
@@ -88,9 +126,20 @@ esp_err_t Dps3xxBarometer::deinit_device() {
 }
 
 esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
-    DPS3XX_BARO_ASSERT(size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    //return this->read_buffer(BM8563_DATETIME_REGS_ADDRESS, data, sizeof(bm8563rtc_time_regs_t));
-    return ESP_OK;
+    DPS3XX_BARO_ASSERT(size >= sizeof(Dps3xxData_t), "Buffer size is not enough to contain pressure and temperature structure.");
+
+    static Dps3xxMeasCfgReg_t meas_cfg = {0};
+
+    esp_err_t result;
+
+    if ((result = this->write_byte(DPS3XX_REG_ADDR_MEAS_CFG, DPS3XX_REG_VALUE_MEAS_CTRL_TMP)) != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to read measurement configuration register");
+        return ESP_FAIL;
+    }
+
+
+    
+    return this->read_buffer(DPS3XX_REG_ADDR_PSR_B2, data, sizeof(Dps3xxData_t));
 }
 
 esp_err_t Dps3xxBarometer::calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
@@ -104,7 +153,7 @@ esp_err_t Dps3xxBarometer::calculate_data(uint8_t *in_data, uint8_t in_size, Blu
 
 esp_err_t Dps3xxBarometer::get_coefs() {
     Dps3xxCoefRegs_t coef_regs;
-    if (this->read_buffer(DPS3XX_REG_COEFS, coef_regs.bytes, sizeof(Dps3xxCoefRegs_t)) != ESP_OK) {
+    if (this->read_buffer(DPS3XX_REG_ADDR_COEF, coef_regs.bytes, sizeof(Dps3xxCoefRegs_t)) != ESP_OK) {
         DPS3XX_BARO_LOGE("Failed to read coefficient registers");
         return ESP_FAIL;
     }
