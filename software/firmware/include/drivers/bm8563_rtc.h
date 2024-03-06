@@ -25,7 +25,7 @@ public:
     virtual esp_err_t init_device();
     virtual esp_err_t deinit_device();
     virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
-    virtual esp_err_t calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
+    virtual esp_err_t process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
 
 private:
     static inline uint8_t bcd_to_uint8(uint8_t bcd); 

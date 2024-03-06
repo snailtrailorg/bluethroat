@@ -39,7 +39,7 @@ public:
     virtual esp_err_t init_device() = 0;
     virtual esp_err_t deinit_device() = 0;
     virtual esp_err_t fetch_data(uint8_t *data, uint8_t size) = 0;
-    virtual esp_err_t calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) = 0;
+    virtual esp_err_t process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) = 0;
 
 public:
     void task_loop();

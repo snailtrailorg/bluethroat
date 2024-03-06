@@ -139,7 +139,7 @@ void I2cDevice::task_loop() {
 	BluethroatMsg_t  message;
 	for ( ; ; ) {
 		if (ESP_OK == this->fetch_data(raw_data, sizeof(raw_data))) {
-			if(ESP_OK == this->calculate_data(raw_data, MAX_RAW_DATA_BUFFER_LENGTH, &message)) {
+			if(ESP_OK == this->process_data(raw_data, MAX_RAW_DATA_BUFFER_LENGTH, &message)) {
 				if (this->m_queue_handle != NULL) {
 					(void)xQueueSend(this->m_queue_handle, &message, 0);
 				} else {

@@ -160,7 +160,7 @@ esp_err_t Bm8563Rtc::fetch_data(uint8_t *data, uint8_t size) {
     return this->read_buffer(BM8563_DATETIME_REGS_ADDRESS, data, sizeof(Bm8563rtcTimeRegs_t));
 }
 
-esp_err_t Bm8563Rtc::calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
+esp_err_t Bm8563Rtc::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
     BM8563_RTC_ASSERT(in_size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
     Bm8563rtcTimeRegs_t *regs = (Bm8563rtcTimeRegs_t *)in_data;
 

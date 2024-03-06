@@ -156,6 +156,11 @@ typedef union {
 #define DPS3XX_REG_VALUE_MEAS_CTRL_BG_TMP       (0x06)
 #define DPS3XX_REG_VALUE_MEAS_CTRL_BG_ALL       (0x07)
 
+// In order to improve efficiency, some state bits are defined separately here, from the perspective of the entire
+// register, rather than from the perspective of a single bit field
+#define DPS3XX_REG_VALUE_PRS_RDY                (0x10)
+#define DPS3XX_REG_VALUE_TMP_RDY                (0x20)
+
 /***********************************************************************************************************************
 * Dps3xx global configuration registers address, structure and related configuration value defination
 ***********************************************************************************************************************/
@@ -400,7 +405,7 @@ public:
     virtual esp_err_t init_device();
     virtual esp_err_t deinit_device();
     virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
-    virtual esp_err_t calculate_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
+    virtual esp_err_t process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
 
 private:
     esp_err_t get_coefs();
