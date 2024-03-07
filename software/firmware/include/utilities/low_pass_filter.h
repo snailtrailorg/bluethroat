@@ -77,6 +77,10 @@ public:
 
         return this->m_average;
     }
+
+    inline DataType_t GetAverage() {
+        return this->m_average;
+    }
 };
 
 template <typename DataType_t, typename SumType_t>

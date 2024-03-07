@@ -172,8 +172,14 @@ esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
 
 esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
     DPS3XX_BARO_ASSERT(in_size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    //bm8563rtc_time_regs_t *regs = (bm8563rtc_time_regs_t *)in_data;
+    Dps3xxData_t *regs = (Dps3xxData_t *)in_data;
 
+    int32_t raw_temperature = (int32_t)(((uint32_t)regs->tmp_b2 << 24) | ((uint32_t)regs->tmp_b1 << 16) | ((uint32_t)regs->tmp_b0 << 8)) >> 8;
+    int32_t raw_pressure    = (int32_t)(((uint32_t)regs->prs_b2 << 24) | ((uint32_t)regs->prs_b1 << 16) | ((uint32_t)regs->prs_b0 << 8)) >> 8;
+
+    float32_t temperature = m_coef_data.scaled_c0 + m_coef_data.scaled_c1 * raw_temperature;
+    float32_t pressure    = m_coef_data.scaled_c00 + raw_pressure * (m_coef_data.scaled_c10 + raw_pressure * (m_coef_data.scaled_c20 + raw_pressure * m_coef_data.scaled_c30)) + raw_temperature * (m_coef_data.scaled_c01 + raw_pressure * (m_coef_data.scaled_c11 + raw_pressure * m_coef_data.scaled_c21));
+    
     p_message->type = BLUETHROAT_MSG_BAROMETER;
 
     return ESP_OK;

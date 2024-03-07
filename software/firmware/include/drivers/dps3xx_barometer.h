@@ -35,9 +35,9 @@
 typedef union {
     uint8_t bytes[6];
     struct {
-        uint8_t psr_b2;
-        uint8_t psr_b1;
-        uint8_t psr_b0;
+        uint8_t prs_b2;
+        uint8_t prs_b1;
+        uint8_t prs_b0;
         uint8_t tmp_b2;
         uint8_t tmp_b1;
         uint8_t tmp_b0;
