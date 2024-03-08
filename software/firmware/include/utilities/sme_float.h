@@ -12,12 +12,12 @@
 
 #include <stdint.h>
 
-#define POSITIVE    (0x00000001)
-#define NEGATIVE    (0xffffffff)
+#define POSITIVE    (0x00000000)
+#define NEGATIVE    (0x00000001)
 
 class float32_t {
 public:
-    int32_t s;      //sign
+    uint32_t s;      //sign
     uint32_t m;     //mantissa
     int32_t e;      //exponent
 
@@ -81,229 +81,265 @@ public:
     }
 
 public:
-    float32_t() : s(0), m(0), e(0) {}
+    float32_t() : s(POSITIVE), m(0), e(0) {}
 
-    float32_t(int32_t mantissa, int32_t exponent) : m(mantissa), e(exponent) {
-        if (m == 0) {
-            e = 0;
-        } else {
-            uint8_t index = get_msb_index_32((uint32_t)m);
-            if (index < 30) {
-                m <<= (30 - index);
-                e -= (30 - index);
-            } else if (index > 30) {
-                m >>= (index - 30);
-                e += (index - 30);
-            }
+    float32_t(uint32_t sign, uint32_t mantissa, uint32_t exponent) : s(sign), m(mantissa), e(exponent) {
+        if (!(this->m & 0x80000000)) {
+            uint8_t offset = 31 - get_msb_index_32(this->m);
+            this->m <<= offset;
+            this->e += offset;
         }
+    }
+
+    float32_t(int32_t number) : e(0) {
+        if (number < 0) {
+            this->s = NEGATIVE;
+            this->m = (-number);
+        } else {
+            this->s = POSITIVE;
+            this->m = number;
+        }
+
+        if (!(this->m & 0x80000000)) {
+            uint8_t offset = 31 - get_msb_index_32(this->m);
+            this->m <<= offset;
+            this->e += offset;
+        }
+    }
+
+    float32_t(float number) {
+        uint32_t num_32 = (uint32_t)(number);
+        this->s = (num_32 & 0x80000000) >> 31;
+        this->m = (num_32 & 0x007fffff) | 0x00800000;
+        this->e = ((num_32 & 0x7f800000) >> 23) - 127;
+    }
+
+    float32_t& operator=(const float32_t& other) {
+        this->s = other.s;
+        this->m = other.m;
+        this->e = other.e;
+        return *this;
+    }
+
+    float32_t operator-() const {
+        return float32_t(this->s ^ 0x00000001, this->m, this->e);
     }
 
     float32_t operator+(const float32_t& other) const {
-        int64_t mantissa;
+        int32_t offset;
+        int64_t left, right, mantissa;
         int32_t exponent;
+        int32_t sign;
 
-        int32_t offset = this->e - other.e;
+        offset = this->e - other.e;
         offset = (offset > 31) ? 31 : ((offset < -31) ? -31 : offset);
 
         if (offset > 0) {
-            mantissa = (int64_t)(this->m) + (other.m >> offset);
+            left = this->m; if (this->s == POSITIVE) { left = -left; }
+            right = other.m >> offset; if (other.s == POSITIVE) { right = -right; }
+            mantissa = left + right;
             exponent = this->e;
         } else if (offset < 0) {
-            mantissa = (int64_t)(other.m) + (this->m >> (-offset));
+            left = this->m >> (-offset); if (this->s == POSITIVE) { left = -left; }
+            right = other.m; if (other.s == POSITIVE) { right = -right; }
+            mantissa = left + right;
             exponent = other.e;
         } else {
-            mantissa = (int64_t)(this->m) + other.m;
+            left = this->m; if (this->s == POSITIVE) { left = -left; }
+            right = other.m; if (other.s == POSITIVE) { right = -right; }
+            mantissa = left + right;
             exponent = this->e;
         }
 
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            exponent -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            exponent += (index - 30);
+        if (mantissa < 0) {
+            mantissa = -mantissa;
+            sign = NEGATIVE;
+        } else {
+            sign = POSITIVE;
         }
 
-        return float32_t((int32_t)mantissa, exponent);
+        offset = 31 - get_msb_index_64((uint64_t)mantissa);
+        if (offset > 0) {
+            mantissa <<= offset;
+            exponent -= offset;
+        } else if (offset  < 0) {
+            mantissa >>= (-offset);
+            exponent += offset;
+        }
+
+        return float32_t((uint32_t)mantissa, exponent, sign);
     }
 
     float32_t& operator+=(const float32_t& other) {
-        int64_t mantissa;
+        int64_t left, right, mantissa;
 
         int32_t offset = this->e - other.e;
         offset = (offset > 31) ? 31 : ((offset < -31) ? -31 : offset);
 
         if (offset > 0) {
-            mantissa = (int64_t)(this->m) + (other.m >> offset);
+            left = this->m; if (this->s == POSITIVE) { left = -left; }
+            right = other.m >> offset; if (other.s == POSITIVE) { right = -right; }
+            mantissa = left + right;
         } else if (offset < 0) {
-            mantissa = (int64_t)(other.m) + (this->m >> (-offset));
+            left = this->m >> (-offset); if (this->s == POSITIVE) { left = -left; }
+            right = other.m; if (other.s == POSITIVE) { right = -right; }
+            mantissa = left + right;
             this->e = other.e;
         } else {
-            mantissa = (int64_t)(this->m) + other.m;
+            left = this->m; if (this->s == POSITIVE) { left = -left; }
+            right = other.m; if (other.s == POSITIVE) { right = -right; }
+            mantissa = left + right;
         }
 
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            this->e -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            this->e += (index - 30);
+        if (mantissa < 0) {
+            mantissa = -mantissa;
+            this->s = NEGATIVE;
+        } else {
+            this->s = POSITIVE;
         }
 
-        this->m = (int32_t)mantissa;
+        offset = 31 - get_msb_index_64((uint64_t)mantissa);
+        if (offset > 0) {
+            mantissa <<= offset;
+            this->e -= offset;
+        } else if (offset  < 0) {
+            mantissa >>= (-offset);
+            this->e += offset;
+        }
+
+        this->m = (uint32_t)mantissa;
 
         return *this;
     }
 
     float32_t operator-(const float32_t& other) const {
-        int64_t mantissa;
-        int32_t exponent;
-
-        int32_t offset = this->e - other.e;
-        offset = (offset > 31) ? 31 : ((offset < -31) ? -31 : offset);
-
-        if (offset > 0) {
-            mantissa = (int64_t)this->m - (other.m >> offset);
-            exponent = this->e;
-        } else if (offset < 0) {
-            mantissa = (int64_t)other.m - (this->m >> (-offset));
-            exponent = other.e;
-        } else {
-            mantissa = (int64_t)this->m - other.m;
-            exponent = this->e;
-        }
-
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            exponent -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            exponent += (index - 30);
-        }
-
-        return float32_t((int32_t)mantissa, exponent);
+        return (*this) + (-other);
     }
 
     float32_t& operator-=(const float32_t& other) {
-        int64_t mantissa;
-
-        int32_t offset = this->e - other.e;
-        offset = (offset > 31) ? 31 : ((offset < -31) ? -31 : offset);
-
-        if (offset > 0) {
-            mantissa = (int64_t)this->m - (other.m >> offset);
-        } else if (offset < 0) {
-            mantissa = (int64_t)other.m - (this->m >> (-offset));
-            this->e = other.e;
-        } else {
-            mantissa = (int64_t)this->m - other.m;
-        }
-
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            this->e -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            this->e += (index - 30);
-        }
-
-        this->m = (int32_t)mantissa;
-
-        return *this;
+        return (*this) += (-other);
     }
 
     float32_t operator*(const float32_t& other) const {
-        int64_t mantissa = (int64_t)this->m * other.m;
+        uint64_t mantissa = (uint64_t)this->m * other.m;
         int32_t exponent = this->e + other.e;
 
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            exponent -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            exponent += (index - 30);
+        int32_t offset = 31 - get_msb_index_64((uint64_t)mantissa);
+        if (offset > 0) {
+            mantissa <<= offset;
+            exponent -= offset;
+        } else if (offset  < 0) {
+            mantissa >>= (-offset);
+            exponent += offset;
         }
 
-        return float32_t((int32_t)mantissa, exponent);
+        return float32_t((uint32_t)mantissa, exponent, this->s ^ other.s);
     }
 
     float32_t& operator*=(const float32_t& other) {
-        int64_t mantissa = (int64_t)this->m * other.m;
+        uint64_t mantissa = (uint64_t)this->m * other.m;
         this->e += other.e;
 
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            this->e -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            this->e += (index - 30);
+        int32_t offset = 31 - get_msb_index_64((uint64_t)mantissa);
+        if (offset > 0) {
+            mantissa <<= offset;
+            this->e -= offset;
+        } else if (offset  < 0) {
+            mantissa >>= (-offset);
+            this->e += offset;
         }
 
         this->m = (int32_t)mantissa;
+        this->s ^= other.s;
 
         return *this;
     }
 
     float32_t operator/(const float32_t& other) const {
-        int64_t mantissa = ((int64_t)this->m << 32) / other.m;
-        int32_t exponent = this->e - 32 - other.e;
+        int32_t exponent = this->e - other.e;
 
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            exponent -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            exponent += (index - 30);
+        uint64_t mantissa = (uint64_t)this->m;
+        int8_t offset_left = 63 - get_msb_index_64((uint64_t)this->m);
+        mantissa <<= offset_left;
+        exponent -= offset_left;
+
+        int8_t offset_right = get_lsb_index_64(other.m);
+        mantissa /= other.m >> offset_right;
+        exponent -= offset_right;
+
+        int8_t offset = 31 - get_msb_index_64((uint64_t)mantissa);
+        if (offset > 0) {
+            mantissa <<= offset;
+            exponent -= offset;
+        } else if (offset  < 0) {
+            mantissa >>= (-offset);
+            exponent += offset;
         }
 
-        return float32_t((int32_t)mantissa, exponent);
+        return float32_t((uint32_t)mantissa, exponent, this->s ^ other.s);
     }
 
     float32_t& operator/=(const float32_t& other) {
-        int64_t mantissa = ((int64_t)this->m << 32) / other.m;
-        this->e -= (32 + other.e);
+        this->e -= other.e;
 
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            this->e -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            this->e += (index - 30);
+        uint64_t mantissa = (uint64_t)this->m;
+        int8_t offset_left = 63 - get_msb_index_64((uint64_t)this->m);
+        mantissa <<= offset_left;
+        this->e -= offset_left;
+
+        int8_t offset_right = get_lsb_index_64(other.m);
+        mantissa /= other.m >> offset_right;
+        this->e -= offset_right;
+
+        int8_t offset = 31 - get_msb_index_64((uint64_t)mantissa);
+        if (offset > 0) {
+            mantissa <<= offset;
+            this->e -= offset;
+        } else if (offset  < 0) {
+            mantissa >>= (-offset);
+            this->e += offset;
         }
 
         this->m = (int32_t)mantissa;
+        this->s ^= other.s;
 
         return *this;
+    }
+
+    float32_t operator+(const int32_t& other) const {
+        return (*this) + float32_t(other);
+    }
+
+    float32_t& operator+=(const int32_t& other) {
+        return (*this) += float32_t(other);
+    }
+
+    float32_t operator-(const int32_t& other) const {
+        return (*this) - float32_t(other);
+    }
+
+    float32_t& operator-=(const int32_t& other) {
+        return (*this) -= float32_t(other);
     }
 
     float32_t operator*(const int32_t& other) const {
-        int64_t mantissa = (int64_t)this->m * other;
-        int32_t exponent = this->e;
-
-        uint8_t index = get_msb_index_64((uint64_t)mantissa);
-        if (index < 30) {
-            mantissa <<= (30 - index);
-            exponent -= (30 - index);
-        } else if (index > 30) {
-            mantissa >>= (index - 30);
-            exponent += (index - 30);
-        }
-
-        return float32_t((int32_t)mantissa, exponent);
+        return (*this) * float32_t(other);
     }
 
+    float32_t& operator*=(const int32_t& other) {
+        return (*this) *= float32_t(other);
+    }
 
-    float32_t& operator=(const float32_t& other) {
-        this->m = other.m;
-        this->e = other.e;
-        return *this;
+    float32_t operator/(const int32_t& other) const {
+        return (*this) / float32_t(other);
+    }
+
+    float32_t& operator/=(const int32_t& other) {
+        return (*this) /= float32_t(other);
+    }
+
+    operator float() const {
+        uint32_t num_32 = (this->s << 31) | ((this->e + 127) << 23) | (this->m & 0x007fffff);
+        return *((float*)&num_32);
     }
 };

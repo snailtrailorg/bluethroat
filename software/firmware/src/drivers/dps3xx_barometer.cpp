@@ -43,13 +43,13 @@ I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) {
         .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
         .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_64,
         .mesurement_time = pdMS_TO_TICKS(100),
-        .scale_factor = float32_t(DPS3XX_SCALE_FACTOR_PRC_64, 0),
+        .scale_factor = float32_t((int32_t)DPS3XX_SCALE_FACTOR_PRC_64),
     };
     m_temperature_cfg = {
         .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
         .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_32,
         .mesurement_time = pdMS_TO_TICKS(50),
-        .scale_factor = float32_t(DPS3XX_SCALE_FACTOR_PRC_32, 0),
+        .scale_factor = float32_t((int32_t)DPS3XX_SCALE_FACTOR_PRC_32),
     };
 }
 
@@ -177,10 +177,19 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
     int32_t raw_temperature = (int32_t)(((uint32_t)regs->tmp_b2 << 24) | ((uint32_t)regs->tmp_b1 << 16) | ((uint32_t)regs->tmp_b0 << 8)) >> 8;
     int32_t raw_pressure    = (int32_t)(((uint32_t)regs->prs_b2 << 24) | ((uint32_t)regs->prs_b1 << 16) | ((uint32_t)regs->prs_b0 << 8)) >> 8;
 
-    float32_t temperature = m_coef_data.scaled_c0 + m_coef_data.scaled_c1 * raw_temperature;
-    float32_t pressure    = m_coef_data.scaled_c00 + raw_pressure * (m_coef_data.scaled_c10 + raw_pressure * (m_coef_data.scaled_c20 + raw_pressure * m_coef_data.scaled_c30)) + raw_temperature * (m_coef_data.scaled_c01 + raw_pressure * (m_coef_data.scaled_c11 + raw_pressure * m_coef_data.scaled_c21));
+    float32_t temperature = m_coef_data.scaled_c0 + 
+                            m_coef_data.scaled_c1 * raw_temperature;
+    float32_t pressure    = m_coef_data.scaled_c00 + 
+                            m_coef_data.scaled_c10 * raw_pressure + 
+                            m_coef_data.scaled_c20 * raw_pressure * raw_pressure +
+                            m_coef_data.scaled_c30 * raw_pressure * raw_pressure * raw_pressure +
+                            m_coef_data.scaled_c01 * raw_temperature +
+                            m_coef_data.scaled_c11 * raw_pressure * raw_temperature;
+
     
     p_message->type = BLUETHROAT_MSG_BAROMETER;
+    p_message->barometer_data.temperature = (float)temperature;
+    p_message->barometer_data.pressure = (float)pressure;
 
     return ESP_OK;
 }
@@ -203,34 +212,34 @@ esp_err_t Dps3xxBarometer::get_coefs() {
     c21 = ((uint32_t)coef_regs.c21h << 24) | ((uint32_t)coef_regs.c21l << 16); c21 >>= 16;
     c30 = ((uint32_t)coef_regs.c30h << 24) | ((uint32_t)coef_regs.c30l << 16); c30 >>= 16;
 
-    m_coef_data.scaled_c0   = float32_t(c0,  0);
-    m_coef_data.scaled_c0  /= float32_t(2, 0);
+    m_coef_data.scaled_c0   = float32_t(c0);
+    m_coef_data.scaled_c0  /= float32_t((int32_t)2);
 
-    m_coef_data.scaled_c1   = float32_t(c1,  0);
+    m_coef_data.scaled_c1   = float32_t(c1);
     m_coef_data.scaled_c1  /= m_temperature_cfg.scale_factor;
 
-    m_coef_data.scaled_c00  = float32_t(c00, 0);
+    m_coef_data.scaled_c00  = float32_t(c00);
 
-    m_coef_data.scaled_c10  = float32_t(c10, 0);
+    m_coef_data.scaled_c10  = float32_t(c10);
     m_coef_data.scaled_c10 /= m_pressure_cfg.scale_factor;
 
-    m_coef_data.scaled_c01  = float32_t(c01, 0);
+    m_coef_data.scaled_c01  = float32_t(c01);
     m_coef_data.scaled_c01 /= m_temperature_cfg.scale_factor;
 
-    m_coef_data.scaled_c11  = float32_t(c11, 0);
+    m_coef_data.scaled_c11  = float32_t(c11);
     m_coef_data.scaled_c11 /= m_pressure_cfg.scale_factor;
     m_coef_data.scaled_c01 /= m_temperature_cfg.scale_factor;
 
-    m_coef_data.scaled_c20  = float32_t(c20, 0);
+    m_coef_data.scaled_c20  = float32_t(c20);
     m_coef_data.scaled_c20 /= m_pressure_cfg.scale_factor;
     m_coef_data.scaled_c20 /= m_pressure_cfg.scale_factor;
     
-    m_coef_data.scaled_c21  = float32_t(c21, 0);
+    m_coef_data.scaled_c21  = float32_t(c21);
     m_coef_data.scaled_c21 /= m_pressure_cfg.scale_factor;
     m_coef_data.scaled_c21 /= m_pressure_cfg.scale_factor;
     m_coef_data.scaled_c21 /= m_temperature_cfg.scale_factor;
 
-    m_coef_data.scaled_c30  = float32_t(c30, 0);
+    m_coef_data.scaled_c30  = float32_t(c30);
     m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
     m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
     m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;

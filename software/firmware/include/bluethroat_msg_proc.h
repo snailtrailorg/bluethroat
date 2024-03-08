@@ -32,13 +32,10 @@ typedef struct {
 } RtcData_t;
 
 typedef struct {
-    uint8_t second;
-    uint8_t minute;
-    uint8_t hour;
-    uint8_t weekday;
-    uint8_t day;
-    uint8_t month;
-    uint16_t year;
+    float temperature;
+    float pressure;
+    float altitude;
+    float vertical_speed;
 } BarometerData_t;
 
 typedef struct {} HygrometerData_t;
