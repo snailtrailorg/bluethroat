@@ -212,7 +212,7 @@ esp_err_t Dps3xxBarometer::get_coefs() {
     c21 = ((uint32_t)coef_regs.c21h << 24) | ((uint32_t)coef_regs.c21l << 16); c21 >>= 16;
     c30 = ((uint32_t)coef_regs.c30h << 24) | ((uint32_t)coef_regs.c30l << 16); c30 >>= 16;
 
-    //DPS3XX_BARO_LOGV("c0: 0x%08x, c1: 0x%08x, c00: 0x%08x, c10: 0x%08x, c01: 0x%08x, c11: 0x%08x, c20: 0x%08x, c21: 0x%08x, c30: 0x%08x", c0, c1, c00, c10, c01, c11, c20, c21, c30);
+    DPS3XX_BARO_LOGD("c0: %ld, c1: %ld, c00: %ld, c10: %ld, c01: %ld, c11: %ld, c20: %ld, c21: %ld, c30: %ld", c0, c1, c00, c10, c01, c11, c20, c21, c30);
 
     m_coef_data.scaled_c0   = float32_t(c0);
     m_coef_data.scaled_c0  /= float32_t((int32_t)2);
@@ -246,7 +246,7 @@ esp_err_t Dps3xxBarometer::get_coefs() {
     m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
     m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
 
-    //DPS3XX_BARO_LOGV("Scaled: c0: %f, c1: %f, c00: %f, c10: %f, c01: %f, c11: %f, c20: %f, c21: %f, c30: %f", m_coef_data.scaled_c0, m_coef_data.scaled_c1, m_coef_data.scaled_c00, m_coef_data.scaled_c10, m_coef_data.scaled_c01, m_coef_data.scaled_c11, m_coef_data.scaled_c20, m_coef_data.scaled_c21, m_coef_data.scaled_c30);
+    DPS3XX_BARO_LOGD("Scaled: c0: %f, c1: %f, c00: %f, c10: %f, c01: %f, c11: %f, c20: %f, c21: %f, c30: %f", (float)m_coef_data.scaled_c0, (float)m_coef_data.scaled_c1, (float)m_coef_data.scaled_c00, (float)m_coef_data.scaled_c10, (float)m_coef_data.scaled_c01, (float)m_coef_data.scaled_c11, (float)m_coef_data.scaled_c20, (float)m_coef_data.scaled_c21, (float)m_coef_data.scaled_c30);
 
     return ESP_OK;
 }
