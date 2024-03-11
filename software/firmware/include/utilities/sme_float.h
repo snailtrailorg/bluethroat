@@ -123,22 +123,29 @@ public:
 
     float32_t(float number) {
         uint32_t num_32 = (uint32_t)(number);
+
         if ((num_32 & 0x7fffffff) == 0) {
+            // zero
             this->s = POSITIVE;
             this->m = 0;
             this->e = 0;
         } else if ((num_32 & 0x7f800000) == 0) {
+            // denormalized number
             this->s = (num_32 >> 31);
             this->m = ((num_32 & 0x007fffff) | 0x00800000) << 8;
             this->e = (-126) - 23 - 8;
         } else if ((num_32 & 0x7fffffff) == 0x7f800000) {
+            // infinity
             this->s = (num_32 >> 31);
             this->m = 0xffffffff;
-            this->e = 0x7fffffff;
+            // set exponent to a value that is large enough, but still not easy to overflow
+            this->e = 0x0000ffff;
         } else if ((num_32 & 0x7f800000) == 0x7f800000) {
+            // NaN, can not process, generate exception
             this->s = POSITIVE;
-            this->m = 0xffffffff / this->s; // generate a devide by zero exception instead of NaN exception
+            this->m = 0xffffffff / this->s; // use devide by zero exception
         } else {
+            // normalized number
             this->s = (num_32 >> 31);
             this->m = ((num_32 & 0x007fffff) | 0x00800000) << 8;
             this->e = ((num_32 & 0x7f800000) >> 23) - 127 - 23 - 8;
@@ -438,10 +445,27 @@ public:
         uint32_t num_32, sign, mantissa, exponent;
 
         if (this->m == 0) {
+            // zero
             num_32 = 0;
-        } else {
+        } else if (this->e < ((-126) - 23 - 8)) {
+            // underflow, treated as zero
+            num_32 = 0;
+        } else if (this->e == ((-126) - 23 - 8)) {
+            // denormalized number, adjust exponent
             sign = this->s << 31;
-            exponent = ((this->e +127 + 23 + 8) & 0x000000ff) << 23;
+            mantissa = (this->m & 0x7fffffff) >> 8;
+            exponent = 0;
+            num_32 = sign | exponent | mantissa;
+        } else if (this->e >= (255 - 127 - 23 - 8)) {
+            // overflow, set to infinity
+            sign = this->s << 31;
+            exponent = 0x7f800000;
+            mantissa = 0;
+            num_32 = sign | exponent | mantissa;
+        } else {
+            // normalized number
+            sign = this->s << 31;
+            exponent = ((this->e + 127 + 23 + 8) & 0x000000ff) << 23;
             mantissa = (this->m & 0x7fffffff) >> 8;
             num_32 = sign | exponent | mantissa;
         }
