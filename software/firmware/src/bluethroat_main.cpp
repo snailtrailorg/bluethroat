@@ -44,10 +44,10 @@ extern "C" void app_main(void);
 
 void app_main() {
     /* first step: init lvgl driver fiand task */
-    lvgl_init();
+//    lvgl_init();
 
     /* second step: init bluethroat ui elements */
-    bluethroat_ui_init();
+//    bluethroat_ui_init();
 
     /* third step: init main message process task */
     BluethroatMsgProc * pBluethroatMsgProc = new BluethroatMsgProc(&(g_TaskParam[TASK_ID_MSG_PROC]));

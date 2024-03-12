@@ -37,7 +37,7 @@
 
 static const char *TAG = "BM8563_RTC";
 
-#define BM8563_DATETIME_REGS_ADDRESS   (0x51)
+#define BM8563_DATETIME_REGS_ADDRESS   (0x02)
 
 typedef union {
     uint8_t bytes[0];

@@ -65,7 +65,7 @@ esp_err_t I2cMaster::init_controller(i2c_port_t port, int sda_io_num, int scl_io
 
 	if (I2cMaster::m_instance[port] == NULL) {
 		I2cMaster::m_instance[port] = this;
-		I2C_MASTER_LOGI("Binding I2C master instance to port %d.", this->m_port);
+		I2C_MASTER_LOGI("Binding I2C master instance to port %d.", port);
 	} else {
 		I2C_MASTER_LOGE("I2C port %d has already binded.", port);
 		return ESP_FAIL;
@@ -194,7 +194,7 @@ void I2cMaster::send_register(i2c_cmd_handle_t cmd, uint32_t reg_addr) {
 
 esp_err_t I2cMaster::ProbeDevice(uint16_t device_addr) {
 	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX, "Invalid I2C port number: %d, Maximum valid port number is: %d.", port, I2C_MASTER_NUM_MAX-1);
-	I2C_MASTER_LOGI("Testing port %d, device_addr 0x%03x.", this->m_port, device_addr);
+	I2C_MASTER_LOGI("Probe device on port %d, device_addr 0x%03x.", this->m_port, device_addr);
 
 	esp_err_t result = ESP_OK;
 
@@ -202,7 +202,7 @@ esp_err_t I2cMaster::ProbeDevice(uint16_t device_addr) {
 		i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 
 		i2c_master_start(cmd);
-		this->send_address(cmd, device_addr, I2C_MASTER_READ);
+		this->send_address(cmd, device_addr, I2C_MASTER_WRITE);
 		i2c_master_stop(cmd);
 
 		result = i2c_master_cmd_begin(this->m_port, cmd, this->m_timeout);
@@ -211,10 +211,10 @@ esp_err_t I2cMaster::ProbeDevice(uint16_t device_addr) {
 
 		this->unlock();
 
-		if (result != ESP_OK) {
+		if (result == ESP_OK) {
 			I2C_MASTER_LOGI("Receive response from device_addr 0x%03x, port %d", device_addr, this->m_port);
 		} else {
-			I2C_MASTER_LOGI("No response from device_addr 0x%03x, port %d", device_addr, this->m_port);
+			I2C_MASTER_LOGI("No response from device_addr 0x%03x, port %d, error:%d", device_addr, this->m_port, result);
 		}
 	} else {
 		I2C_MASTER_LOGE("Lock could not be obtained for port %d.", this->m_port);
