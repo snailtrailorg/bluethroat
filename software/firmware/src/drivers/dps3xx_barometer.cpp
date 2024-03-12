@@ -190,6 +190,8 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
     p_message->type = BLUETHROAT_MSG_BAROMETER;
     p_message->barometer_data.temperature = (float)temperature;
     p_message->barometer_data.pressure = (float)pressure;
+    
+    DPS3XX_BARO_LOGD("temperature: %f, pessure: %f", (float)temperature, (float)pressure);
 
     return ESP_OK;
 }
