@@ -251,7 +251,7 @@ esp_err_t Dps3xxBarometer::get_coefs() {
     m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
 
     DPS3XX_BARO_LOGD("Scaled c0(%e) =  s(%ld), m(0x%8.8lx), e(%ld)", (double)(float)m_coef_data.scaled_c0,  m_coef_data.scaled_c0.s,  m_coef_data.scaled_c0.m,  m_coef_data.scaled_c0.e);
-    DPS3XX_BARO_LOGD("Scaled c1(%e) =  s(%ld), m(0x%8.8lx), e(%ld)", (double)(float)m_coef_data.scaled_c0,  m_coef_data.scaled_c1.s,  m_coef_data.scaled_c1.m,  m_coef_data.scaled_c1.e);
+    DPS3XX_BARO_LOGD("Scaled c1(%e) =  s(%ld), m(0x%8.8lx), e(%ld)", (double)(float)m_coef_data.scaled_c1,  m_coef_data.scaled_c1.s,  m_coef_data.scaled_c1.m,  m_coef_data.scaled_c1.e);
     DPS3XX_BARO_LOGD("Scaled c00(%e) = s(%ld), m(0x%8.8lx), e(%ld)", (double)(float)m_coef_data.scaled_c00, m_coef_data.scaled_c00.s, m_coef_data.scaled_c00.m, m_coef_data.scaled_c00.e);
     DPS3XX_BARO_LOGD("Scaled c10(%e) = s(%ld), m(0x%8.8lx), e(%ld)", (double)(float)m_coef_data.scaled_c10, m_coef_data.scaled_c10.s, m_coef_data.scaled_c10.m, m_coef_data.scaled_c10.e);
     DPS3XX_BARO_LOGD("Scaled c01(%e) = s(%ld), m(0x%8.8lx), e(%ld)", (double)(float)m_coef_data.scaled_c01, m_coef_data.scaled_c01.s, m_coef_data.scaled_c01.m, m_coef_data.scaled_c01.e);
