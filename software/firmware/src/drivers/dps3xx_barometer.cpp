@@ -96,6 +96,10 @@ esp_err_t Dps3xxBarometer::init_device() {
 
     // Set temperature measurement rate and oversampling rate
     Dps3xxTmpCfgReg_t tmp_cfg = {0};
+    if (this->read_byte(DPS3XX_REG_ADDR_COEF_SRC, &(tmp_cfg.byte)) != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to read temperature coefficient source");
+        return ESP_FAIL;
+    }
     tmp_cfg.tmp_rate = m_temperature_cfg.mesurement_rate;
     tmp_cfg.tmp_prc = m_temperature_cfg.oversampling_rate;
     if (this->write_byte(DPS3XX_REG_ADDR_TMP_CFG, tmp_cfg.byte) != ESP_OK) {
@@ -218,37 +222,15 @@ esp_err_t Dps3xxBarometer::get_coefs() {
 
     DPS3XX_BARO_LOGD("c0: %ld, c1: %ld, c00: %ld, c10: %ld, c01: %ld, c11: %ld, c20: %ld, c21: %ld, c30: %ld", c0, c1, c00, c10, c01, c11, c20, c21, c30);
 
-    m_coef_data.scaled_c0   = float32_t(c0);
-    m_coef_data.scaled_c0  /= float32_t((int32_t)2);
-
-    m_coef_data.scaled_c1   = float32_t(c1);
-    m_coef_data.scaled_c1  /= m_temperature_cfg.scale_factor;
-
+    m_coef_data.scaled_c0  = float32_t(c0) / float32_t((int32_t)2);
+    m_coef_data.scaled_c1   = float32_t(c1) / m_temperature_cfg.scale_factor;
     m_coef_data.scaled_c00  = float32_t(c00);
-
-    m_coef_data.scaled_c10  = float32_t(c10);
-    m_coef_data.scaled_c10 /= m_pressure_cfg.scale_factor;
-
-    m_coef_data.scaled_c01  = float32_t(c01);
-    m_coef_data.scaled_c01 /= m_temperature_cfg.scale_factor;
-
-    m_coef_data.scaled_c11  = float32_t(c11);
-    m_coef_data.scaled_c11 /= m_pressure_cfg.scale_factor;
-    m_coef_data.scaled_c11 /= m_temperature_cfg.scale_factor;
-
-    m_coef_data.scaled_c20  = float32_t(c20);
-    m_coef_data.scaled_c20 /= m_pressure_cfg.scale_factor;
-    m_coef_data.scaled_c20 /= m_pressure_cfg.scale_factor;
-    
-    m_coef_data.scaled_c21  = float32_t(c21);
-    m_coef_data.scaled_c21 /= m_pressure_cfg.scale_factor;
-    m_coef_data.scaled_c21 /= m_pressure_cfg.scale_factor;
-    m_coef_data.scaled_c21 /= m_temperature_cfg.scale_factor;
-
-    m_coef_data.scaled_c30  = float32_t(c30);
-    m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
-    m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
-    m_coef_data.scaled_c30 /= m_pressure_cfg.scale_factor;
+    m_coef_data.scaled_c10  = float32_t(c10) / m_pressure_cfg.scale_factor;
+    m_coef_data.scaled_c01  = float32_t(c01) / m_temperature_cfg.scale_factor;
+    m_coef_data.scaled_c11  = float32_t(c11) / m_pressure_cfg.scale_factor / m_temperature_cfg.scale_factor;
+    m_coef_data.scaled_c20  = float32_t(c20) / m_pressure_cfg.scale_factor / m_pressure_cfg.scale_factor;  
+    m_coef_data.scaled_c21  = float32_t(c21) / m_pressure_cfg.scale_factor / m_pressure_cfg.scale_factor / m_temperature_cfg.scale_factor;
+    m_coef_data.scaled_c30  = float32_t(c30) / m_pressure_cfg.scale_factor / m_pressure_cfg.scale_factor / m_pressure_cfg.scale_factor;
 
     DPS3XX_BARO_LOGD("Scaled c0(%e) =  s(%ld), m(0x%8.8lx), e(%ld)", (double)(float)m_coef_data.scaled_c0,  m_coef_data.scaled_c0.s,  m_coef_data.scaled_c0.m,  m_coef_data.scaled_c0.e);
     DPS3XX_BARO_LOGD("Scaled c1(%e) =  s(%ld), m(0x%8.8lx), e(%ld)", (double)(float)m_coef_data.scaled_c1,  m_coef_data.scaled_c1.s,  m_coef_data.scaled_c1.m,  m_coef_data.scaled_c1.e);
