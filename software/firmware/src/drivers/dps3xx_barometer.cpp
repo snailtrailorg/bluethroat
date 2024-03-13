@@ -177,6 +177,8 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
     int32_t raw_temperature = (int32_t)(((uint32_t)regs->tmp_b2 << 24) | ((uint32_t)regs->tmp_b1 << 16) | ((uint32_t)regs->tmp_b0 << 8)) >> 8;
     int32_t raw_pressure    = (int32_t)(((uint32_t)regs->prs_b2 << 24) | ((uint32_t)regs->prs_b1 << 16) | ((uint32_t)regs->prs_b0 << 8)) >> 8;
 
+    DPS3XX_BARO_LOGD("raw_temperature: 0x%8.8lx, raw_pressure: 0x%8.8lx", raw_temperature, raw_pressure);
+
     float32_t temperature = m_coef_data.scaled_c0 + 
                             m_coef_data.scaled_c1 * raw_temperature;
     float32_t pressure    = m_coef_data.scaled_c00 + 
