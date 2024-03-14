@@ -6,6 +6,7 @@
 #include "drivers/i2c_master.h"
 #include "drivers/bm8563_rtc.h"
 #include "drivers/dps3xx_barometer.h"
+#include "drivers/dps3xx_anemometer.h"
 
 #include "bluethroat_global.h"
 #include "bluethroat_ui.h"
@@ -50,7 +51,7 @@ void app_main() {
 //    bluethroat_ui_init();
 
     /* third step: init main message process task */
-    BluethroatMsgProc * pBluethroatMsgProc = new BluethroatMsgProc(&(g_TaskParam[TASK_ID_MSG_PROC]));
+    BluethroatMsgProc *pBluethroatMsgProc = new BluethroatMsgProc(&(g_TaskParam[TASK_ID_MSG_PROC]));
 
     /* fourth step: init i2c bus master and devices */
     BLUETHROAT_MAIN_ASSERT(I2C_NUM_MAX == 2 && CONFIG_I2C_PORT_0_ENABLED && CONFIG_I2C_PORT_1_ENABLED, "Invalid I2C configuration, run menuconfig and reconfigure it properly");
@@ -58,6 +59,9 @@ void app_main() {
         new I2cMaster(I2C_NUM_0, CONFIG_I2C_PORT_0_SDA, CONFIG_I2C_PORT_0_SCL, CONFIG_I2C_PORT_0_PULLUPS, CONFIG_I2C_PORT_0_PULLUPS, CONFIG_I2C_PORT_0_FREQ_HZ, CONFIG_I2C_PORT_0_LOCK_TIMEOUT, CONFIG_I2C_PORT_0_TIMEOUT), 
         new I2cMaster(I2C_NUM_1, CONFIG_I2C_PORT_1_SDA, CONFIG_I2C_PORT_1_SCL, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_FREQ_HZ, CONFIG_I2C_PORT_1_LOCK_TIMEOUT, CONFIG_I2C_PORT_1_TIMEOUT), 
     };
+
+    // Keep the pointer to the barometer device for the anemometer device
+    Dps3xxBarometer *p_dps3xx_barometer = NULL;
 
     for (int i=0; g_I2cDeviceMap[i].model != I2C_DEVICE_MODEL_INVALID; i++) {
         if (ESP_OK == p_i2c_master[g_I2cDeviceMap[i].port]->ProbeDevice(g_I2cDeviceMap[i].addr)) {
@@ -70,11 +74,15 @@ void app_main() {
                 break;
             case I2C_DEVICE_MODEL_DPS3XX_BAROMETER:
                 if (Dps3xxBarometer::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK) {
-                    Dps3xxBarometer *p_dps3xx_barometer = new Dps3xxBarometer(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, &(g_TaskParam[TASK_ID_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
+                    p_dps3xx_barometer = new Dps3xxBarometer(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, &(g_TaskParam[TASK_ID_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
                     p_dps3xx_barometer->Start();
                 }
                 break;
             case I2C_DEVICE_MODEL_DPS3XX_ANEMOMETER:
+                if (Dps3xxAnemometer::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK && p_dps3xx_barometer != NULL) {
+                    Dps3xxAnemometer *p_dps3xx_anemometer = new Dps3xxAnemometer(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, &(g_TaskParam[TASK_ID_DPS3XX_ANEMOMETER]), pBluethroatMsgProc->m_queue_handle, p_dps3xx_barometer);
+                    p_dps3xx_anemometer->Start();
+                }
                 break;
             default:
                 BLUETHROAT_MAIN_LOGE("Invalid device model %d", g_I2cDeviceMap[i].model);

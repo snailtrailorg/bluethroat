@@ -70,9 +70,9 @@ public:
 
     }
 
-    inline DataType_t ProcessData(DataType_t data){
+    inline DataType_t PutSample(DataType_t sample){
         this->m_sum -= this->m_average;
-        this->m_sum += data;
+        this->m_sum += sample;
         this->m_average = (this->m_sum >> this->m_depth_power);
 
         return this->m_average;
@@ -120,13 +120,13 @@ public:
         }
     }
 
-    inline DataType_t ProcessData(DataType_t data) {
-        DataType_t last_data = this->m_data_list_pos->data;
-        this->m_data_list_pos->data = data;
+    inline DataType_t PutSample(DataType_t sample) {
+        DataType_t oldest_sample = this->m_data_list_pos->data;
+        this->m_data_list_pos->data = sample;
         this->m_data_list_pos = this->m_data_list_pos->next;
 
-        this->m_sum -= last_data;
-        this->m_sum += data;
+        this->m_sum -= oldest_sample;
+        this->m_sum += sample;
         this->m_average = (this->m_sum >> this->m_depth_power);
 
         return this->m_average;

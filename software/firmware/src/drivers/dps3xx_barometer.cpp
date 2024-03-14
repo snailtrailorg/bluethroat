@@ -38,7 +38,8 @@ static const char *TAG = "DPS3XX_BARO";
 
 Dps3xxBarometer::Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
 I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) { 
-    m_p_fir_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_POWER_16, AIR_PRESSURE_DEFAULT_VALUE);
+    m_p_shallow_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_SHALLOW, AIR_PRESSURE_DEFAULT_VALUE);
+    m_p_deep_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_DEEP, AIR_PRESSURE_DEFAULT_VALUE);
     m_pressure_cfg = {
         .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
         .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_64,
@@ -54,14 +55,17 @@ I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) {
 }
 
 Dps3xxBarometer::~Dps3xxBarometer() {
-    delete m_p_fir_filter;
+    delete m_p_shallow_filter;
+    delete m_p_deep_filter;
 }
 
 esp_err_t Dps3xxBarometer::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr) {
     Dps3xxIdReg_t id;
     if (p_i2c_master->ReadByte(device_addr, DPS3XX_REG_ADDR_ID , &(id.byte)) == ESP_OK && id.byte == DPS3XX_REG_VALUE_ID) {
+        DPS3XX_BARO_LOGD("DPS3xx barometer found at 0x%2.2x", device_addr);
         return ESP_OK;
     } else {
+        DPS3XX_BARO_LOGE("DPS3xx barometer not found at 0x%2.2x", device_addr);
         return ESP_FAIL;
     }
 }
@@ -192,12 +196,30 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
                             m_coef_data.scaled_c01 * raw_temperature +
                             m_coef_data.scaled_c11 * raw_pressure * raw_temperature;
 
-    
-    p_message->type = BLUETHROAT_MSG_BAROMETER;
-    p_message->barometer_data.temperature = (float)temperature;
-    p_message->barometer_data.pressure = (float)pressure;
-    
     DPS3XX_BARO_LOGD("temperature: %f, pessure: %f", (float)temperature, (float)pressure);
+
+    // Generally, the air pressure value  is 300(@30km) ~ 101325(@0km) Pa, it is a positive value.
+    // Since 101325 is 0x18BCD only 17 bits, so the maximum value of the pressure.e is -15.
+    // Shift the pressure.m to make exponent tobe ((-15) + FILTER_DEPTH_XXX), then put it into the filter.
+    m_p_deep_filter->PutSample(pressure.m >> ((FILTER_DEPTH_DEEP - 15) - pressure.e));
+
+    // Deep filter is used to get a stable value of the pressure to calculate the speed of wind by anemometer.
+    // For barometer, use a shallow filter to get a relatively stable and low phase shift data.
+    if (p_message != NULL) {
+        int8_t shallow_offset = (FILTER_DEPTH_SHALLOW - 15) - pressure.e;
+        uint32_t prs_shallow_average = m_p_shallow_filter->PutSample(pressure.m >> ((FILTER_DEPTH_SHALLOW - 15) - pressure.e));
+
+        p_message->type = BLUETHROAT_MSG_BAROMETER;
+        p_message->barometer_data.temperature = (float)temperature;
+        // Left shift FILTER_DEPTH_SHALLOW instead of shallow_offset bits to avoid overflow.
+        // E.g., if the sample's exponent just change to -16, while the last sevaral samples' exponent is -15, the average's exponent will be -15.
+        // In this case, the shallow_offset will be 4, larger than FILTER_DEPTH_SHALLOW by 1, which will cause overflow.
+        // In most cases, the pressure value is between 65536(0x10000) and 131071(0x1FFFF), just left shift FILTER_DEPTH_SHALLOW is enough.
+        // If don't left shift before construct a float32_t, additional shift operations and MSB detection will cause a lot of load.
+        p_message->barometer_data.pressure = (float)float32_t(pressure.s, prs_shallow_average << FILTER_DEPTH_SHALLOW, pressure.e + shallow_offset - FILTER_DEPTH_SHALLOW);
+
+        DPS3XX_BARO_LOGD("temperature: %f, pessure: %f", p_message->barometer_data.temperature, p_message->barometer_data.pressure);
+    }
 
     return ESP_OK;
 }

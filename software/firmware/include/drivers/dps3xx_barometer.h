@@ -368,9 +368,11 @@ typedef struct {
 } Dps3xxScaledCoefData_t;
 
 /***********************************************************************************************************************
-* Default value of FIR filter defination
+* Default value and depth of FIR filter defination
 ***********************************************************************************************************************/
 #define AIR_PRESSURE_DEFAULT_VALUE      (101325)
+#define FILTER_DEPTH_SHALLOW            (FILTER_DEPTH_POWER_08)
+#define FILTER_DEPTH_DEEP               (FILTER_DEPTH_POWER_32)
 
 /***********************************************************************************************************************
 * @brief Dps3xx barometer class
@@ -392,7 +394,8 @@ public:
     bool enable_fifo;
     uint8_t coef_source;
 } Dps3xxGLobalConfig_t;        /* Scaled coef data */
-    FirFilter<uint32_t, uint32_t> *m_p_fir_filter;  /* FIR filter for pressure data */
+    FirFilter<uint32_t, uint32_t> *m_p_shallow_filter;  /* FIR shallow filter for pressure data */
+    FirFilter<uint32_t, uint32_t> *m_p_deep_filter;     /* FIR deep filter for pressure data */
 
 public:
     Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
