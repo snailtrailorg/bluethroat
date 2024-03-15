@@ -38,8 +38,8 @@ static const char *TAG = "DPS3XX_BARO";
 
 Dps3xxBarometer::Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
 I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) { 
-    m_p_shallow_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_SHALLOW, AIR_PRESSURE_DEFAULT_VALUE);
-    m_p_deep_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_DEEP, AIR_PRESSURE_DEFAULT_VALUE);
+    m_p_shallow_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_SHALLOW, AIR_PRESSURE_DEFAULT_VALUE << (31 - AIR_PRESSURE_DEFAULT_VALUE_MSB - FILTER_DEPTH_SHALLOW));
+    m_p_deep_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_DEEP, AIR_PRESSURE_DEFAULT_VALUE << (31 - AIR_PRESSURE_DEFAULT_VALUE_MSB - FILTER_DEPTH_DEEP));
     m_pressure_cfg = {
         .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
         .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_64,
@@ -201,12 +201,12 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
     // Generally, the air pressure value  is 300(@30km) ~ 101325(@0km) Pa, it is a positive value.
     // Since 101325 is 0x18BCD only 17 bits, so the maximum value of the pressure.e is -15.
     // Shift the pressure.m to make exponent tobe ((-15) + FILTER_DEPTH_XXX), then put it into the filter.
-    m_p_deep_filter->PutSample(pressure.m >> ((FILTER_DEPTH_DEEP - 15) - pressure.e));
+    this->m_p_deep_filter->PutSample(pressure.m >> ((AIR_PRESSURE_DEFAULT_VALUE_MSB + FILTER_DEPTH_DEEP - 31) - pressure.e));
 
     // Deep filter is used to get a stable value of the pressure to calculate the speed of wind by anemometer.
     // For barometer, use a shallow filter to get a relatively stable and low phase shift data.
     if (p_message != NULL) {
-        int8_t shallow_offset = (FILTER_DEPTH_SHALLOW - 15) - pressure.e;
+        int8_t shallow_offset = (AIR_PRESSURE_DEFAULT_VALUE_MSB + FILTER_DEPTH_SHALLOW - 31) - pressure.e;
         uint32_t prs_shallow_average = m_p_shallow_filter->PutSample(pressure.m >> ((FILTER_DEPTH_SHALLOW - 15) - pressure.e));
 
         p_message->type = BLUETHROAT_MSG_BAROMETER;

@@ -371,6 +371,7 @@ typedef struct {
 * Default value and depth of FIR filter defination
 ***********************************************************************************************************************/
 #define AIR_PRESSURE_DEFAULT_VALUE      (101325)
+#define AIR_PRESSURE_DEFAULT_VALUE_MSB  (16)
 #define FILTER_DEPTH_SHALLOW            (FILTER_DEPTH_POWER_08)
 #define FILTER_DEPTH_DEEP               (FILTER_DEPTH_POWER_32)
 
@@ -386,14 +387,9 @@ typedef struct {
 ***********************************************************************************************************************/
 class Dps3xxBarometer : public I2cDevice {
 public:
-    Dps3xxMeasureConfig_t m_pressure_cfg;                  /* pressure measurement config */
-    Dps3xxMeasureConfig_t m_temperature_cfg;               /* temperature measurement config */
-    Dps3xxScaledCoefData_t m_coef_data;     typedef struct {
-    uint8_t measurement_mode;
-    bool enable_interrupt;
-    bool enable_fifo;
-    uint8_t coef_source;
-} Dps3xxGLobalConfig_t;        /* Scaled coef data */
+    Dps3xxMeasureConfig_t m_pressure_cfg;               /* pressure measurement config */
+    Dps3xxMeasureConfig_t m_temperature_cfg;            /* temperature measurement config */
+    Dps3xxScaledCoefData_t m_coef_data;                 /* scaled coefficient data */
     FirFilter<uint32_t, uint32_t> *m_p_shallow_filter;  /* FIR shallow filter for pressure data */
     FirFilter<uint32_t, uint32_t> *m_p_deep_filter;     /* FIR deep filter for pressure data */
 

@@ -38,16 +38,16 @@ Dps3xxAnemometer::~Dps3xxAnemometer() {
 }
 
 esp_err_t Dps3xxAnemometer::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
-    if (Dps3xxBarometer::process_data(in_data, in_size, NULL) != ESP_OK) {
+    if (Dps3xxBarometer::process_data(in_data, in_size, p_message) != ESP_OK) {
         DPS3XX_ANEMO_LOGE("Failed to process barometer data in anemometer class");
         return ESP_FAIL;
     }
 
-    int32_t front_pressure = this->m_p_deep_filter->GetAverage();
-    int32_t back_pressure = this->m_p_barometer->m_p_deep_filter->GetAverage();
-    int32_t diff_pressure = front_pressure - back_pressure;
+    float32_t front_pressure = float32_t(POSITIVE, this->m_p_deep_filter->GetAverage(), -10);
+    float32_t back_pressure = float32_t(POSITIVE, this->m_p_barometer->m_p_deep_filter->GetAverage(), -10);
+    float32_t diff_pressure = front_pressure - back_pressure;
 
-    DPS3XX_ANEMO_LOGD("Front pressure: 0x%8.8lx, Back pressure: 0x%8.8lx, Diff pressure: 0x%8.8lx", front_pressure, back_pressure, diff_pressure);
+    DPS3XX_ANEMO_LOGE("%f %f %f %f", p_message->barometer_data.temperature, (float)front_pressure, (float)back_pressure, (float)diff_pressure);
 
     return ESP_OK;
 }
