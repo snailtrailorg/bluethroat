@@ -185,7 +185,7 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
     int32_t raw_temperature = (int32_t)(((uint32_t)regs->tmp_b2 << 24) | ((uint32_t)regs->tmp_b1 << 16) | ((uint32_t)regs->tmp_b0 << 8)) >> 8;
     int32_t raw_pressure    = (int32_t)(((uint32_t)regs->prs_b2 << 24) | ((uint32_t)regs->prs_b1 << 16) | ((uint32_t)regs->prs_b0 << 8)) >> 8;
 
-    DPS3XX_BARO_LOGD("raw_temperature: 0x%8.8lx, raw_pressure: 0x%8.8lx", raw_temperature, raw_pressure);
+    DPS3XX_BARO_LOGD("Task: %s, raw_temperature: 0x%8.8lx, raw_pressure: 0x%8.8lx", (this->m_p_task_param && this->m_p_task_param->task_name) ? this->m_p_task_param->task_name : "", raw_temperature, raw_pressure);
 
     float32_t temperature = m_coef_data.scaled_c0 + 
                             m_coef_data.scaled_c1 * raw_temperature;
@@ -196,7 +196,7 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
                             m_coef_data.scaled_c01 * raw_temperature +
                             m_coef_data.scaled_c11 * raw_pressure * raw_temperature;
 
-    DPS3XX_BARO_LOGD("temperature: %f, pessure: %f", (float)temperature, (float)pressure);
+    DPS3XX_BARO_LOGD("Task: %s, temperature: %f, pessure: %f", (this->m_p_task_param && this->m_p_task_param->task_name) ? this->m_p_task_param->task_name : "", (float)temperature, (float)pressure);
 
     // Generally, the air pressure value  is 300(@30km) ~ 101325(@0km) Pa, it is a positive value.
     // Since 101325 is 0x18BCD only 17 bits, so the maximum value of the pressure.e is -15.
@@ -218,7 +218,7 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
         // If don't left shift before construct a float32_t, additional shift operations and MSB detection will cause a lot of load.
         p_message->barometer_data.pressure = (float)float32_t(pressure.s, prs_shallow_average << FILTER_DEPTH_SHALLOW, pressure.e + shallow_offset - FILTER_DEPTH_SHALLOW);
 
-        DPS3XX_BARO_LOGD("temperature: %f, pessure: %f", p_message->barometer_data.temperature, p_message->barometer_data.pressure);
+        DPS3XX_BARO_LOGD("Task: %s send message, temperature: %f, pessure: %f", (this->m_p_task_param && this->m_p_task_param->task_name) ? this->m_p_task_param->task_name : "", p_message->barometer_data.temperature, p_message->barometer_data.pressure);
     }
 
     return ESP_OK;

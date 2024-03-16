@@ -43,11 +43,17 @@ esp_err_t Dps3xxAnemometer::process_data(uint8_t *in_data, uint8_t in_size, Blue
         return ESP_FAIL;
     }
 
-    float32_t front_pressure = float32_t(POSITIVE, this->m_p_deep_filter->GetAverage(), -10);
-    float32_t back_pressure = float32_t(POSITIVE, this->m_p_barometer->m_p_deep_filter->GetAverage(), -10);
-    float32_t diff_pressure = front_pressure - back_pressure;
+    float32_t total_pressure = float32_t(POSITIVE, this->m_p_deep_filter->GetAverage(), -10);
+    float32_t static_pressure = float32_t(POSITIVE, this->m_p_barometer->m_p_deep_filter->GetAverage(), -10);
 
-    DPS3XX_ANEMO_LOGE("%f %f %f %f", p_message->barometer_data.temperature, (float)front_pressure, (float)back_pressure, (float)diff_pressure);
+
+    DPS3XX_ANEMO_LOGE("%s %f %f %f", (this->m_p_task_param && this->m_p_task_param->task_name) ? this->m_p_task_param->task_name : "", p_message->barometer_data.temperature, (float)total_pressure, (float)static_pressure);
+
+    p_message->type = BLUETHROAT_MSG_ANEMOMETER;
+    // It is not necessary to copy the temperature from barometer data to anemometer data since they are in the same place in the union
+    // p_message->anemometer_data.temperature = p_message->barometer_data.temperature;
+    p_message->anemometer_data.total_pressure = (float)total_pressure;
+    p_message->anemometer_data.static_pressure = (float)static_pressure;
 
     return ESP_OK;
 }

@@ -34,30 +34,64 @@ typedef struct {
 typedef struct {
     float temperature;
     float pressure;
-    float altitude;
-    float vertical_speed;
 } BarometerData_t;
 
-typedef struct {} HygrometerData_t;
-typedef struct {} AnemometerData_t;
-typedef struct {} AccelerationData_t;
-typedef struct {} RotationData_t;
-typedef struct {} GeomagneticData_t;
-typedef struct {} PowerData_t;
-typedef struct {} GpsData_t;
+typedef struct {
+    float temperature;
+    float total_pressure;
+    float static_pressure;
+} AnemometerData_t;
+
+typedef struct {
+    float temperature;
+    float humidity;
+} HygrometerData_t;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} AccelerationData_t;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} RotationData_t;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} GeomagneticData_t;
+
+typedef struct {
+    float voltage;
+    float current;
+    float power;
+    float energy;
+
+} PowerData_t;
+
+typedef struct {
+    float latitude;
+    float longitude;
+    float altitude;
+    float speed;
+} GpsData_t;
 
 typedef struct {
     BluethroatMsgType_t type;
     union {
         RtcData_t rtc_data;
         BarometerData_t barometer_data;
-        HygrometerData_t hygrometer_data;
         AnemometerData_t anemometer_data;
-        AccelerationData_t acceleration;
-        RotationData_t rotation;
-        GeomagneticData_t geomagnatic;
-        PowerData_t power;
-        GpsData_t gps;
+        HygrometerData_t hygrometer_data;
+        AccelerationData_t acceleration_data;
+        RotationData_t rotation_data;
+        GeomagneticData_t geomagnatic_data;
+        PowerData_t power_data;
+        GpsData_t gps_data;
     };
 } BluethroatMsg_t;
 
