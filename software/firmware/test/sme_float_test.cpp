@@ -332,6 +332,8 @@ public:
             mantissa = 0;
             exponent = 0;
         } else if (other.m == 0) {  // division by zero
+            sign = POSITIVE; // set sign & exponent values to eliminate compilation errors
+            exponent = 0;
             mantissa = this->m / other.m; // generate a devide by zero exception
         } else {
             sign = this->s ^ other.s;

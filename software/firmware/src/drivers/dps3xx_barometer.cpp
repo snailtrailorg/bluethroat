@@ -43,13 +43,13 @@ I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) {
     m_pressure_cfg = {
         .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
         .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_64,
-        .mesurement_time = pdMS_TO_TICKS(100),
+        .mesurement_time = pdMS_TO_TICKS(DPS3XX_MEASUREMENT_TIME_MS_PRC_64 + portTICK_PERIOD_MS / 2),
         .scale_factor = float32_t((int32_t)DPS3XX_SCALE_FACTOR_PRC_64),
     };
     m_temperature_cfg = {
         .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
-        .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_32,
-        .mesurement_time = pdMS_TO_TICKS(50),
+        .oversampling_rate = DPS3XX_REG_VALUE_TMP_PRC_32,
+        .mesurement_time = pdMS_TO_TICKS(DPS3XX_MEASUREMENT_TIME_MS_PRC_32 + portTICK_PERIOD_MS / 2),
         .scale_factor = float32_t((int32_t)DPS3XX_SCALE_FACTOR_PRC_32),
     };
 }
@@ -79,7 +79,7 @@ esp_err_t Dps3xxBarometer::init_device() {
         return ESP_FAIL;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(50));
+    vTaskDelay(pdMS_TO_TICKS(DPS3XX_RESET_DELAY_MS));
 
     // Read chip status and wait for sensor and coefficient data ready
     Dps3xxMeasCfgReg_t meas_cfg = {0};
@@ -89,7 +89,7 @@ esp_err_t Dps3xxBarometer::init_device() {
             break;
         } else {
             DPS3XX_BARO_LOGD("Waiting for sensor and coefficient data ready");
-            vTaskDelay(pdMS_TO_TICKS(10));
+            vTaskDelay(pdMS_TO_TICKS(portTICK_PERIOD_MS));
         }
     }
 
@@ -165,7 +165,7 @@ esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
             break;
         } else {
             DPS3XX_BARO_LOGV("Waiting for temperature data ready, meas_cfg: 0x%2.2x", meas_cfg);
-            vTaskDelay(pdMS_TO_TICKS(10));
+            vTaskDelay(pdMS_TO_TICKS(portTICK_PERIOD_MS));
         }
     }
 
@@ -189,7 +189,7 @@ esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
             break;
         } else {
             DPS3XX_BARO_LOGV("%s: Waiting for pressure data ready, meas_cfg: 0x%2.2x", this->m_p_task_param->task_name, meas_cfg);
-            vTaskDelay(pdMS_TO_TICKS(10));
+            vTaskDelay(pdMS_TO_TICKS(portTICK_PERIOD_MS));
         }
     }
 

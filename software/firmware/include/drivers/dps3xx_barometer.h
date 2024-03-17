@@ -124,6 +124,18 @@ typedef union {
 #define DPS3XX_REG_VALUE_TMP_EXT_MEMS           (0x01)
 
 /***********************************************************************************************************************
+* Dps3xx measurement time of different oversampling rate defination, in milliseconds, both pressure and temperature
+***********************************************************************************************************************/
+#define DPS3XX_MEASUREMENT_TIME_MS_PRC_1        (4)     // (3.6)
+#define DPS3XX_MEASUREMENT_TIME_MS_PRC_2        (6)     // (5.2)
+#define DPS3XX_MEASUREMENT_TIME_MS_PRC_4        (9)     // (8.4)
+#define DPS3XX_MEASUREMENT_TIME_MS_PRC_8        (15)    // (14.8)
+#define DPS3XX_MEASUREMENT_TIME_MS_PRC_16       (28)    // (27.6)
+#define DPS3XX_MEASUREMENT_TIME_MS_PRC_32       (54)    // (53.2)
+#define DPS3XX_MEASUREMENT_TIME_MS_PRC_64       (105)   // (104.4)
+#define DPS3XX_MEASUREMENT_TIME_MS_PRC_128      (207)   // (206.8)
+
+/***********************************************************************************************************************
 * Dps3xx measurement configuration registers address, structure and related configuration value defination
 ***********************************************************************************************************************/
 #define DPS3XX_REG_ADDR_MEAS_CFG                (0x08)
@@ -258,6 +270,7 @@ typedef union {
 
 #define DPS3XX_REG_VALUE_SOFT_RESET         (0x09)
 #define DPS3XX_REG_VALUE_FIFO_FLUSH         (0x01)
+#define DPS3XX_RESET_DELAY_MS               (40)
 
 /***********************************************************************************************************************
 * Dps3xx chip and revision ID registers address，structure and related configuration value defination
