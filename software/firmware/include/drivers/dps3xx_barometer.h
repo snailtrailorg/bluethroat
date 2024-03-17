@@ -245,18 +245,19 @@ typedef union {
     uint8_t byte;
     struct {
 #if _BYTE_ORDER == _LITTLE_ENDIAN
+        uint8_t soft_reset      : 4;
         uint8_t                 : 3;
-        uint8_t reset           : 1;
         uint8_t fifo_flush      : 1;
-        uint8_t                 : 4;
 #else
-        uint8_t                 : 4;
         uint8_t fifo_flush      : 1;
-        uint8_t reset           : 1;
         uint8_t                 : 3;
+        uint8_t soft_reset      : 4;
 #endif
     };
 } __attribute__ ((packed)) Dps3xxResetReg_t;
+
+#define DPS3XX_REG_VALUE_SOFT_RESET         (0x09)
+#define DPS3XX_REG_VALUE_FIFO_FLUSH         (0x01)
 
 /***********************************************************************************************************************
 * Dps3xx chip and revision ID registers address，structure and related configuration value defination

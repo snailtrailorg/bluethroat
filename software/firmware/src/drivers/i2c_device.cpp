@@ -146,10 +146,10 @@ void I2cDevice::task_loop() {
 					; // not valid queue handle provided, needn't send message
 				}
 			} else {
-				I2C_DEVICE_LOGD("Send message to queue failed.");
+				I2C_DEVICE_LOGE("Process I2C data failed.");
 			}
 		} else {
-			I2C_DEVICE_LOGD("Fetch I2C data failed.");
+			I2C_DEVICE_LOGE("Fetch I2C data failed.");
 		}
 
 		if (this->m_p_task_param->task_interval > 0) {

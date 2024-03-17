@@ -71,6 +71,16 @@ esp_err_t Dps3xxBarometer::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t devic
 }
 
 esp_err_t Dps3xxBarometer::init_device() {
+    Dps3xxResetReg_t reset = {0};
+    reset.soft_reset = DPS3XX_REG_VALUE_SOFT_RESET;
+    reset.fifo_flush = DPS3XX_REG_VALUE_FIFO_FLUSH;
+    if (this->write_byte(DPS3XX_REG_ADDR_RESET, reset.byte) != ESP_OK) {
+        DPS3XX_BARO_LOGE("Failed to reset DPS3xx sensor");
+        return ESP_FAIL;
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(50));
+
     // Read chip status and wait for sensor and coefficient data ready
     Dps3xxMeasCfgReg_t meas_cfg = {0};
     for ( ; ; ) {
@@ -135,9 +145,10 @@ esp_err_t Dps3xxBarometer::deinit_device() {
 
 esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
     DPS3XX_BARO_ASSERT(size >= sizeof(Dps3xxData_t), "Buffer size is not enough to contain pressure and temperature structure.");
-
+    
     uint8_t meas_cfg;
     esp_err_t result;
+    uint8_t retry;
 
     if ((result = this->write_byte(DPS3XX_REG_ADDR_MEAS_CFG, DPS3XX_REG_VALUE_MEAS_CTRL_TMP)) != ESP_OK) {
         DPS3XX_BARO_LOGE("Failed to write measurement configuration register");
@@ -146,15 +157,21 @@ esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
         vTaskDelay(this->m_temperature_cfg.mesurement_time);
     }
 
-    for ( ; ; ) {
+    for (retry=0; retry<5; retry++) {
         if ((result = this->read_byte(DPS3XX_REG_ADDR_MEAS_CFG, &meas_cfg) != ESP_OK)) {
             DPS3XX_BARO_LOGE("Failed to read measurement configuration register");
             return ESP_FAIL;
         } else if (meas_cfg & DPS3XX_REG_VALUE_TMP_RDY) {
             break;
         } else {
+            DPS3XX_BARO_LOGV("Waiting for temperature data ready, meas_cfg: 0x%2.2x", meas_cfg);
             vTaskDelay(pdMS_TO_TICKS(10));
         }
+    }
+
+    if (retry == 5) {
+        DPS3XX_BARO_LOGE("Failed to get temperature data ready");
+        return ESP_FAIL;
     }
 
     if ((result = this->write_byte(DPS3XX_REG_ADDR_MEAS_CFG, DPS3XX_REG_VALUE_MEAS_CTRL_PRS)) != ESP_OK) {
@@ -164,23 +181,29 @@ esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
         vTaskDelay(this->m_pressure_cfg.mesurement_time);
     }
 
-    for ( ; ; ) {
+    for (retry=0; retry<5; retry++) {
         if ((result = this->read_byte(DPS3XX_REG_ADDR_MEAS_CFG, &meas_cfg) != ESP_OK)) {
             DPS3XX_BARO_LOGE("Failed to read measurement configuration register");
             return ESP_FAIL;
         } else if (meas_cfg & DPS3XX_REG_VALUE_PRS_RDY) {
             break;
         } else {
+            DPS3XX_BARO_LOGV("%s: Waiting for pressure data ready, meas_cfg: 0x%2.2x", this->m_p_task_param->task_name, meas_cfg);
             vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
-    
+
+    if (retry == 5) {
+        DPS3XX_BARO_LOGE("Failed to get pressure data ready");
+        return ESP_FAIL;
+    }
+
     return this->read_buffer(DPS3XX_REG_ADDR_PSR_B2, data, sizeof(Dps3xxData_t));
 }
 
 esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
     DPS3XX_BARO_ASSERT(in_size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    Dps3xxData_t *regs = (Dps3xxData_t *)in_data;
+        Dps3xxData_t *regs = (Dps3xxData_t *)in_data;
 
     int32_t raw_temperature = (int32_t)(((uint32_t)regs->tmp_b2 << 24) | ((uint32_t)regs->tmp_b1 << 16) | ((uint32_t)regs->tmp_b0 << 8)) >> 8;
     int32_t raw_pressure    = (int32_t)(((uint32_t)regs->prs_b2 << 24) | ((uint32_t)regs->prs_b1 << 16) | ((uint32_t)regs->prs_b0 << 8)) >> 8;
