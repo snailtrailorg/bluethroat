@@ -43,13 +43,13 @@ I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) {
     m_pressure_cfg = {
         .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
         .oversampling_rate = DPS3XX_REG_VALUE_PM_PRC_64,
-        .mesurement_time = pdMS_TO_TICKS(DPS3XX_MEASUREMENT_TIME_MS_PRC_64 + portTICK_PERIOD_MS / 2),
+        .mesurement_time = pdMS_TO_TICKS(DPS3XX_MEASUREMENT_TIME_MS_PRC_64 + portTICK_PERIOD_MS - 1),
         .scale_factor = float32_t((int32_t)DPS3XX_SCALE_FACTOR_PRC_64),
     };
     m_temperature_cfg = {
         .mesurement_rate = DPS3XX_REG_VALUE_PM_RATE_4,
         .oversampling_rate = DPS3XX_REG_VALUE_TMP_PRC_32,
-        .mesurement_time = pdMS_TO_TICKS(DPS3XX_MEASUREMENT_TIME_MS_PRC_32 + portTICK_PERIOD_MS / 2),
+        .mesurement_time = pdMS_TO_TICKS(DPS3XX_MEASUREMENT_TIME_MS_PRC_32 + portTICK_PERIOD_MS  - 1),
         .scale_factor = float32_t((int32_t)DPS3XX_SCALE_FACTOR_PRC_32),
     };
 }
@@ -74,23 +74,18 @@ esp_err_t Dps3xxBarometer::init_device() {
     Dps3xxResetReg_t reset = {0};
     reset.soft_reset = DPS3XX_REG_VALUE_SOFT_RESET;
     reset.fifo_flush = DPS3XX_REG_VALUE_FIFO_FLUSH;
-    if (this->write_byte(DPS3XX_REG_ADDR_RESET, reset.byte) != ESP_OK) {
+    while (this->write_byte(DPS3XX_REG_ADDR_RESET, reset.byte) != ESP_OK) {
         DPS3XX_BARO_LOGE("Failed to reset DPS3xx sensor");
-        return ESP_FAIL;
+        vTaskDelay(pdMS_TO_TICKS(portTICK_PERIOD_MS));
     }
 
-    vTaskDelay(pdMS_TO_TICKS(DPS3XX_RESET_DELAY_MS));
+    vTaskDelay(pdMS_TO_TICKS(DPS3XX_RESET_CHIP_READY_MS + portTICK_PERIOD_MS - 1));
 
     // Read chip status and wait for sensor and coefficient data ready
     Dps3xxMeasCfgReg_t meas_cfg = {0};
-    for ( ; ; ) {
-        this->read_byte(DPS3XX_REG_ADDR_MEAS_CFG, &(meas_cfg.byte));
-        if (meas_cfg.sensor_rdy && meas_cfg.coef_rdy) {
-            break;
-        } else {
-            DPS3XX_BARO_LOGD("Waiting for sensor and coefficient data ready");
-            vTaskDelay(pdMS_TO_TICKS(portTICK_PERIOD_MS));
-        }
+    while (this->read_byte(DPS3XX_REG_ADDR_MEAS_CFG, &(meas_cfg.byte)) != ESP_OK ||  meas_cfg.sensor_rdy == 0 || meas_cfg.coef_rdy == 0) {
+        DPS3XX_BARO_LOGD("Waiting for sensor and coefficient data ready");
+        vTaskDelay(pdMS_TO_TICKS(portTICK_PERIOD_MS));
     }
 
     // Read coefficient data
@@ -136,6 +131,9 @@ esp_err_t Dps3xxBarometer::init_device() {
         DPS3XX_BARO_LOGE("Failed to set pressure and temperature measurement rate");
         return ESP_FAIL;
     }
+
+    vTaskDelay(pdMS_TO_TICKS(portTICK_PERIOD_MS));
+
     return ESP_OK;
 }
 

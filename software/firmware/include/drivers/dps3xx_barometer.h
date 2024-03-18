@@ -270,7 +270,10 @@ typedef union {
 
 #define DPS3XX_REG_VALUE_SOFT_RESET         (0x09)
 #define DPS3XX_REG_VALUE_FIFO_FLUSH         (0x01)
-#define DPS3XX_RESET_DELAY_MS               (40)
+
+#define DPS3XX_RESET_CHIP_READY_MS          (3)     // (2.5ms)
+#define DPS3XX_RESET_SENSOR_READY_MS        (12)    // (12ms)
+#define DPS3XX_RESET_COEF_READY_MS          (40)    // (40ms)
 
 /***********************************************************************************************************************
 * Dps3xx chip and revision ID registers address，structure and related configuration value defination
