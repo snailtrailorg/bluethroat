@@ -46,8 +46,7 @@ esp_err_t Dps3xxAnemometer::process_data(uint8_t *in_data, uint8_t in_size, Blue
     float32_t total_pressure = float32_t(POSITIVE, this->m_p_deep_filter->GetAverage(), -10);
     float32_t static_pressure = float32_t(POSITIVE, this->m_p_barometer->m_p_deep_filter->GetAverage(), -10);
 
-
-    DPS3XX_ANEMO_LOGE("%f %f %f %f", p_message->barometer_data.temperature, (float)total_pressure, (float)static_pressure, (float)(total_pressure - static_pressure));
+    DPS3XX_ANEMO_LOGD("%f %f %f %f", p_message->barometer_data.temperature, (float)total_pressure, (float)static_pressure, (float)(total_pressure - static_pressure));
 
     p_message->type = BLUETHROAT_MSG_ANEMOMETER;
     // It is not necessary to copy the temperature from barometer data to anemometer data since they are in the same place in the union
