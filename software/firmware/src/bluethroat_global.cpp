@@ -26,3 +26,10 @@ const TaskParam_t g_TaskParam[] = { /**/
     [TASK_ID_DPS3XX_BAROMETER]      = {.task_name = "DPS3XX_BARO",     .task_stack_size = (2048 * 2),   .task_priority = ((configMAX_PRIORITIES -  8) | portPRIVILEGE_BIT),      .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS(              0))},
     [TASK_ID_DPS3XX_ANEMOMETER]     = {.task_name = "DPS3XX_ANEMO",    .task_stack_size = (2048 * 2),   .task_priority = ((configMAX_PRIORITIES -  8) | portPRIVILEGE_BIT),      .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS(              0))},
 };
+
+// Keep the pointer to the configuration object
+BluethroatConfig *g_pBluethroatConfig = NULL;
+
+// Keep the pointer to the barometer device for the anemometer device
+Dps3xxBarometer *p_dps3xx_barometer = NULL;
+

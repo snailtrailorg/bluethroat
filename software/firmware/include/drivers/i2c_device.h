@@ -3,8 +3,9 @@
 #include <freertos/FreeRTOS.h>
 #include <driver/i2c.h>
 
-#include "drivers/i2c_master.h"
 #include "drivers/task_param.h"
+#include "drivers/i2c_master.h"
+
 #include "bluethroat_msg_proc.h"
 
 class I2cDevice {

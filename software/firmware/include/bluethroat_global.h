@@ -3,6 +3,10 @@
 #include <sdkconfig.h>
 #include <driver/i2c.h>
 
+#include "drivers/dps3xx_barometer.h"
+
+#include "bluethroat_config.h"
+
 #ifdef CONFIG_I2C_PORT_0_ENABLED
     #ifndef CONFIG_I2C_PORT_0_PULLUPS
         #define CONFIG_I2C_PORT_0_PULLUPS false
@@ -46,3 +50,7 @@ typedef enum {
 } TaskIndex_t;
 
 extern const TaskParam_t g_TaskParam[TASK_ID_MAX];
+
+extern BluethroatConfig *g_pBluethroatConfig;
+
+extern Dps3xxBarometer *p_dps3xx_barometer;

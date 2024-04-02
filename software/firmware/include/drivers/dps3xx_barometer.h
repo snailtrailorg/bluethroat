@@ -5,9 +5,11 @@
 #include <time.h>
 
 #include "bluethroat_msg_proc.h"
+
 #include "drivers/task_param.h"
-#include "utilities/low_pass_filter.h"
 #include "drivers/i2c_device.h"
+
+#include "utilities/low_pass_filter.h"
 #include "utilities/sme_float.h"
 
 /***********************************************************************************************************************

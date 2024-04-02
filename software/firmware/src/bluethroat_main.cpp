@@ -1,4 +1,5 @@
 #include <esp_log.h>
+#include <nvs_flash.h>
 
 #include "adapters/lvgl_adapter.h"
 
@@ -44,25 +45,29 @@ static const char *TAG = "BLUETHROAT_MAIN";
 extern "C" void app_main(void);
 
 void app_main() {
-    /* first step: init lvgl driver fiand task */
-//    lvgl_init();
+    /* step 0: print motd */
+    BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer, https://github.com/snailtrailorg/bluethroat.");
 
-    /* second step: init bluethroat ui elements */
+    /* step 1: init nvs flash */
+    g_pBluethroatConfig = new BluethroatConfig();
+
+    /* step 2: init lvgl driver fiand task */
+    lvgl_init();
+
+    /* step 3: init bluethroat ui elements */
 //    bluethroat_ui_init();
 
-    /* third step: init main message process task */
+    /* step 4: init main message process task */
     BluethroatMsgProc *pBluethroatMsgProc = new BluethroatMsgProc(&(g_TaskParam[TASK_ID_MSG_PROC]));
 
-    /* fourth step: init i2c bus master and devices */
+    /* step 5: init i2c bus master */
     BLUETHROAT_MAIN_ASSERT(I2C_NUM_MAX == 2 && CONFIG_I2C_PORT_0_ENABLED && CONFIG_I2C_PORT_1_ENABLED, "Invalid I2C configuration, run menuconfig and reconfigure it properly");
     I2cMaster *p_i2c_master[I2C_NUM_MAX] = {
         new I2cMaster(I2C_NUM_0, CONFIG_I2C_PORT_0_SDA, CONFIG_I2C_PORT_0_SCL, CONFIG_I2C_PORT_0_PULLUPS, CONFIG_I2C_PORT_0_PULLUPS, CONFIG_I2C_PORT_0_FREQ_HZ, CONFIG_I2C_PORT_0_LOCK_TIMEOUT, CONFIG_I2C_PORT_0_TIMEOUT), 
         new I2cMaster(I2C_NUM_1, CONFIG_I2C_PORT_1_SDA, CONFIG_I2C_PORT_1_SCL, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_FREQ_HZ, CONFIG_I2C_PORT_1_LOCK_TIMEOUT, CONFIG_I2C_PORT_1_TIMEOUT), 
     };
 
-    // Keep the pointer to the barometer device for the anemometer device
-    Dps3xxBarometer *p_dps3xx_barometer = NULL;
-
+    /* step 6: init i2c devices */
     for (int i=0; g_I2cDeviceMap[i].model != I2C_DEVICE_MODEL_INVALID; i++) {
         if (ESP_OK == p_i2c_master[g_I2cDeviceMap[i].port]->ProbeDevice(g_I2cDeviceMap[i].addr)) {
             switch (g_I2cDeviceMap[i].model) {
@@ -91,5 +96,15 @@ void app_main() {
         }
     }
 
+    /* step 7: init bluethroat clock */
     //bluethroat_clock_init();
+
+    /* step 8: init gps module */
+    //bluethroat_gps_init();
+
+    /* step 9: init wifi module */
+    //bluethroat_wifi_init();
+
+    /* step 10: init mqtt module */
+    //bluethroat_mqtt_init();
 }
