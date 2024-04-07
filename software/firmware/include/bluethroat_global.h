@@ -3,23 +3,10 @@
 #include <sdkconfig.h>
 #include <driver/i2c.h>
 
-#include "drivers/dps3xx_barometer.h"
-
-#include "bluethroat_config.h"
-
-#ifdef CONFIG_I2C_PORT_0_ENABLED
-    #ifndef CONFIG_I2C_PORT_0_PULLUPS
-        #define CONFIG_I2C_PORT_0_PULLUPS false
-    #endif
-#endif
-
-#ifdef CONFIG_I2C_PORT_1_ENABLED
-    #ifndef CONFIG_I2C_PORT_1_PULLUPS
-        #define CONFIG_I2C_PORT_1_PULLUPS false
-    #endif
-#endif
+#define I2C_DEVICE_MAX_INT_PINS     (4)
 
 typedef enum {
+    I2C_DEVICE_MODEL_FT6X36_TOUCH,
     I2C_DEVICE_MODEL_AXP192_PMU,
     I2C_DEVICE_MODEL_BM8563_RTC,
     I2C_DEVICE_MODEL_DPS3XX_BAROMETER,
@@ -33,10 +20,12 @@ typedef enum {
 typedef struct {
     i2c_port_t port;
     uint16_t addr;
+    gpio_num_t int_pins[I2C_DEVICE_MAX_INT_PINS];
     I2cDeviceModel_t model;
 } I2cDevice_t;
 
-extern const I2cDevice_t g_I2cDeviceMap[];
+extern const I2cDevice_t g_I2cSystemDeviceMap[];
+extern const I2cDevice_t g_I2cUserDeviceMap[];
 
 #include "drivers/task_param.h"
 
@@ -51,6 +40,10 @@ typedef enum {
 
 extern const TaskParam_t g_TaskParam[TASK_ID_MAX];
 
+#include "bluethroat_config.h"
+
 extern BluethroatConfig *g_pBluethroatConfig;
+
+#include "drivers/dps3xx_barometer.h"
 
 extern Dps3xxBarometer *p_dps3xx_barometer;

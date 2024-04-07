@@ -30,15 +30,16 @@
 
 static const char *TAG = "I2C_DEVICE";
 
-I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr) : m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
+I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins) : 
+m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), m_p_int_pins(p_int_pins),
 m_p_task_param(NULL), m_task_handle(NULL), 
 m_queue_handle(NULL) {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
 	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
 }
 
-I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
-m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), 
+I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
+m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), m_p_int_pins(p_int_pins),
 m_p_task_param(p_task_param), m_task_handle(NULL), 
 m_queue_handle(queue_handle) {
 	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");

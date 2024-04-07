@@ -10,7 +10,7 @@
 
 class Bm8563Rtc : public I2cDevice {
 public:
-    Bm8563Rtc(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
+    Bm8563Rtc(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
     ~Bm8563Rtc();
 
 public:

@@ -4,9 +4,17 @@
 #include <freertos/semphr.h>
 #include <driver/i2c.h>
 
-#define I2C_DEFAULT_SDA_PULLUP_ENABLED 		((bool)(false))
-#define I2C_DEFAULT_SCL_PULLUP_ENABLED 		((bool)(false))
-#define I2C_DEFAULT_CLOCK_SPEED 			((uint32_t)(400000))
+#ifdef CONFIG_I2C_PORT_0_ENABLED
+    #ifndef CONFIG_I2C_PORT_0_PULLUPS
+        #define CONFIG_I2C_PORT_0_PULLUPS false
+    #endif
+#endif
+
+#ifdef CONFIG_I2C_PORT_1_ENABLED
+    #ifndef CONFIG_I2C_PORT_1_PULLUPS
+        #define CONFIG_I2C_PORT_1_PULLUPS false
+    #endif
+#endif
 
 class I2cMaster {
 public:

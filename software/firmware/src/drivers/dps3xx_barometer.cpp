@@ -36,8 +36,8 @@
 
 static const char *TAG = "DPS3XX_BARO";
 
-Dps3xxBarometer::Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
-I2cDevice(p_i2c_master, device_addr, p_task_param, queue_handle) { 
+Dps3xxBarometer::Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
+I2cDevice(p_i2c_master, device_addr, p_int_pins, p_task_param, queue_handle) { 
     m_p_shallow_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_SHALLOW, AIR_PRESSURE_DEFAULT_VALUE << (31 - AIR_PRESSURE_DEFAULT_VALUE_MSB - FILTER_DEPTH_SHALLOW));
     m_p_deep_filter = new FirFilter<uint32_t, uint32_t>(FILTER_DEPTH_DEEP, AIR_PRESSURE_DEFAULT_VALUE << (31 - AIR_PRESSURE_DEFAULT_VALUE_MSB - FILTER_DEPTH_DEEP));
     m_pressure_cfg = {

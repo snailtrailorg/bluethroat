@@ -6,19 +6,20 @@
 #include "drivers/task_param.h"
 #include "drivers/i2c_master.h"
 
-#include "bluethroat_msg_proc.h"
+#include "drivers/task_message.h"
 
 class I2cDevice {
 public:
     I2cMaster *m_p_i2c_master;
     uint16_t m_device_addr;
+    const gpio_num_t *m_p_int_pins;
     const TaskParam_t *m_p_task_param;
     TaskHandle_t m_task_handle;
     QueueHandle_t m_queue_handle;
 
 public:
-    I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr);
-    I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
+    I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins);
+    I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
     ~I2cDevice();
 
 public:
