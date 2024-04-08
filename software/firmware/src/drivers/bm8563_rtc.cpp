@@ -6,7 +6,6 @@
 #include <esp_err.h>
 #include <esp_log.h>
 
-#include "drivers/i2c_device.h"
 #include "drivers/bm8563_rtc.h"
 
 #define BM8563_RTC_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)

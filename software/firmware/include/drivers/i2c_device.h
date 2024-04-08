@@ -3,10 +3,10 @@
 #include <freertos/FreeRTOS.h>
 #include <driver/i2c.h>
 
+#include "drivers/task_message.h"
 #include "drivers/task_param.h"
 #include "drivers/i2c_master.h"
 
-#include "drivers/task_message.h"
 
 class I2cDevice {
 public:
@@ -40,8 +40,8 @@ public:
     esp_err_t delete_task();
     virtual esp_err_t init_device() = 0;
     virtual esp_err_t deinit_device() = 0;
-    virtual esp_err_t fetch_data(uint8_t *data, uint8_t size) = 0;
-    virtual esp_err_t process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) = 0;
+    virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
+    virtual esp_err_t process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
 
 public:
     void task_loop();

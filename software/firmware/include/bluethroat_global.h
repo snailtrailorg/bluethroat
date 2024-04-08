@@ -24,8 +24,7 @@ typedef struct {
     I2cDeviceModel_t model;
 } I2cDevice_t;
 
-extern const I2cDevice_t g_I2cSystemDeviceMap[];
-extern const I2cDevice_t g_I2cUserDeviceMap[];
+extern const I2cDevice_t g_I2cDeviceMap[];
 
 #include "drivers/task_param.h"
 
@@ -47,3 +46,7 @@ extern BluethroatConfig *g_pBluethroatConfig;
 #include "drivers/dps3xx_barometer.h"
 
 extern Dps3xxBarometer *p_dps3xx_barometer;
+
+#include "drivers/ft6x36u_touch.h"
+
+extern Ft6x36uTouch *p_ft6x36u_touch;

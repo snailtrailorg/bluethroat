@@ -134,3 +134,7 @@ static void lvgl_tick_task(void *arg) {
     (void) arg;
     lv_tick_inc(LV_TICK_PERIOD_MS);
 }
+
+esp_err_t lvgl_i2c_read(i2c_port_t port, uint16_t addr, uint32_t reg, uint8_t *buffer, uint16_t size) {
+    return ft6x36u_i2c_read(port, addr, reg, buffer, size);
+}

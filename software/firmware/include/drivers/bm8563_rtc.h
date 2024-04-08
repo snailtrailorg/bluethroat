@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "bluethroat_msg_proc.h"
+#include "drivers/task_message.h"
 #include "drivers/task_param.h"
 #include "drivers/i2c_device.h"
 

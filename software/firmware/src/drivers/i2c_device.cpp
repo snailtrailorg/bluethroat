@@ -57,6 +57,19 @@ esp_err_t I2cDevice::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr
 	return ESP_OK;
 }
 
+esp_err_t I2cDevice::fetch_data(uint8_t *data, uint8_t size) {
+	(void)data;
+	(void)size;
+	return ESP_OK;
+}
+
+esp_err_t I2cDevice::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
+	(void)in_data;
+	(void)in_size;
+	(void)p_message;
+	return ESP_OK;
+}
+
 esp_err_t I2cDevice::Start() {
 	esp_err_t result;
 

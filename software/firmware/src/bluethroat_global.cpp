@@ -1,30 +1,19 @@
 #include "bluethroat_global.h"
 
-const I2cDevice_t g_I2cSystemDeviceMap[] = {
+const I2cDevice_t g_I2cDeviceMap[] = {
 #if CONFIG_BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS
+    {.port = I2C_NUM_0,     .addr = 0x0051,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_BM8563_RTC},
+    {.port = I2C_NUM_0,     .addr = 0x0076,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_DPS3XX_BAROMETER},
+    {.port = I2C_NUM_0,     .addr = 0x0077,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_DPS3XX_ANEMOMETER},
 #elif CONFIG_BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
-    {.port = I2C_NUM_0, .addr = 0x0038, .int_pins = {GPIO_NUM_39, GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_FT6X36_TOUCH},
+    {.port = I2C_NUM_0,     .addr = 0x0038,     .int_pins = {GPIO_NUM_39, GPIO_NUM_NC},     .model = I2C_DEVICE_MODEL_FT6X36_TOUCH},
+    {.port = I2C_NUM_0,     .addr = 0x0051,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_BM8563_RTC},
+    {.port = I2C_NUM_0,     .addr = 0x0076,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_DPS3XX_BAROMETER},
+    {.port = I2C_NUM_0,     .addr = 0x0077,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_DPS3XX_ANEMOMETER},
 #elif CONFIG_BLUETHROAD_TARGET_DEVICE_M5CORES3
-    {.port = I2C_NUM_0, .addr = 0x0038, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_FT6X36_TOUCH},
-#else
-    #error Invalid target device configuration, run menuconfig and reconfigure it properly
-#endif 
-    {.port = I2C_NUM_MAX, .addr = 0x0000, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_INVALID},
-};
-
-const I2cDevice_t g_I2cUserDeviceMap[] = {
-#if CONFIG_BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS
-    {.port = I2C_NUM_0, .addr = 0x0051, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_BM8563_RTC},
-    {.port = I2C_NUM_0, .addr = 0x0076, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_DPS3XX_BAROMETER},
-    {.port = I2C_NUM_0, .addr = 0x0077, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_DPS3XX_ANEMOMETER},
-#elif CONFIG_BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
-    {.port = I2C_NUM_0, .addr = 0x0051, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_BM8563_RTC},
-    {.port = I2C_NUM_0, .addr = 0x0076, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_DPS3XX_BAROMETER},
-    {.port = I2C_NUM_0, .addr = 0x0077, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_DPS3XX_ANEMOMETER},
-#elif CONFIG_BLUETHROAD_TARGET_DEVICE_M5CORES3
-    {.port = I2C_NUM_0, .addr = 0x0051, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_BM8563_RTC},
-    {.port = I2C_NUM_0, .addr = 0x0076, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_DPS310_BAROMETER},
-    {.port = I2C_NUM_0, .addr = 0x0077, .int_pins = {GPIO_NUM_NC}, .model = I2C_DEVICE_MODEL_DPS310_ANEMOMETER},
+    {.port = I2C_NUM_0,     .addr = 0x0051,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_BM8563_RTC},
+    {.port = I2C_NUM_0,     .addr = 0x0076,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_DPS310_BAROMETER},
+    {.port = I2C_NUM_0,     .addr = 0x0077,     .int_pins = {GPIO_NUM_NC},                  .model = I2C_DEVICE_MODEL_DPS310_ANEMOMETER},
 #else
     #error Invalid target device configuration, run menuconfig and reconfigure it properly
 #endif 

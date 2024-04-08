@@ -1,7 +1,9 @@
 #pragma once
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+#include <esp_err.h>
+#include <driver/i2c.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +43,8 @@ extern SemaphoreHandle_t lvgl_token;
 
 /* LVGL initialization routine */
 void lvgl_init(void);
+
+extern esp_err_t ft6x36u_touch_read(i2c_port_t port, uint16_t addr, uint32_t reg, uint8_t *buffer, uint16_t size);
 
 #ifdef __cplusplus
 }
