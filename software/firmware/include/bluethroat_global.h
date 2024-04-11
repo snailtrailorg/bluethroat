@@ -45,8 +45,8 @@ extern BluethroatConfig *g_pBluethroatConfig;
 
 #include "drivers/dps3xx_barometer.h"
 
-extern Dps3xxBarometer *p_dps3xx_barometer;
+extern Dps3xxBarometer *g_pDps3xxBarometer;
 
 #include "drivers/ft6x36u_touch.h"
 
-extern Ft6x36uTouch *p_ft6x36u_touch;
+extern Ft6x36uTouch *g_pFt6x36uTouch;

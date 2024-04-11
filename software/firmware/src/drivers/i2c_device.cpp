@@ -57,6 +57,14 @@ esp_err_t I2cDevice::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr
 	return ESP_OK;
 }
 
+esp_err_t I2cDevice::init_device() {
+	return ESP_OK;
+}
+
+esp_err_t I2cDevice::deinit_device() {
+	return ESP_OK;
+}
+
 esp_err_t I2cDevice::fetch_data(uint8_t *data, uint8_t size) {
 	(void)data;
 	(void)size;

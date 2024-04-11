@@ -32,6 +32,8 @@
 #include "lvgl_helpers.h"
 #include "adapters/lvgl_adapter.h"
 
+#include "bluethroat_global.h"
+
 /**********************
  *  STATIC PROTOTYPES
  **********************/
@@ -49,11 +51,11 @@ void lvgl_init(void) {
     /* Initialize SPI or I2C bus used by the drivers */
     lvgl_driver_init();
 
-    lv_color_t *buf1 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_color_t *buf1 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf1 != NULL);
     /* Use double buffered when not working with monochrome displays */
 #ifndef CONFIG_LV_TFT_DISPLAY_MONOCHROME
-    lv_color_t *buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_color_t *buf2 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf2 != NULL);
 #else
     static lv_color_t *buf2 = NULL;
@@ -102,7 +104,10 @@ void lvgl_init(void) {
     /* Create and start a periodic timer interrupt to call lv_tick_inc */
     static const esp_timer_create_args_t periodic_timer_args = {
         .callback = &lvgl_tick_task,
-        .name = "lvgl_tick_task"
+        .arg = NULL,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "lvgl_tick_task",
+        .skip_unhandled_events = true,
     };
     static esp_timer_handle_t periodic_timer;
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
@@ -136,5 +141,12 @@ static void lvgl_tick_task(void *arg) {
 }
 
 esp_err_t lvgl_i2c_read(i2c_port_t port, uint16_t addr, uint32_t reg, uint8_t *buffer, uint16_t size) {
-    return ft6x36u_i2c_read(port, addr, reg, buffer, size);
+    (void)port;
+    (void)addr;
+
+    if (g_pFt6x36uTouch == NULL) {
+        return ESP_ERR_INVALID_STATE;
+    } else {
+        return g_pFt6x36uTouch->read_buffer(reg, buffer, size);
+    }
 }

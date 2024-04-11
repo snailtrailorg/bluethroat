@@ -38,8 +38,8 @@ public:
 public:
     esp_err_t create_task();
     esp_err_t delete_task();
-    virtual esp_err_t init_device() = 0;
-    virtual esp_err_t deinit_device() = 0;
+    virtual esp_err_t init_device();
+    virtual esp_err_t deinit_device();
     virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
     virtual esp_err_t process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
 

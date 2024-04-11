@@ -3,7 +3,8 @@
 #include <stdint.h>
 
 typedef enum {
-    BLUETHROAT_MSG_RTC = 0,
+    BLUETHROAT_MSG_BUTTON = 0,
+    BLUETHROAT_MSG_RTC,
     BLUETHROAT_MSG_BAROMETER,
     BLUETHROAT_MSG_ANEMOMETER,
     BLUETHROAT_MSG_HYGROMETER,
@@ -15,6 +16,27 @@ typedef enum {
     // ensure to occupy 4 byte space to avoid efficiency reduction caused by misalignment
     BLUETHROAT_MSG_INVALID = 0x7fffffff,
 } BluethroatMsgType_t;
+
+typedef enum {
+    BUTTON_INDEX_LEFT = 0,
+    BUTTON_INDEX_MIDDLE,
+    BUTTON_INDEX_RIGHT,
+    // ensure to occupy 4 byte space to avoid efficiency reduction caused by misalignment
+    BUTTON_INDEX_INVALID = 0x7fffffff,
+} ButtonIndex_t;
+
+typedef enum {
+    BUTTON_ACT_PRESSED = 0,
+    BUTTON_ACT_LONG_PRESSED,
+    BUTTON_ACT_RELEASED,
+    // ensure to occupy 4 byte space to avoid efficiency reduction caused by misalignment
+    BUTTON_ACT_INVALID = 0x7fffffff,
+} ButtonAct_t;
+
+typedef struct {
+    ButtonIndex_t index;
+    ButtonAct_t act;
+} ButtonData_t;
 
 typedef struct {
     uint8_t second;
@@ -78,6 +100,7 @@ typedef struct {
 typedef struct {
     BluethroatMsgType_t type;
     union {
+        ButtonData_t button_data;
         RtcData_t rtc_data;
         BarometerData_t barometer_data;
         AnemometerData_t anemometer_data;

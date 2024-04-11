@@ -44,7 +44,7 @@ extern SemaphoreHandle_t lvgl_token;
 /* LVGL initialization routine */
 void lvgl_init(void);
 
-extern esp_err_t ft6x36u_touch_read(i2c_port_t port, uint16_t addr, uint32_t reg, uint8_t *buffer, uint16_t size);
+esp_err_t lvgl_i2c_read(i2c_port_t port, uint16_t addr, uint32_t reg, uint8_t *buffer, uint16_t size);
 
 #ifdef __cplusplus
 }

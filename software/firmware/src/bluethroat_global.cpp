@@ -32,5 +32,7 @@ const TaskParam_t g_TaskParam[] = { /**/
 BluethroatConfig *g_pBluethroatConfig = NULL;
 
 // Keep the pointer to the barometer device for the anemometer device
-Dps3xxBarometer *p_dps3xx_barometer = NULL;
+Dps3xxBarometer *g_pDps3xxBarometer = NULL;
 
+// Keep the pointer to the touch device for the lvgl driver
+Ft6x36uTouch *g_pFt6x36uTouch = NULL;
