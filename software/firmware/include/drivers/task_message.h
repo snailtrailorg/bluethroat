@@ -22,15 +22,14 @@ typedef enum {
     BUTTON_INDEX_MIDDLE,
     BUTTON_INDEX_RIGHT,
     // ensure to occupy 4 byte space to avoid efficiency reduction caused by misalignment
-    BUTTON_INDEX_INVALID = 0x7fffffff,
+    BUTTON_INDEX_NONE = 0x7fffffff,
 } ButtonIndex_t;
 
 typedef enum {
     BUTTON_ACT_PRESSED = 0,
     BUTTON_ACT_LONG_PRESSED,
-    BUTTON_ACT_RELEASED,
     // ensure to occupy 4 byte space to avoid efficiency reduction caused by misalignment
-    BUTTON_ACT_INVALID = 0x7fffffff,
+    BUTTON_ACT_NONE = 0x7fffffff,
 } ButtonAct_t;
 
 typedef struct {

@@ -63,6 +63,8 @@ void BluethroatMsgProc::message_loop() {
 		if (pdTRUE == xQueueReceive(this->m_queue_handle, &message, portMAX_DELAY)) {
 			MSG_PROC_LOGV("Receive message from queue, message type:%d.", message.type);
 			switch (message.type) {
+			case BLUETHROAT_MSG_BUTTON:
+				break;
 			case BLUETHROAT_MSG_RTC:
 				struct tm stm_time;
 				stm_time.tm_sec = message.rtc_data.second,
@@ -99,7 +101,7 @@ void BluethroatMsgProc::message_loop() {
 				break;
 				
     		default:
-				MSG_PROC_ASSERT(false, "Unknown message type."); 
+				MSG_PROC_ASSERT(false, "Unknown message type %d.", message.type); 
 			}
 		} else {
 			MSG_PROC_LOGV("Receive message from queue timeout.");

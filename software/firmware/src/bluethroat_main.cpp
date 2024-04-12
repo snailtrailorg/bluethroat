@@ -48,6 +48,7 @@ extern "C" void app_main(void);
 void app_main() {
     esp_log_level_set("DPS3XX_BARO", ESP_LOG_WARN);
     esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_WARN);
+    esp_log_level_set("FT6X36", ESP_LOG_WARN);
 
     /* step 0: print motd */
     BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer, https://github.com/snailtrailorg/bluethroat.");
@@ -77,7 +78,7 @@ void app_main() {
             switch (g_I2cDeviceMap[i].model) {
             case I2C_DEVICE_MODEL_FT6X36_TOUCH:
                 if (Ft6x36uTouch::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK) {
-                    g_pFt6x36uTouch = new Ft6x36uTouch(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, g_I2cDeviceMap[i].int_pins, pBluethroatMsgProc->m_queue_handle);
+                    g_pFt6x36uTouch = new Ft6x36uTouch(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, g_I2cDeviceMap[i].int_pins, NULL, pBluethroatMsgProc->m_queue_handle);
                     g_pFt6x36uTouch->Start();
                     lvgl_init();
                     //bluethroat_ui_init();
