@@ -3,10 +3,10 @@
 #include <freertos/FreeRTOS.h>
 #include <driver/i2c.h>
 
-#include "drivers/task_message.h"
-#include "drivers/task_param.h"
-#include "drivers/i2c_master.h"
+#include "bluethroat_message.h"
+#include "bluethroat_task.h"
 
+#include "drivers/i2c_master.h"
 
 class I2cDevice {
 public:
@@ -18,15 +18,16 @@ public:
     QueueHandle_t m_queue_handle;
 
 public:
-    I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins);
-    I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
+    I2cDevice();
     ~I2cDevice();
 
 public:
     static esp_err_t CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr);
 
 public:
-    esp_err_t Start();
+    esp_err_t Init(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins);
+    esp_err_t Deinit();
+    esp_err_t Start(const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
     esp_err_t Stop();
 
 public:

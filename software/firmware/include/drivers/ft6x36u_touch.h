@@ -1,7 +1,5 @@
 #pragma once
 
-#include "drivers/task_message.h"
-#include "drivers/task_param.h"
 #include "drivers/i2c_device.h"
 
 #define FT6X36U_REG_ADDR_TD_STATUS      (0x02)
@@ -37,7 +35,7 @@ public:
     TickType_t m_long_press_time;
 
 public:
-    Ft6x36uTouch(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
+    Ft6x36uTouch();
     ~Ft6x36uTouch();
 
 public:
@@ -46,3 +44,5 @@ public:
     void set_long_press_time(TickType_t long_press_time);
     esp_err_t read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t size);
 };
+
+extern Ft6x36uTouch *g_pFt6x36uTouch;

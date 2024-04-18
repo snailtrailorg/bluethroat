@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "drivers/task_message.h"
-#include "drivers/task_param.h"
 #include "drivers/i2c_device.h"
 
 #include "utilities/low_pass_filter.h"
@@ -412,7 +410,7 @@ public:
     FirFilter<uint32_t, uint32_t> *m_p_deep_filter;     /* FIR deep filter for pressure data */
 
 public:
-    Dps3xxBarometer(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle);
+    Dps3xxBarometer();
     ~Dps3xxBarometer();
 
 public:

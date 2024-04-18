@@ -5,7 +5,7 @@ public:
     Dps3xxBarometer *m_p_barometer;
 
 public:
-    Dps3xxAnemometer(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle, Dps3xxBarometer *p_barometer);
+    Dps3xxAnemometer(Dps3xxBarometer *p_barometer);
     ~Dps3xxAnemometer();
 
 public:

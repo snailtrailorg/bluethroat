@@ -3,12 +3,11 @@
 
 #include "adapters/lvgl_adapter.h"
 
-#include "drivers/task_param.h"
-#include "drivers/i2c_master.h"
 #include "drivers/bm8563_rtc.h"
 #include "drivers/dps3xx_barometer.h"
 #include "drivers/dps3xx_anemometer.h"
 #include "drivers/ft6x36u_touch.h"
+#include "drivers/axp192_pmu.h"
 
 #include "bluethroat_global.h"
 #include "bluethroat_ui.h"
@@ -53,71 +52,83 @@ void app_main() {
     /* step 0: print motd */
     BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer, https://github.com/snailtrailorg/bluethroat.");
 
-    /* step 1: init nvs flash */
+    /* step 1: init nvs flash configuration */
     g_pBluethroatConfig = new BluethroatConfig();
 
-    /* step 2: init lvgl driver fiand task */
-//    lvgl_init();
-
-    /* step 3: init bluethroat ui elements */
-//    bluethroat_ui_init();
-
-    /* step 4: init main message process task */
-    BluethroatMsgProc *pBluethroatMsgProc = new BluethroatMsgProc(&(g_TaskParam[TASK_ID_MSG_PROC]));
-
-    /* step 5: init i2c bus master */
+    /* step 2: init i2c bus master */
     BLUETHROAT_MAIN_ASSERT(I2C_NUM_MAX == 2 && CONFIG_I2C_PORT_0_ENABLED && CONFIG_I2C_PORT_1_ENABLED, "Invalid I2C configuration, run menuconfig and reconfigure it properly");
     I2cMaster *p_i2c_master[I2C_NUM_MAX] = {
         new I2cMaster(I2C_NUM_0, CONFIG_I2C_PORT_0_SDA, CONFIG_I2C_PORT_0_SCL, CONFIG_I2C_PORT_0_PULLUPS, CONFIG_I2C_PORT_0_PULLUPS, CONFIG_I2C_PORT_0_FREQ_HZ, CONFIG_I2C_PORT_0_LOCK_TIMEOUT, CONFIG_I2C_PORT_0_TIMEOUT), 
         new I2cMaster(I2C_NUM_1, CONFIG_I2C_PORT_1_SDA, CONFIG_I2C_PORT_1_SCL, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_PULLUPS, CONFIG_I2C_PORT_1_FREQ_HZ, CONFIG_I2C_PORT_1_LOCK_TIMEOUT, CONFIG_I2C_PORT_1_TIMEOUT), 
     };
 
-    /* step 6: init i2c devices */
-    for (int i=0; g_I2cDeviceMap[i].model != I2C_DEVICE_MODEL_INVALID; i++) {
-        if (g_I2cDeviceMap[i].model == I2C_DEVICE_MODEL_FT6X36_TOUCH || ESP_OK == p_i2c_master[g_I2cDeviceMap[i].port]->ProbeDevice(g_I2cDeviceMap[i].addr)) {
-            switch (g_I2cDeviceMap[i].model) {
-            case I2C_DEVICE_MODEL_FT6X36_TOUCH:
-                if (Ft6x36uTouch::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK) {
-                    g_pFt6x36uTouch = new Ft6x36uTouch(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, g_I2cDeviceMap[i].int_pins, NULL, pBluethroatMsgProc->m_queue_handle);
-                    g_pFt6x36uTouch->Start();
-                    lvgl_init();
-                    //bluethroat_ui_init();
-                }
-                break;
-            case I2C_DEVICE_MODEL_BM8563_RTC:
-                if (Bm8563Rtc::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK) {
-                    Bm8563Rtc *p_bm8563_rtc = new Bm8563Rtc(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, g_I2cDeviceMap[i].int_pins, &(g_TaskParam[TASK_ID_BM8563_RTC]), pBluethroatMsgProc->m_queue_handle);
-                    p_bm8563_rtc->Start();
-                }
-                break;
-            case I2C_DEVICE_MODEL_DPS3XX_BAROMETER:
-                if (Dps3xxBarometer::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK) {
-                    g_pDps3xxBarometer = new Dps3xxBarometer(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, g_I2cDeviceMap[i].int_pins, &(g_TaskParam[TASK_ID_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
-                    g_pDps3xxBarometer->Start();
-                }
-                break;
-            case I2C_DEVICE_MODEL_DPS3XX_ANEMOMETER:
-                if (Dps3xxAnemometer::CheckDeviceId(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr) == ESP_OK && g_pDps3xxBarometer != NULL) {
-                    Dps3xxAnemometer *p_dps3xx_anemometer = new Dps3xxAnemometer(p_i2c_master[g_I2cDeviceMap[i].port], g_I2cDeviceMap[i].addr, g_I2cDeviceMap[i].int_pins, &(g_TaskParam[TASK_ID_DPS3XX_ANEMOMETER]), pBluethroatMsgProc->m_queue_handle, g_pDps3xxBarometer);
-                    p_dps3xx_anemometer->Start();
-                }
-                break;
-            default:
-                BLUETHROAT_MAIN_LOGE("Invalid device model %d", g_I2cDeviceMap[i].model);
-                break;
-            }
-        }
+    /* step 3: init axp192 pmu */
+    const I2cDevice_t *pid_apx192_pmu = &(g_I2cDeviceMap[I2C_DEVICE_INDEX_AXP192_PMU]);
+    I2cMaster *pim_apx192_pmu = p_i2c_master[pid_apx192_pmu->port];
+    Axp192Pmu *p_Axp192Pmu = NULL;
+    if (pim_apx192_pmu->ProbeDevice(pid_apx192_pmu->addr) == ESP_OK && Axp192Pmu::CheckDeviceId(pim_apx192_pmu, pid_apx192_pmu->addr) == ESP_OK) {
+        (p_Axp192Pmu = new Axp192Pmu())->Init(pim_apx192_pmu, pid_apx192_pmu->addr, pid_apx192_pmu->int_pins);
     }
 
-    /* step 7: init bluethroat clock */
+    /* step 4: init ft6x36u touch */
+    const I2cDevice_t *pid_ft6x36_touch = &(g_I2cDeviceMap[I2C_DEVICE_INDEX_FT6X36_TOUCH]);
+    I2cMaster *pim_ft6x36_touch = p_i2c_master[pid_ft6x36_touch->port];
+    Ft6x36uTouch *p_Ft6x36uTouch = NULL;
+    if (pim_ft6x36_touch->ProbeDevice(pid_ft6x36_touch->addr) == ESP_OK && Ft6x36uTouch::CheckDeviceId(pim_ft6x36_touch, pid_ft6x36_touch->addr) == ESP_OK) {
+        (p_Ft6x36uTouch = new Ft6x36uTouch())->Init(pim_ft6x36_touch, pid_ft6x36_touch->addr, pid_ft6x36_touch->int_pins);
+    }
+
+    /* step 5: init lvgl driver fiand task */
+    lvgl_init();
+
+    /* step 6: init bluethroat ui elements */
+    //bluethroat_ui_init();
+
+    /* step 7: init bm5836 rtc */
+    const I2cDevice_t *pid_bm8563_rtc = &(g_I2cDeviceMap[I2C_DEVICE_INDEX_BM8563_RTC]);
+    I2cMaster *pim_bm8563_rtc = p_i2c_master[pid_bm8563_rtc->port];
+    Bm8563Rtc *p_Bm8563Rtc = NULL;
+    if (pim_bm8563_rtc->ProbeDevice(pid_bm8563_rtc->addr) == ESP_OK && Bm8563Rtc::CheckDeviceId(pim_bm8563_rtc, pid_bm8563_rtc->addr) == ESP_OK) {
+        (p_Bm8563Rtc = new Bm8563Rtc())->Init(pim_bm8563_rtc, pid_bm8563_rtc->addr, pid_bm8563_rtc->int_pins);
+    }
+
+    /* step 8: init dps3xx barometer */
+    const I2cDevice_t *pid_dps3xx_barometer = &(g_I2cDeviceMap[I2C_DEVICE_INDEX_DPS3XX_BAROMETER]);
+    I2cMaster *pim_dps3xx_barometer = p_i2c_master[pid_dps3xx_barometer->port];
+    Dps3xxBarometer *p_Dps3xxBarometer = NULL;
+    if (pim_dps3xx_barometer->ProbeDevice(pid_dps3xx_barometer->addr) == ESP_OK && Dps3xxBarometer::CheckDeviceId(pim_dps3xx_barometer, pid_dps3xx_barometer->addr) == ESP_OK) {
+        (p_Dps3xxBarometer = new Dps3xxBarometer())->Init(pim_dps3xx_barometer, pid_dps3xx_barometer->addr, pid_dps3xx_barometer->int_pins);
+    }
+
+    /* step 9: init dps3xx anemometer */
+    const I2cDevice_t *pid_dps3xx_anemometer = &(g_I2cDeviceMap[I2C_DEVICE_INDEX_DPS3XX_ANEMOMETER]);
+    I2cMaster *pim_dps3xx_anemometer = p_i2c_master[pid_dps3xx_anemometer->port];
+    Dps3xxAnemometer *p_Dps3xxAnemometer = NULL;
+    if (pim_dps3xx_anemometer->ProbeDevice(pid_dps3xx_anemometer->addr) == ESP_OK && Dps3xxAnemometer::CheckDeviceId(pim_dps3xx_anemometer, pid_dps3xx_anemometer->addr) == ESP_OK) {
+        (p_Dps3xxAnemometer = new Dps3xxAnemometer(p_Dps3xxBarometer))->Init(pim_dps3xx_anemometer, pid_dps3xx_anemometer->addr, pid_dps3xx_anemometer->int_pins);
+    }
+
+    /* step 10: init ns4168 i2s sound */
+
+    /* step 11: init bluethroat clock */
     //bluethroat_clock_init();
 
-    /* step 8: init gps module */
+    /* step 12: init gps module */
     //bluethroat_gps_init();
 
-    /* step 9: init wifi module */
+    /* step 13: init wifi module */
     //bluethroat_wifi_init();
 
-    /* step 10: init mqtt module */
+    /* step 14: init bluetooth */
     //bluethroat_mqtt_init();
+
+    /* step 16: init main message process task */
+    BluethroatMsgProc *pBluethroatMsgProc = new BluethroatMsgProc(&(g_TaskParam[TASK_INDEX_MSG_PROC]));
+
+    /* step 17: start devices loop tasks */
+    if (p_Axp192Pmu != NULL) p_Axp192Pmu->Start(&(g_TaskParam[TASK_INDEX_AXP192_PMU]), pBluethroatMsgProc->m_queue_handle);
+    if (p_Ft6x36uTouch != NULL) p_Ft6x36uTouch->Start(NULL, pBluethroatMsgProc->m_queue_handle);
+    if (p_Bm8563Rtc != NULL) p_Bm8563Rtc->Start(&(g_TaskParam[TASK_INDEX_BM8563_RTC]), pBluethroatMsgProc->m_queue_handle);
+    if (p_Dps3xxBarometer != NULL) p_Dps3xxBarometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
+    if (p_Dps3xxAnemometer != NULL) p_Dps3xxAnemometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_ANEMOMETER]), pBluethroatMsgProc->m_queue_handle);
 }

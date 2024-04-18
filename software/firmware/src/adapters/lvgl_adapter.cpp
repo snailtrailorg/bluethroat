@@ -32,7 +32,7 @@
 #include "lvgl_helpers.h"
 #include "adapters/lvgl_adapter.h"
 
-#include "bluethroat_global.h"
+#include "drivers/ft6x36u_touch.h"
 
 /**********************
  *  STATIC PROTOTYPES

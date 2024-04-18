@@ -3,8 +3,8 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
-#include "drivers/task_message.h"
-#include "drivers/task_param.h"
+#include "bluethroat_message.h"
+#include "bluethroat_task.h"
 
 #define BLUETHROAT_MSG_QUEUE_LENGTH     (32)
 

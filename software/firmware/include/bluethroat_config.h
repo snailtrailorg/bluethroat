@@ -14,3 +14,5 @@ public:
     static esp_err_t SetInteger(const char *name_space, const char *key, int32_t value);
     static esp_err_t GetInteger(const char *name_space, const char *key, int32_t *value);
 };
+
+extern BluethroatConfig *g_pBluethroatConfig;

@@ -33,10 +33,10 @@
 
 static const char *TAG = "FT6X36U_TOUCH";
 
-Ft6x36uTouch::Ft6x36uTouch(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
-I2cDevice(p_i2c_master, device_addr, p_int_pins, p_task_param, queue_handle),
-m_long_press_time(BUTTON_DEFAULT_LONG_PRESS_TIME) {
-    FT6X36U_TOUCH_LOGI("Create FT6X36U touch device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
+Ft6x36uTouch *g_pFt6x36uTouch = NULL;
+
+Ft6x36uTouch::Ft6x36uTouch() : I2cDevice(), m_long_press_time(BUTTON_DEFAULT_LONG_PRESS_TIME) {
+	FT6X36U_TOUCH_LOGI("Create ft6x36u touch device.");
 }
 
 Ft6x36uTouch::~Ft6x36uTouch() {

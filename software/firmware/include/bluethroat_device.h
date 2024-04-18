@@ -1,0 +1,23 @@
+#pragma once
+
+#include <driver/i2c.h>
+
+#define I2C_DEVICE_MAX_INT_PINS     (4)
+
+typedef enum {
+    I2C_DEVICE_INDEX_FT6X36_TOUCH,
+    I2C_DEVICE_INDEX_AXP192_PMU,
+    I2C_DEVICE_INDEX_BM8563_RTC,
+    I2C_DEVICE_INDEX_DPS3XX_BAROMETER,
+    I2C_DEVICE_INDEX_DPS3XX_ANEMOMETER,
+    I2C_DEVICE_INDEX_BMP280_BAROMETER,
+    I2C_DEVICE_INDEX_BMI270_ACCELEROMETER,
+    I2C_DEVICE_INDEX_SHT3X_HYGROMETER,
+    I2C_DEVICE_INDEX_MAX,
+} I2cDeviceIndex_t;
+
+typedef struct {
+    i2c_port_t port;
+    uint16_t addr;
+    gpio_num_t int_pins[I2C_DEVICE_MAX_INT_PINS];
+} I2cDevice_t;

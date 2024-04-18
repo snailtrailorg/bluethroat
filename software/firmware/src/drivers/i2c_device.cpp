@@ -30,25 +30,13 @@
 
 static const char *TAG = "I2C_DEVICE";
 
-I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins) : 
-m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), m_p_int_pins(p_int_pins),
+I2cDevice::I2cDevice() : 
+m_p_i2c_master(NULL), m_device_addr(0), m_p_int_pins(NULL),
 m_p_task_param(NULL), m_task_handle(NULL), 
 m_queue_handle(NULL) {
-	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
-	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
-}
-
-I2cDevice::I2cDevice(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle) : 
-m_p_i2c_master(p_i2c_master), m_device_addr(device_addr), m_p_int_pins(p_int_pins),
-m_p_task_param(p_task_param), m_task_handle(NULL), 
-m_queue_handle(queue_handle) {
-	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer");
-	I2C_DEVICE_LOGI("Create I2C device at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
 }
 
 I2cDevice::~I2cDevice() {
-	I2C_DEVICE_ASSERT(m_p_i2c_master != NULL, "Invalid I2C master pointer.");
-	I2C_DEVICE_LOGI("Destroy I2C device at port %d, device_addr 0x%3x.", this->m_p_i2c_master->m_port, this->m_device_addr);
 }
 
 esp_err_t I2cDevice::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr) {
@@ -78,44 +66,59 @@ esp_err_t I2cDevice::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 	return ESP_OK;
 }
 
-esp_err_t I2cDevice::Start() {
-	esp_err_t result;
+esp_err_t I2cDevice::Init(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins) {
+	m_p_i2c_master = p_i2c_master;
+	m_device_addr = device_addr;
+	m_p_int_pins = p_int_pins;
 
-	I2C_DEVICE_LOGI("Initialize I2C device");
-	if ((result = this->init_device()) != ESP_OK) {
+	I2C_DEVICE_LOGI("Initialize I2C device at port %d, device_addr 0x%3x.", this->m_p_i2c_master->m_port, this->m_device_addr);
+
+	esp_err_t result = this->init_device();
+
+	if (result != ESP_OK) {
 		I2C_DEVICE_LOGE("Initialize I2C device failed, error code: %d.", result);
-		return result;
 	}
 
-	if (this->m_p_task_param != NULL) {
-		I2C_DEVICE_LOGI("Create I2C device task %s", this->m_p_task_param->task_name);
-		if ((result = this->create_task()) != ESP_OK) {
-			I2C_DEVICE_LOGE("Create I2C device task failed, error code: %d.", result);
-			return result;
-		}
+	return result;
+}
+
+esp_err_t I2cDevice::Deinit() {
+	I2C_DEVICE_LOGI("Deinitialize I2C device at port %d, device_addr 0x%3x.", this->m_p_i2c_master->m_port, this->m_device_addr);
+	
+	esp_err_t result = this->deinit_device();
+
+	if (result != ESP_OK) {
+		I2C_DEVICE_LOGE("Deinitialize I2C device failed, error code: %d.", result);
 	}
 
-	return ESP_OK;
+	return result;
+}
+
+esp_err_t I2cDevice::Start(const TaskParam_t *p_task_param, QueueHandle_t queue_handle) {
+	m_p_task_param = p_task_param;
+	m_queue_handle = queue_handle;
+	
+	I2C_DEVICE_LOGI("Create I2C device task %s", this->m_p_task_param->task_name);
+
+	esp_err_t result = this->create_task();
+
+	if (result != ESP_OK) {
+		I2C_DEVICE_LOGE("Create I2C device task %s failed, error code: %d.", this->m_p_task_param->task_name, result);
+	}
+
+	return result;
 }
 
 esp_err_t I2cDevice::Stop() {
-	esp_err_t result;
+	I2C_DEVICE_LOGI("Delete I2C device task %s", this->m_p_task_param->task_name);
 
-	if (this->m_p_task_param != NULL) {
-		I2C_DEVICE_LOGI("Delete I2C device task %s", this->m_p_task_param->task_name);
-		if ((result = this->delete_task()) != ESP_OK) {
-			I2C_DEVICE_LOGE("Delete I2C device task %s failed, error code: %d.", this->m_p_task_param->task_name, result);
-			return result;
-		}
+	esp_err_t result = this->delete_task();
+
+	if (result != ESP_OK) {
+		I2C_DEVICE_LOGE("Delete I2C device task %s failed, error code: %d.", this->m_p_task_param->task_name, result);
 	}
 
-	I2C_DEVICE_LOGI("Deinitialize I2C device");
-	if ((result = this->deinit_device()) != ESP_OK) {
-		I2C_DEVICE_LOGE("Deinitialize I2C device failed, error code: %d.", result);
-		return result;
-	}
-
-	return ESP_OK;
+	return result;
 }
 
 esp_err_t I2cDevice::read_byte(uint32_t reg_addr, uint8_t *p_byte) {

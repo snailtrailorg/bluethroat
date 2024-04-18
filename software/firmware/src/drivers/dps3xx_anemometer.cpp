@@ -28,10 +28,8 @@
 
 static const char *TAG = "DPS3XX_ANEMO";
 
-Dps3xxAnemometer::Dps3xxAnemometer(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins, const TaskParam_t *p_task_param, QueueHandle_t queue_handle, Dps3xxBarometer *p_barometer)
- : Dps3xxBarometer(p_i2c_master, device_addr, p_int_pins, p_task_param, queue_handle),
-   m_p_barometer(p_barometer) {
-    DPS3XX_ANEMO_LOGI("Create DPS3XX anemometer at port %d, device_addr 0x%3x", this->m_p_i2c_master->m_port, this->m_device_addr);
+Dps3xxAnemometer::Dps3xxAnemometer(Dps3xxBarometer *p_barometer) : Dps3xxBarometer(),  m_p_barometer(p_barometer) {
+    ESP_LOGI(TAG, "Create dps3xx anemometer device");
 }
 
 Dps3xxAnemometer::~Dps3xxAnemometer() {

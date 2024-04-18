@@ -5,6 +5,16 @@
 #include <freertos/task.h>
 
 typedef enum {
+    TASK_INDEX_LVGL,
+    TASK_INDEX_MSG_PROC,
+    TASK_INDEX_AXP192_PMU,
+    TASK_INDEX_BM8563_RTC,
+    TASK_INDEX_DPS3XX_BAROMETER,
+    TASK_INDEX_DPS3XX_ANEMOMETER,
+    TASK_INDEX_MAX,
+} TaskIndex_t;
+
+typedef enum {
     TASK_CORE_0 = 0,
     TASK_CORE_1 = 1,
     TASK_CORE_ANY = tskNO_AFFINITY,

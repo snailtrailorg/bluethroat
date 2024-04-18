@@ -1,5 +1,7 @@
 #include "bluethroat_config.h"
 
+BluethroatConfig *g_pBluethroatConfig = NULL;
+
 BluethroatConfig::BluethroatConfig() {
     esp_err_t result = nvs_flash_init();
     if (result == ESP_ERR_NVS_NO_FREE_PAGES || result == ESP_ERR_NVS_NEW_VERSION_FOUND) {
