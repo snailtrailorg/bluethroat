@@ -1,5 +1,6 @@
 #include <esp_log.h>
 #include <nvs_flash.h>
+#include <esp_app_desc.h>
 
 #include "adapters/lvgl_adapter.h"
 
@@ -45,12 +46,13 @@ static const char *TAG = "BLUETHROAT_MAIN";
 extern "C" void app_main(void);
 
 void app_main() {
-    esp_log_level_set("DPS3XX_BARO", ESP_LOG_WARN);
-    esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_WARN);
-    esp_log_level_set("FT6X36", ESP_LOG_WARN);
+    esp_log_level_set("DPS3XX_BARO", ESP_LOG_INFO);
+    esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_INFO);
+    esp_log_level_set("FT6X36", ESP_LOG_INFO);
 
     /* step 0: print motd */
-    BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer, https://github.com/snailtrailorg/bluethroat.");
+    BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer version %s, powered by snailtrail.org", esp_app_get_description()->version);
+    BLUETHROAT_MAIN_LOGI("safe and happy flying all the time, pilots!");
 
     /* step 1: init nvs flash configuration */
     g_pBluethroatConfig = new BluethroatConfig();
@@ -74,7 +76,7 @@ void app_main() {
     const I2cDevice_t *pid_ft6x36_touch = &(g_I2cDeviceMap[I2C_DEVICE_INDEX_FT6X36_TOUCH]);
     I2cMaster *pim_ft6x36_touch = p_i2c_master[pid_ft6x36_touch->port];
     Ft6x36uTouch *p_Ft6x36uTouch = NULL;
-    if (pim_ft6x36_touch->ProbeDevice(pid_ft6x36_touch->addr) == ESP_OK && Ft6x36uTouch::CheckDeviceId(pim_ft6x36_touch, pid_ft6x36_touch->addr) == ESP_OK) {
+    if (/*pim_ft6x36_touch->ProbeDevice(pid_ft6x36_touch->addr) == ESP_OK &&*/ Ft6x36uTouch::CheckDeviceId(pim_ft6x36_touch, pid_ft6x36_touch->addr) == ESP_OK) {
         (p_Ft6x36uTouch = new Ft6x36uTouch())->Init(pim_ft6x36_touch, pid_ft6x36_touch->addr, pid_ft6x36_touch->int_pins);
     }
 
@@ -127,7 +129,8 @@ void app_main() {
 
     /* step 17: start devices loop tasks */
     if (p_Axp192Pmu != NULL) p_Axp192Pmu->Start(&(g_TaskParam[TASK_INDEX_AXP192_PMU]), pBluethroatMsgProc->m_queue_handle);
-    if (p_Ft6x36uTouch != NULL) p_Ft6x36uTouch->Start(NULL, pBluethroatMsgProc->m_queue_handle);
+    /* ft6x36u touch need no task, it's driven by lvgl */
+    //if (p_Ft6x36uTouch != NULL) p_Ft6x36uTouch->Start(NULL, pBluethroatMsgProc->m_queue_handle);
     if (p_Bm8563Rtc != NULL) p_Bm8563Rtc->Start(&(g_TaskParam[TASK_INDEX_BM8563_RTC]), pBluethroatMsgProc->m_queue_handle);
     if (p_Dps3xxBarometer != NULL) p_Dps3xxBarometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
     if (p_Dps3xxAnemometer != NULL) p_Dps3xxAnemometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_ANEMOMETER]), pBluethroatMsgProc->m_queue_handle);

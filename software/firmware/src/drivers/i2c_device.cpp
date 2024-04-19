@@ -97,16 +97,22 @@ esp_err_t I2cDevice::Deinit() {
 esp_err_t I2cDevice::Start(const TaskParam_t *p_task_param, QueueHandle_t queue_handle) {
 	m_p_task_param = p_task_param;
 	m_queue_handle = queue_handle;
-	
-	I2C_DEVICE_LOGI("Create I2C device task %s", this->m_p_task_param->task_name);
 
-	esp_err_t result = this->create_task();
+	if (m_p_task_param != NULL) {
+		I2C_DEVICE_LOGI("Create I2C device task %s", this->m_p_task_param->task_name);
 
-	if (result != ESP_OK) {
-		I2C_DEVICE_LOGE("Create I2C device task %s failed, error code: %d.", this->m_p_task_param->task_name, result);
+		esp_err_t result = this->create_task();
+
+		if (result != ESP_OK) {
+			I2C_DEVICE_LOGE("Create I2C device task %s failed, error code: %d.", this->m_p_task_param->task_name, result);
+		}
+
+		return result;
+	} else {
+		I2C_DEVICE_LOGE("Invalid I2C device task parameter pointer.");
+		
+		return ESP_FAIL;
 	}
-
-	return result;
 }
 
 esp_err_t I2cDevice::Stop() {

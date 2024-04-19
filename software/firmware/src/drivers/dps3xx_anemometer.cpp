@@ -29,7 +29,7 @@
 static const char *TAG = "DPS3XX_ANEMO";
 
 Dps3xxAnemometer::Dps3xxAnemometer(Dps3xxBarometer *p_barometer) : Dps3xxBarometer(),  m_p_barometer(p_barometer) {
-    ESP_LOGI(TAG, "Create dps3xx anemometer device");
+    DPS3XX_ANEMO_LOGI("Create dps3xx anemometer device");
 }
 
 Dps3xxAnemometer::~Dps3xxAnemometer() {

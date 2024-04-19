@@ -37,6 +37,7 @@ Ft6x36uTouch *g_pFt6x36uTouch = NULL;
 
 Ft6x36uTouch::Ft6x36uTouch() : I2cDevice(), m_long_press_time(BUTTON_DEFAULT_LONG_PRESS_TIME) {
 	FT6X36U_TOUCH_LOGI("Create ft6x36u touch device.");
+	g_pFt6x36uTouch = this;
 }
 
 Ft6x36uTouch::~Ft6x36uTouch() {

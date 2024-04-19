@@ -22,7 +22,7 @@ const I2cDevice_t g_I2cDeviceMap[] = {
     [I2C_DEVICE_INDEX_DPS3XX_ANEMOMETER]    = {.port = I2C_NUM_0,       .addr = 0x0077,     .int_pins = {GPIO_NUM_NC}},
 #else
     #error Invalid target device configuration, run menuconfig and reconfigure it properly
-#endif 
+#endif
     [I2C_DEVICE_INDEX_MAX]                  = {.port = I2C_NUM_MAX,     .addr = 0x0000,     .int_pins = {GPIO_NUM_NC}},
 };
 
