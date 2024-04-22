@@ -63,75 +63,121 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 	// Determine whether it is reading touch data, if not, return directly
 	if (unlikely(reg_addr != FT6X36U_REG_ADDR_TD_STATUS || size != FT6X36U_TOUCH_DATA_LENGTH)) {
 		return result;
-	} else if (unlikely(result != ESP_OK)) { // If fail, return directly
+	}
+	
+	// If read touch data fail, return directly
+	if (unlikely(result != ESP_OK)) {
 		return result;
+	}
+
+	// Lvgl driver reading touch date duccesfully, Intercept touch data for additional processing 
+	// to implement customized touch screen buttons outside the TFT screen area
+
+	// Static variables to store last touch state, last button index, and last press time
+	static TouchState_t last_touch_state = TOUCH_STATE_RELEASED;
+	static ButtonIndex_t last_button_index = BUTTON_INDEX_NONE;
+	static TickType_t last_press_time = xTaskGetTickCount();
+
+	// Dynamic variables to store current touch state, current button index
+	TouchState_t touch_state;
+	ButtonIndex_t button_index;
+
+	// Get current touch state: pressed or released
+	touch_state = (buffer[0]) ? TOUCH_STATE_PRESSED : TOUCH_STATE_RELEASED;
+
+	// If the touch state is released, and the last touch state is also released, return directly
+	if (last_touch_state == TOUCH_STATE_RELEASED && touch_state == TOUCH_STATE_RELEASED) {
+		return ESP_OK;
+	}
+
+	// If the touch state is pressed, or touch state is changed, calculate the button index
+	// In order to improve efficiency, determine the y coordinate first, then determine the x coordinate.
+
+	// Get the touch point y coordinates
+	uint16_t touch_y = (((uint16_t)(buffer[3]) & FT6X36U_TOUCH_DATA_MSB_MASK) << FT6X36U_TOUCH_DATA_MSB_SHIFT) | (((uint16_t)(buffer[4]) & FT6X36U_TOUCH_DATA_LSB_MASK) << FT6X36U_TOUCH_DATA_LSB_SHIFT);
+	// Determine whether the touch point y coordinates is in the buttons area
+	if (touch_y < BUTTON_BORDER_TOP || touch_y > BUTTON_BORDER_BOTTOM) {
+		// y coordinates is not in the buttons area, no button is pressed
+		button_index = BUTTON_INDEX_NONE;
 	} else {
-		// Lvgl driver reading touch date duccesfully, Intercept touch data for additional processing 
-		// to implement customized touch screen buttons outside the TFT screen area
+		// y coordinates is in the buttons area, get the touch point x coordinates
+		uint16_t touch_x = (((uint16_t)(buffer[1]) & FT6X36U_TOUCH_DATA_MSB_MASK) << FT6X36U_TOUCH_DATA_MSB_SHIFT) | (((uint16_t)(buffer[2]) & FT6X36U_TOUCH_DATA_LSB_MASK) << FT6X36U_TOUCH_DATA_LSB_SHIFT);
+		// Determine whether the touch point x coordinates is in the buttons area, and set the button index
+		#define IN_RANGE(x, a, b) ((x) >= (a) && (x) <= (b))
+		button_index = 
+			(IN_RANGE(touch_x, BUTTON_LEFT_BORDER_LEFT, BUTTON_LEFT_BORDER_RIGHT) ? BUTTON_INDEX_LEFT : 
+			(IN_RANGE(touch_x, BUTTON_MIDDLE_BORDER_LEFT, BUTTON_MIDDLE_BORDER_RIGHT) ? BUTTON_INDEX_MIDDLE : 
+			(IN_RANGE(touch_x, BUTTON_RIGHT_BORDER_LEFT, BUTTON_RIGHT_BORDER_RIGHT) ? BUTTON_INDEX_RIGHT : 
+			BUTTON_INDEX_NONE)));
+	}
 
-		// Static variables to store the last touch state, last button index, and last press time
-		static ButtonIndex_t last_button_index = BUTTON_INDEX_NONE;
-		static TouchState_t last_touch_state = TOUCH_STATE_RELEASED;
-		static TickType_t last_press_time = xTaskGetTickCount();
+	// If the touch state is pressed, and the last touch state is also pressed, continue process
+	if (last_touch_state == TOUCH_STATE_PRESSED && touch_state == TOUCH_STATE_PRESSED) {
+		// If the touch point is in the same button area as the last touch point, return directly
+		if (last_button_index != button_index) {
+			return ESP_OK;
+		}
 
-		// Get current touch state: pressed or released
-		TouchState_t touch_state = (buffer[0]) ? TOUCH_STATE_PRESSED : TOUCH_STATE_RELEASED;
-		// If the touch state changes, continue processing
-		if (touch_state != last_touch_state) {
-			// Update the last touch state
-			last_touch_state = touch_state;
-			// Get the touch point y coordinates
- 			uint16_t touch_y = (((uint16_t)(buffer[3]) & FT6X36U_TOUCH_DATA_MSB_MASK) << FT6X36U_TOUCH_DATA_MSB_SHIFT) | (((uint16_t)(buffer[4]) & FT6X36U_TOUCH_DATA_LSB_MASK) << FT6X36U_TOUCH_DATA_LSB_SHIFT);
-			// Determine whether the touch point y coordinates is in the buttons area
-			if (touch_y >= BUTTON_BORDER_TOP && touch_y <= BUTTON_BORDER_BOTTOM) {
-				// y coordinates is in the buttons area, get the touch point x coordinates
-				uint16_t touch_x = (((uint16_t)(buffer[1]) & FT6X36U_TOUCH_DATA_MSB_MASK) << FT6X36U_TOUCH_DATA_MSB_SHIFT) | (((uint16_t)(buffer[2]) & FT6X36U_TOUCH_DATA_LSB_MASK) << FT6X36U_TOUCH_DATA_LSB_SHIFT);
-				// Determine whether the touch point x coordinates is in the buttons area, and set the button index
-				#define IN_RANGE(x, a, b) ((x) >= (a) && (x) <= (b))
-				ButtonIndex_t button_index = 
-					(IN_RANGE(touch_x, BUTTON_LEFT_BORDER_LEFT, BUTTON_LEFT_BORDER_RIGHT) ? BUTTON_INDEX_LEFT : 
-					(IN_RANGE(touch_x, BUTTON_MIDDLE_BORDER_LEFT, BUTTON_MIDDLE_BORDER_RIGHT) ? BUTTON_INDEX_MIDDLE : 
-					(IN_RANGE(touch_x, BUTTON_RIGHT_BORDER_LEFT, BUTTON_RIGHT_BORDER_RIGHT) ? BUTTON_INDEX_RIGHT : 
-					BUTTON_INDEX_NONE)));
-				// If the button index is not BUTTON_INDEX_NONE, the touch point is in buttons area, continue processing
-				if (button_index != BUTTON_INDEX_NONE) {
-					// If the touch state is pressed, update the last button index and last press time
-					if (touch_state == TOUCH_STATE_PRESSED) {
-						last_button_index = button_index;
-						last_press_time = xTaskGetTickCount();
-					} else { // If the touch state is released, determine whether the touch point is in the same button area as the last touch point
-						if (last_button_index == button_index) {
-							// Construct message data of custom button
-							BluethroatMsg_t message;
-							message.type = BLUETHROAT_MSG_BUTTON;
-							message.button_data.index = button_index;
-							// If the time interval between the current touch point and the last touch point is greater than the long press time, it is a long press
-							if (xTaskGetTickCount() - last_press_time >= m_long_press_time) {
-								// long press
-								message.button_data.act = BUTTON_ACT_LONG_PRESSED;
-							} else {
-								// short press
-								message.button_data.act = BUTTON_ACT_PRESSED;
-							}
-							// Send the message to the Bluethroat task
-							if (this->m_queue_handle != NULL) {
-								FT6X36U_TOUCH_LOGD("Send button message to Bluethroat task, button index: %d, button act: %d", message.button_data.index, message.button_data.act);
-								xQueueSend(m_queue_handle, &message, 0);
-							} else {
-								// Queue handle is invalid, Add direct processing code here
-							}
-						} else {
-							// button index changed singce last touch state change
-						}
-					}
-				} else {
-					last_button_index = BUTTON_INDEX_NONE;
-				}
-			} else {
-				last_button_index = BUTTON_INDEX_NONE;
-			}
+		// If press time is less than long press time, return directly
+		if (xTaskGetTickCount() - last_press_time < m_long_press_time) {
+			return ESP_OK;
+		}
+
+		// If press time is greater than long press time, long press occurs, continue process
+
+		// Update send long press message to Bluethroat task
+		last_touch_state = TOUCH_STATE_RELEASED;
+		last_button_index = BUTTON_INDEX_NONE;
+
+		// Send long press message to message process task
+		BluethroatMsg_t message;
+		message.type = BLUETHROAT_MSG_BUTTON;
+		message.button_data.index = button_index;
+		message.button_data.act = BUTTON_ACT_LONG_PRESSED;
+		if (this->m_queue_handle != NULL) {
+			FT6X36U_TOUCH_LOGD("Send button message to message process task, button index: %d, button act: %d", message.button_data.index, message.button_data.act);
+			xQueueSend(m_queue_handle, &message, 0);
 		} else {
-			// state not changed
+			// Queue handle is invalid, Add direct processing code here or do nothing
+		}
+
+		return ESP_OK;
+
+	// If the touch state is pressed, and the last touch state is released, continue process
+	} else if (last_touch_state == TOUCH_STATE_RELEASED && touch_state == TOUCH_STATE_PRESSED) {
+		// If the touch point is not in the buttons area, return directly
+		if (button_index == BUTTON_INDEX_NONE) {
+			return ESP_OK;
+		}
+
+		// If the touch point is in the buttons area, record current state
+		last_touch_state = TOUCH_STATE_PRESSED;
+		last_button_index = button_index;
+		last_press_time = xTaskGetTickCount();
+
+		return ESP_OK;
+
+	// If the touch state is released, and the last touch state is pressed, continue process
+	} else {
+		// Change last touch state to released and last button index to none
+		last_touch_state = TOUCH_STATE_RELEASED;
+		last_button_index = BUTTON_INDEX_NONE;
+
+		// If the touch point is not in the same button area as the last touch point, return directly
+		if (last_button_index != button_index) {
+			return ESP_OK;
+		}
+
+		// Same button pressed and released, send short press message to message process task
+		BluethroatMsg_t message;
+		message.type = BLUETHROAT_MSG_BUTTON;
+		message.button_data.index = button_index;
+		message.button_data.act = BUTTON_ACT_PRESSED;
+		if (this->m_queue_handle != NULL) {
+			FT6X36U_TOUCH_LOGD("Send button message to Bluethroat task, button index: %d, button act: %d", message.button_data.index, message.button_data.act);
+			xQueueSend(m_queue_handle, &message, 0);
+		} else {
+			// Queue handle is invalid, Add direct processing code here
 		}
 
 		return ESP_OK;
