@@ -114,7 +114,7 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 	// If the touch state is pressed, and the last touch state is also pressed, continue process
 	if (last_touch_state == TOUCH_STATE_PRESSED && touch_state == TOUCH_STATE_PRESSED) {
 		// If the touch point is in the same button area as the last touch point, return directly
-		if (last_button_index != button_index) {
+		if (button_index == BUTTON_INDEX_NONE || button_index != last_button_index) {
 			return ESP_OK;
 		}
 
@@ -125,8 +125,7 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 
 		// If press time is greater than long press time, long press occurs, continue process
 
-		// Update send long press message to Bluethroat task
-		last_touch_state = TOUCH_STATE_RELEASED;
+		// Update last last button index
 		last_button_index = BUTTON_INDEX_NONE;
 
 		// Send long press message to message process task
@@ -145,13 +144,16 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 
 	// If the touch state is pressed, and the last touch state is released, continue process
 	} else if (last_touch_state == TOUCH_STATE_RELEASED && touch_state == TOUCH_STATE_PRESSED) {
+		// Update last touch state to pressed
+		last_touch_state = TOUCH_STATE_PRESSED;
+
 		// If the touch point is not in the buttons area, return directly
 		if (button_index == BUTTON_INDEX_NONE) {
+			last_button_index = BUTTON_INDEX_NONE;
 			return ESP_OK;
 		}
 
 		// If the touch point is in the buttons area, record current state
-		last_touch_state = TOUCH_STATE_PRESSED;
 		last_button_index = button_index;
 		last_press_time = xTaskGetTickCount();
 
@@ -159,12 +161,11 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 
 	// If the touch state is released, and the last touch state is pressed, continue process
 	} else {
-		// Change last touch state to released and last button index to none
+		// Update last touch state to released
 		last_touch_state = TOUCH_STATE_RELEASED;
-		last_button_index = BUTTON_INDEX_NONE;
 
 		// If the touch point is not in the same button area as the last touch point, return directly
-		if (last_button_index != button_index) {
+		if (button_index == BUTTON_INDEX_NONE || button_index != last_button_index) {
 			return ESP_OK;
 		}
 
