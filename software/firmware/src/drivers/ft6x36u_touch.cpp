@@ -64,19 +64,19 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 	if (unlikely(reg_addr != FT6X36U_REG_ADDR_TD_STATUS || size != FT6X36U_TOUCH_DATA_LENGTH)) {
 		return result;
 	}
-	
+
 	// If read touch data fail, return directly
 	if (unlikely(result != ESP_OK)) {
 		return result;
 	}
 
-	// Lvgl driver reading touch date duccesfully, Intercept touch data for additional processing 
+	// Lvgl driver reading touch date duccesfully, intercept touch data for additional processing 
 	// to implement customized touch screen buttons outside the TFT screen area
 
 	// Static variables to store last touch state, last button index, and last press time
 	static TouchState_t last_touch_state = TOUCH_STATE_RELEASED;
 	static ButtonIndex_t last_button_index = BUTTON_INDEX_NONE;
-	static TickType_t last_press_time = xTaskGetTickCount();
+	static TickType_t last_press_time = 0;
 
 	// Dynamic variables to store current touch state, current button index
 	TouchState_t touch_state;
@@ -86,7 +86,7 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 	touch_state = (buffer[0]) ? TOUCH_STATE_PRESSED : TOUCH_STATE_RELEASED;
 
 	// If the touch state is released, and the last touch state is also released, return directly
-	if (last_touch_state == TOUCH_STATE_RELEASED && touch_state == TOUCH_STATE_RELEASED) {
+	if (touch_state == TOUCH_STATE_RELEASED && last_touch_state == TOUCH_STATE_RELEASED) {
 		return ESP_OK;
 	}
 
@@ -112,7 +112,7 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 	}
 
 	// If the touch state is pressed, and the last touch state is also pressed, continue process
-	if (last_touch_state == TOUCH_STATE_PRESSED && touch_state == TOUCH_STATE_PRESSED) {
+	if (touch_state == TOUCH_STATE_PRESSED && last_touch_state == TOUCH_STATE_PRESSED) {
 		// If the touch point is in the same button area as the last touch point, return directly
 		if (button_index == BUTTON_INDEX_NONE || button_index != last_button_index) {
 			return ESP_OK;
@@ -124,8 +124,8 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 		}
 
 		// If press time is greater than long press time, long press occurs, continue process
-
-		// Update last last button index
+		// Don't update last touch state to released here, prevent an unexpected new press event occurs until the button is really released
+		// Just update the last button index to prevent long press event occurs repeatedly
 		last_button_index = BUTTON_INDEX_NONE;
 
 		// Send long press message to message process task
@@ -143,7 +143,7 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 		return ESP_OK;
 
 	// If the touch state is pressed, and the last touch state is released, continue process
-	} else if (last_touch_state == TOUCH_STATE_RELEASED && touch_state == TOUCH_STATE_PRESSED) {
+	} else if (touch_state == TOUCH_STATE_PRESSED && last_touch_state == TOUCH_STATE_RELEASED) {
 		// Update last touch state to pressed
 		last_touch_state = TOUCH_STATE_PRESSED;
 
