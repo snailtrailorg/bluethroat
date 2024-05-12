@@ -130,7 +130,7 @@ void app_main() {
     /* step 17: start devices loop tasks */
     if (p_Axp192Pmu != NULL) p_Axp192Pmu->Start(&(g_TaskParam[TASK_INDEX_AXP192_PMU]), pBluethroatMsgProc->m_queue_handle);
     /* ft6x36u touch needs no task, it's driven by lvgl, but it needs queue handle to send message fo button event */
-    if (p_Ft6x36uTouch != NULL) p_Ft6x36uTouch->m_queue_handle = pBluethroatMsgProc->m_queue_handle;
+    if (p_Ft6x36uTouch != NULL) p_Ft6x36uTouch->Start(NULL, pBluethroatMsgProc->m_queue_handle);
     if (p_Bm8563Rtc != NULL) p_Bm8563Rtc->Start(&(g_TaskParam[TASK_INDEX_BM8563_RTC]), pBluethroatMsgProc->m_queue_handle);
     if (p_Dps3xxBarometer != NULL) p_Dps3xxBarometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
     if (p_Dps3xxAnemometer != NULL) p_Dps3xxAnemometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_ANEMOMETER]), pBluethroatMsgProc->m_queue_handle);
