@@ -1,6 +1,6 @@
 #
 # Automatically generated file. DO NOT EDIT.
-# Espressif IoT Development Framework (ESP-IDF) 5.1.1 Project Configuration
+# Espressif IoT Development Framework (ESP-IDF)  Project Configuration
 #
 CONFIG_SOC_BROWNOUT_RESET_SUPPORTED="Not determined"
 CONFIG_SOC_TWAI_BRP_DIV_SUPPORTED="Not determined"
@@ -1843,6 +1843,20 @@ CONFIG_I2C_PORT_1_LOCK_TIMEOUT=50
 # CONFIG_I2C_PORT_1_PULLUPS is not set
 # end of I2C Port 1
 # end of I2C Port Configuration
+
+#
+# I2C Device Configuration
+#
+CONFIG_I2C_DEVICE_AXP192=y
+CONFIG_I2C_DEVICE_AXP192_BATTERY_CAPACITY_MAH=500
+# CONFIG_I2C_DEVICE_AXP192_CHARGE_CURRENT_01C is not set
+CONFIG_I2C_DEVICE_AXP192_CHARGE_CURRENT_03C=y
+# CONFIG_I2C_DEVICE_AXP192_CHARGE_CURRENT_05C is not set
+# CONFIG_I2C_DEVICE_AXP192_CHARGE_CURRENT_07C is not set
+# CONFIG_I2C_DEVICE_AXP192_CHARGE_CURRENT_10C is not set
+CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED=y
+CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM=y
+# end of I2C Device Configuration
 # end of Bluethroat Paragliding Variometer Configurations
 
 #

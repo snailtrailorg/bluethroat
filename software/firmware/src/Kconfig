@@ -182,4 +182,62 @@ menu "Bluethroat Paragliding Variometer Configurations"
 
     endmenu
 
+    menu "I2C Device Configuration"
+    
+        config I2C_DEVICE_AXP192
+            bool "Axp192 PMU"
+            depends on BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS || BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+            default y
+            help
+                Use Axp192 Power Management Unit
+
+        config I2C_DEVICE_AXP192_BATTERY_CAPACITY_MAH
+            int "Chargable battery capacity in mAh"
+            depends on I2C_DEVICE_AXP192
+            default 500 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+            default 120 if BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS
+            help
+                Chargable battery capacity in mAh
+
+        choice I2C_DEVICE_AXP192_CHARGING_CURRENT
+            prompt "Charging current configuation"
+            depends on I2C_DEVICE_AXP192
+            default I2C_DEVICE_AXP192_CHARGE_CURRENT_03C
+            help
+                Normally, the charging current (mA or A) of the lithium-ion battery 
+                should be set to 30% of the battery capacity (mAh or Ah). 
+                A low charging current will help extend the battery life, and a high 
+                charging current will help shorten the totaly charging time.
+
+            config I2C_DEVICE_AXP192_CHARGE_CURRENT_01C
+                bool "0.1C"
+            config I2C_DEVICE_AXP192_CHARGE_CURRENT_03C
+                bool "0.3C"
+            config I2C_DEVICE_AXP192_CHARGE_CURRENT_05C
+                bool "0.5C"
+            config I2C_DEVICE_AXP192_CHARGE_CURRENT_07C
+                bool "0.7C"
+            config I2C_DEVICE_AXP192_CHARGE_CURRENT_10C
+                bool "1.0C"
+        endchoice
+
+        config I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+            bool "Drive charging LED with GPIO1"
+            depends on I2C_DEVICE_AXP192 && BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+            default y
+            help
+                Drive charging LED with GPIO1, which is connected 
+                to the charging LED on M5Core2 for AWS.
+
+        config I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+            bool "Drive charging LED with AXP192 PWM generator"
+            depends on I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+            default y
+            help
+                Drive charging LED with AXP192 PWM generator.
+                Using PWM waveform to drive LED can make the brightness 
+                change more smoothly and provide a better user experience.
+
+    endmenu
+
 endmenu

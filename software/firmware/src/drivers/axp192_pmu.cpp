@@ -1,7 +1,20 @@
+/***********************************************************************************************************************
+ * If the AXP192 module is not configured, all codes in this file will be ignored. 
+ * Use a configuration tool such as menuconfig to configure it.
+***********************************************************************************************************************/
+#include <sdkconfig.h>
+#if CONFIG_I2C_DEVICE_AXP192
+/***********************************************************************************************************************
+ * If the AXP192 module is not configured, all codes in this file will be ignored. 
+ * Use a configuration tool such as menuconfig to configure it.
+***********************************************************************************************************************/
+
 #include <esp_err.h>
 #include <esp_log.h>
 
 #include <freertos/FreeRTOS.h>
+#include <freertos/timers.h>
+#include <freertos/task.h>
 
 #include "drivers/axp192_pmu.h"
 
@@ -63,7 +76,7 @@ esp_err_t Axp192Pmu::init_device() {
     enable_ldo3(false);
 
     set_charge_voltage(AXP192_REG_VALUE_CHARGE_TARGET_4200MV);
-    set_charge_current(AXP192_REG_VALUE_CHARGE_IN_CUR_280MA);
+    set_charge_current(AXP192_REG_VALUE_CHARGING_INTER_CURRENT_280MA);
     set_charge_stop_current(AXP192_REG_VALUE_CHARGE_STOP_CUR_10PER);
 
     set_gpio0_level(true);
@@ -73,7 +86,11 @@ esp_err_t Axp192Pmu::init_device() {
     set_gpio4_level(true);
 
     set_gpio0_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
+#if CONFIG_BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+	set_gpio1_mode(AXP192_REG_VALUE_GPIO012_LDO_PWM);
+#else
     set_gpio1_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
+#endif
     set_gpio2_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
     set_gpio3_mode(AXP192_REG_VALUE_GPIO34_OUTPUT_NMOS_OD);
     set_gpio4_mode(AXP192_REG_VALUE_GPIO34_OUTPUT_NMOS_OD);
@@ -91,17 +108,6 @@ esp_err_t Axp192Pmu::fetch_data(uint8_t *data, uint8_t size) {
 
 esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
     return ESP_OK;
-}
-
-bool Axp192Pmu::is_charging() {
-	Axp192PowerStatusReg_t power_status;
-
-	if (this->read_byte(AXP192_REG_ADDR_POWER_STATUS, &(power_status.byte)) != ESP_OK) {
-		AXP192_PMU_LOGE("Read power status failed.");
-		return false;
-	}
-
-	return (power_status.charging) ? true : false;
 }
 
 esp_err_t Axp192Pmu::enable_dcdc1(bool enable) {
@@ -456,7 +462,7 @@ esp_err_t Axp192Pmu::set_charge_voltage(Axp192ChargeTargetVolt_t volt_index) {
 	return ESP_OK;
 }
 
-esp_err_t Axp192Pmu::set_charge_current(Axp192ChargeInCur_t current_index) {
+esp_err_t Axp192Pmu::set_charge_current(Axp192ChargingInterCurrent_t current_index) {
 	Axp192ChargeCtrl1Reg_t charge_ctrl;
 
 	esp_err_t result = read_byte(AXP192_REG_ADDR_CHARGE_CTRL, &(charge_ctrl.byte));
@@ -473,22 +479,22 @@ esp_err_t Axp192Pmu::set_charge_current(Axp192ChargeInCur_t current_index) {
 	}
 
 	AXP192_PMU_LOGI("Set charge current index to %d(%s).", current_index, \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_100MA) ? "100mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_190MA) ? "190mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_280MA) ? "280mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_360MA) ? "360mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_450MA) ? "450mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_550MA) ? "550mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_630MA) ? "630mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_700MA) ? "700mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_780MA) ? "780mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_880MA) ? "880mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_960MA) ? "960mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_1000MA) ? "1000mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_1080MA) ? "1080mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_1160MA) ? "1160mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_1240MA) ? "1240mA" : \
-	(current_index == AXP192_REG_VALUE_CHARGE_IN_CUR_1320MA) ? "1320mA" : "invalid value");
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_100MA) ? "100mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_190MA) ? "190mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_280MA) ? "280mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_360MA) ? "360mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_450MA) ? "450mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_550MA) ? "550mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_630MA) ? "630mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_700MA) ? "700mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_780MA) ? "780mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_880MA) ? "880mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_960MA) ? "960mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1000MA) ? "1000mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1080MA) ? "1080mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1160MA) ? "1160mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1240MA) ? "1240mA" : \
+	(current_index == AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1320MA) ? "1320mA" : "invalid value");
 
 	return ESP_OK;
 }
@@ -827,20 +833,55 @@ esp_err_t Axp192Pmu::set_gpio4_level(bool high) {
 
 Axp192Pmu *g_p_axp192_pmu = NULL;
 
-esp_err_t EnableVibrationMotor(bool enable) {
-	if (g_p_axp192_pmu == NULL) {
-		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
-		return ESP_FAIL;
+/***********************************************************************************************************************
+* Axp192 virbate motor function group.
+***********************************************************************************************************************/
+#define VIRBRATE_TIME_IN_MS					(100)
+#define VIRBRATE_TIMER_DELETE_DELAY_IN_MS	(50)
+static uint32_t vibrate_counter = 0;
+static portMUX_TYPE vibrate_counter_lock = SPINLOCK_INITIALIZER;
+
+static void virbrate_timer_callback(TimerHandle_t handle) {
+	taskENTER_CRITICAL(&vibrate_counter_lock);
+	vibrate_counter--;
+	taskEXIT_CRITICAL(&vibrate_counter_lock);
+
+	if (vibrate_counter == 0) {
+		if (g_p_axp192_pmu == NULL) {
+			AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
+		} else {
+    		g_p_axp192_pmu->enable_ldo3(false);
+		}
 	}
 
-	return g_p_axp192_pmu->enable_ldo3(enable);
+    xTimerDelete(handle, pdMS_TO_TICKS(VIRBRATE_TIMER_DELETE_DELAY_IN_MS));
+}
+
+esp_err_t VibrateMotor() {
+	TimerHandle_t handle = xTimerCreate("vibrate", pdMS_TO_TICKS(VIRBRATE_TIME_IN_MS), pdFALSE, NULL, virbrate_timer_callback);
+
+	if (handle != NULL) {
+		if(xTimerStart(handle, 0) == pdPASS) {
+			taskENTER_CRITICAL(&vibrate_counter_lock);
+			vibrate_counter++;
+			taskEXIT_CRITICAL(&vibrate_counter_lock);
+
+			if (g_p_axp192_pmu == NULL) {
+				AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
+				return ESP_FAIL;
+			} else {
+				return g_p_axp192_pmu->enable_ldo3(true);
+			}
+		} else {
+			xTimerDelete(handle, pdMS_TO_TICKS(VIRBRATE_TIMER_DELETE_DELAY_IN_MS));
+			return ESP_FAIL;
+		}
+	} else {
+		return ESP_FAIL;
+	}
 }
 
 esp_err_t SetScreenBrightness(uint8_t percent) {
-	return ESP_OK;
-}
-
-esp_err_t SetVolumn(uint8_t percent) {
 	return ESP_OK;
 }
 
@@ -851,15 +892,6 @@ esp_err_t SystemPowerOff() {
 	}
 
 	return g_p_axp192_pmu->power_off();
-}
-
-esp_err_t LightSystemLed(bool light) {
-	if (g_p_axp192_pmu == NULL) {
-		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
-		return ESP_FAIL;
-	}
-
-	return g_p_axp192_pmu->set_gpio1_level(light);
 }
 
 esp_err_t EnableBusPower(bool enable) {
@@ -892,3 +924,13 @@ esp_err_t ResetScreen() {
 
 	return result;
 }
+
+/***********************************************************************************************************************
+ * If the AXP192 module is not configured, all codes in this file will be ignored. 
+ * Use a configuration tool such as menuconfig to configure it.
+***********************************************************************************************************************/
+#endif
+/***********************************************************************************************************************
+ * If the AXP192 module is not configured, all codes in this file will be ignored. 
+ * Use a configuration tool such as menuconfig to configure it.
+***********************************************************************************************************************/
