@@ -76,8 +76,10 @@ esp_err_t Axp192Pmu::init_device() {
     enable_ldo3(false);
 
     set_charge_voltage(AXP192_REG_VALUE_CHARGE_TARGET_4200MV);
-    set_charge_current(AXP192_REG_VALUE_CHARGING_INTER_CURRENT_280MA);
+    set_charge_current(calc_charging_current_index(I2C_DEVICE_AXP192_DEFAULT_CHARGING_CURRENT));
     set_charge_stop_current(AXP192_REG_VALUE_CHARGE_STOP_CUR_10PER);
+	set_pre_charge_timeout(AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_60MIN);
+	set_charge_timeout(AXP192_REG_VALUE_CHARGE_TIMEOUT_10H);
 
     set_gpio0_level(true);
     set_gpio1_level(true);
@@ -86,8 +88,11 @@ esp_err_t Axp192Pmu::init_device() {
     set_gpio4_level(true);
 
     set_gpio0_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
-#if CONFIG_BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
 	set_gpio1_mode(AXP192_REG_VALUE_GPIO012_LDO_PWM);
+	set_pwm1_frequency(PWM_OUTPUT_FREQ);
+	set_pwm1_duty_cycle_divisor(PWM_DUTY_CYCLE_DEEPTH - 1);
+	set_pwm1_duty_cycle(0xff);
 #else
     set_gpio1_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
 #endif
@@ -103,24 +108,84 @@ esp_err_t Axp192Pmu::deinit_device() {
 }
 
 esp_err_t Axp192Pmu::fetch_data(uint8_t *data, uint8_t size) {
+	Axp192PmuStatus_t *p_pmu_status = (Axp192PmuStatus_t *)data;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_POWER_STATUS, &(p_pmu_status->power_status.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read power status failed.");
+		return result;
+	}
+
+	result = this->read_byte(AXP192_REG_ADDR_CHARGING_STATUS, &(p_pmu_status->charging_status.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read charging status failed.");
+		return result;
+	}
+
+	result = this->read_buffer(AXP192_REG_ADDR_BATTERY_VOLTAGE_HIGH, p_pmu_status->bat_volt, sizeof(p_pmu_status->bat_volt));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read battery voltage failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGI("Read battery status successful, data are as follows:");
+	AXP192_PMU_BUFFER_LOGI(p_pmu_status, sizeof(Axp192PmuStatus_t));
+
     return ESP_OK;
 }
 
 esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
+	Axp192PmuStatus_t *p_pmu_status = (Axp192PmuStatus_t *)in_data;
+
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+
+	typedef enum {
+		SOFTWARE_LED_STATE_OFF = 0,
+		SOFTWARE_LED_STATE_ON,
+		SOFTWARE_LED_STATE_BLINK_SLOW,
+		SOFTWARE_LED_STATE_BLINK_FAST,
+	} SoftwareLedState_t;
+
+	#define SOFTWARE_LED_BLINK_INTERVAL_SLOW 	(2 * 1000 / portTICK_PERIOD_MS)
+	#define SOFTWARE_LED_BLINK_INTERVAL_FAST 	(1 * 1000 / portTICK_PERIOD_MS)
+
+#endif
+
+	static uint8_t counter = 0;
+	if (counter++ >= 50) {
+		counter = 0;
+
+		uint16_t voltage = p_pmu_status->bat_volt[0];
+		voltage <<= 4; voltage |= (p_pmu_status->bat_volt[1] & 0x0f);
+		voltage *= 11; voltage /= 10;
+
+		p_message->type = BLUETHROAT_MSG_TYPE_PMU;
+		p_message->pmu_data.battery_voltage = voltage;
+		p_message->pmu_data.battery_charging = p_pmu_status->power_status.charging;
+		p_message->pmu_data.battery_activiting = p_pmu_status->charging_status.battery_activating;
+		p_message->pmu_data.charge_undercurrent = p_pmu_status->charging_status.charge_undercurrent;
+
+		AXP192_PMU_LOGI("Repoer bettary status: voltage=%dmV, charging=%s, activating=%s, undercurrent=%s.", \
+			p_message->pmu_data.battery_voltage, 
+			(p_message->pmu_data.battery_charging) ? "true" : "false", \
+			(p_message->pmu_data.battery_activiting) ? "true" : "false", \
+			(p_message->pmu_data.charge_undercurrent) ? "true" : "false");
+	}
+
     return ESP_OK;
 }
 
 esp_err_t Axp192Pmu::enable_dcdc1(bool enable) {
 	Axp192PowerOutputCtrlReg_t power_output_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read power output control failed.");
 		return result;
 	}
 
 	power_output_ctrl.dcdc1_en = enable;
-	result = write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write power output control failed.");
 		return result;
@@ -134,14 +199,14 @@ esp_err_t Axp192Pmu::enable_dcdc1(bool enable) {
 esp_err_t Axp192Pmu::enable_dcdc2(bool enable) {
 	Axp192PowerOutputCtrlReg_t power_output_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read power output control failed.");
 		return result;
 	}
 
 	power_output_ctrl.dcdc2_en = (enable) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write power output control failed.");
 		return result;
@@ -155,14 +220,14 @@ esp_err_t Axp192Pmu::enable_dcdc2(bool enable) {
 esp_err_t Axp192Pmu::enable_dcdc3(bool enable) {
 	Axp192PowerOutputCtrlReg_t power_output_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read power output control failed.");
 		return result;
 	}
 
 	power_output_ctrl.dcdc3_en = (enable) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write power output control failed.");
 		return result;
@@ -176,14 +241,14 @@ esp_err_t Axp192Pmu::enable_dcdc3(bool enable) {
 esp_err_t Axp192Pmu::enable_ldo2(bool enable) {
 	Axp192PowerOutputCtrlReg_t power_output_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read power output control failed.");
 		return result;
 	}
 
 	power_output_ctrl.ldo2_en = (enable) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write power output control failed.");
 		return result;
@@ -197,14 +262,14 @@ esp_err_t Axp192Pmu::enable_ldo2(bool enable) {
 esp_err_t Axp192Pmu::enable_ldo3(bool enable) {
 	Axp192PowerOutputCtrlReg_t power_output_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read power output control failed.");
 		return result;
 	}
 
 	power_output_ctrl.ldo3_en = (enable) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write power output control failed.");
 		return result;
@@ -218,14 +283,14 @@ esp_err_t Axp192Pmu::enable_ldo3(bool enable) {
 esp_err_t Axp192Pmu::enable_external_module(bool enable) {
 	Axp192PowerOutputCtrlReg_t power_output_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, &(power_output_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read power output control failed.");
 		return result;
 	}
 
 	power_output_ctrl.ext_en = (enable) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_POWER_OUTPUT_CTRL, power_output_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write power output control failed.");
 		return result;
@@ -244,14 +309,14 @@ esp_err_t Axp192Pmu::set_dcdc1_voltage(uint16_t millivolt) {
 		return ESP_FAIL;
 	}
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_DCDC1_VOLT_CTRL, &(dcdc1_volt_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_DCDC1_VOLT_CTRL, &(dcdc1_volt_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read dcdc1 voltage control failed.");
 		return result;
 	}
 
 	dcdc1_volt_ctrl.output_volt = (millivolt - AXP192_REG_VALUE_DCDC13_VOLT_MIN) / AXP192_REG_VALUE_DCDC13_VOLT_STEP;
-	result = write_byte(AXP192_REG_ADDR_DCDC1_VOLT_CTRL, dcdc1_volt_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_DCDC1_VOLT_CTRL, dcdc1_volt_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write dcdc1 voltage control failed.");
 		return result;
@@ -270,14 +335,14 @@ esp_err_t Axp192Pmu::set_dcdc2_voltage(uint16_t millivolt) {
 		return ESP_FAIL;
 	}
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_DCDC2_VOLT_CTRL, &(dcdc2_volt_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_DCDC2_VOLT_CTRL, &(dcdc2_volt_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read dcdc2 voltage control failed.");
 		return result;
 	}
 
 	dcdc2_volt_ctrl.output_volt = (millivolt - AXP192_REG_VALUE_DCDC2_VOLT_MIN) / AXP192_REG_VALUE_DCDC2_VOLT_STEP;
-	result = write_byte(AXP192_REG_ADDR_DCDC2_VOLT_CTRL, dcdc2_volt_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_DCDC2_VOLT_CTRL, dcdc2_volt_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write dcdc2 voltage control failed.");
 		return result;
@@ -296,14 +361,14 @@ esp_err_t Axp192Pmu::set_dcdc3_voltage(uint16_t millivolt) {
 		return ESP_FAIL;
 	}
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_DCDC3_VOLT_CTRL, &(dcdc3_volt_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_DCDC3_VOLT_CTRL, &(dcdc3_volt_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read dcdc3 voltage control failed.");
 		return result;
 	}
 
 	dcdc3_volt_ctrl.output_volt = (millivolt - AXP192_REG_VALUE_DCDC13_VOLT_MIN) / AXP192_REG_VALUE_DCDC13_VOLT_STEP;
-	result = write_byte(AXP192_REG_ADDR_DCDC3_VOLT_CTRL, dcdc3_volt_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_DCDC3_VOLT_CTRL, dcdc3_volt_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write dcdc3 voltage control failed.");
 		return result;
@@ -322,14 +387,14 @@ esp_err_t Axp192Pmu::set_ldo2_voltage(uint16_t millivolt) {
 		return ESP_FAIL;
 	}
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_LDO23_VOLT_CTRL, &(ldo2_volt_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_LDO23_VOLT_CTRL, &(ldo2_volt_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read ldo2 voltage control failed.");
 		return result;
 	}
 
 	ldo2_volt_ctrl.ldo2_output_volt = (millivolt - AXP192_REG_VALUE_LDO23_VOLT_MIN) / AXP192_REG_VALUE_LDO23_VOLT_STEP;
-	result = write_byte(AXP192_REG_ADDR_LDO23_VOLT_CTRL, ldo2_volt_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_LDO23_VOLT_CTRL, ldo2_volt_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write ldo2 voltage control failed.");
 		return result;
@@ -348,14 +413,14 @@ esp_err_t Axp192Pmu::set_ldo3_voltage(uint16_t millivolt) {
 		return ESP_FAIL;
 	}
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_LDO23_VOLT_CTRL, &(ldo3_volt_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_LDO23_VOLT_CTRL, &(ldo3_volt_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read ldo3 voltage control failed.");
 		return result;
 	}
 
 	ldo3_volt_ctrl.ldo3_output_volt = (millivolt - AXP192_REG_VALUE_LDO23_VOLT_MIN) / AXP192_REG_VALUE_LDO23_VOLT_STEP;
-	result = write_byte(AXP192_REG_ADDR_LDO23_VOLT_CTRL, ldo3_volt_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_LDO23_VOLT_CTRL, ldo3_volt_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write ldo3 voltage control failed.");
 		return result;
@@ -369,14 +434,14 @@ esp_err_t Axp192Pmu::set_ldo3_voltage(uint16_t millivolt) {
 esp_err_t Axp192Pmu::software_enable_vbus(bool enable) {
 	Axp192VbusConnCtrlReg_t vbus_conn_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_VBUS_CONENCT_CTRL, &(vbus_conn_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_VBUS_CONENCT_CTRL, &(vbus_conn_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read vbus connect control failed.");
 		return result;
 	}
 
 	vbus_conn_ctrl.vbus_en = (enable) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_VBUS_CONENCT_CTRL, vbus_conn_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_VBUS_CONENCT_CTRL, vbus_conn_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write vbus connect control failed.");
 		return result;
@@ -390,14 +455,14 @@ esp_err_t Axp192Pmu::software_enable_vbus(bool enable) {
 esp_err_t Axp192Pmu::set_voff_voltage(Axp192VoffVolt_t volt_index) {
 	Axp192VoffCtrlReg_t voff_volt_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_VOFF_CTRL, &(voff_volt_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_VOFF_CTRL, &(voff_volt_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read voff voltage control failed.");
 		return result;
 	}
 
 	voff_volt_ctrl.voff_volt = (uint8_t)volt_index;
-	result = write_byte(AXP192_REG_ADDR_VOFF_CTRL, voff_volt_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_VOFF_CTRL, voff_volt_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write voff voltage control failed.");
 		return result;
@@ -419,14 +484,14 @@ esp_err_t Axp192Pmu::set_voff_voltage(Axp192VoffVolt_t volt_index) {
 esp_err_t Axp192Pmu::power_off() {
 	Axp192PowerOffCtrlReg_t power_off_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_POWER_OFF_CTRL, &(power_off_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_POWER_OFF_CTRL, &(power_off_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read power off control failed.");
 		return result;
 	}
 
 	power_off_ctrl.power_off = 1;
-	result = write_byte(AXP192_REG_ADDR_POWER_OFF_CTRL, power_off_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_POWER_OFF_CTRL, power_off_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write power off control failed.");
 		return result;
@@ -438,18 +503,18 @@ esp_err_t Axp192Pmu::power_off() {
 }
 
 esp_err_t Axp192Pmu::set_charge_voltage(Axp192ChargeTargetVolt_t volt_index) {
-	Axp192ChargeCtrl1Reg_t charge_ctrl;
+	Axp192ChargeCtrl1Reg_t charge_ctrl1;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_CHARGE_CTRL, &(charge_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_CHARGE_CTRL1, &(charge_ctrl1.byte));
 	if (result != ESP_OK) {
-		AXP192_PMU_LOGE("Read charge control failed.");
+		AXP192_PMU_LOGE("Read charge control register 1 failed.");
 		return result;
 	}
 
-	charge_ctrl.target_volt = (uint8_t)volt_index;
-	result = write_byte(AXP192_REG_ADDR_CHARGE_CTRL, charge_ctrl.byte);
+	charge_ctrl1.target_volt = (uint8_t)volt_index;
+	result = this->write_byte(AXP192_REG_ADDR_CHARGE_CTRL1, charge_ctrl1.byte);
 	if (result != ESP_OK) {
-		AXP192_PMU_LOGE("Write charge control failed.");
+		AXP192_PMU_LOGE("Write charge control register 1 failed.");
 		return result;
 	}
 
@@ -463,18 +528,18 @@ esp_err_t Axp192Pmu::set_charge_voltage(Axp192ChargeTargetVolt_t volt_index) {
 }
 
 esp_err_t Axp192Pmu::set_charge_current(Axp192ChargingInterCurrent_t current_index) {
-	Axp192ChargeCtrl1Reg_t charge_ctrl;
+	Axp192ChargeCtrl1Reg_t charge_ctrl1;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_CHARGE_CTRL, &(charge_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_CHARGE_CTRL1, &(charge_ctrl1.byte));
 	if (result != ESP_OK) {
-		AXP192_PMU_LOGE("Read charge control failed.");
+		AXP192_PMU_LOGE("Read charge control register 1 failed.");
 		return result;
 	}
 
-	charge_ctrl.inter_path_current = (uint8_t)current_index;
-	result = write_byte(AXP192_REG_ADDR_CHARGE_CTRL, charge_ctrl.byte);
+	charge_ctrl1.inter_path_current = (uint8_t)current_index;
+	result = this->write_byte(AXP192_REG_ADDR_CHARGE_CTRL1, charge_ctrl1.byte);
 	if (result != ESP_OK) {
-		AXP192_PMU_LOGE("Write charge control failed.");
+		AXP192_PMU_LOGE("Write charge control register 1 failed.");
 		return result;
 	}
 
@@ -500,18 +565,18 @@ esp_err_t Axp192Pmu::set_charge_current(Axp192ChargingInterCurrent_t current_ind
 }
 
 esp_err_t Axp192Pmu::set_charge_stop_current(Axp192ChargeStopCur_t stop_current_index) {
-	Axp192ChargeCtrl1Reg_t charge_ctrl;
+	Axp192ChargeCtrl1Reg_t charge_ctrl1;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_CHARGE_CTRL, &(charge_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_CHARGE_CTRL1, &(charge_ctrl1.byte));
 	if (result != ESP_OK) {
-		AXP192_PMU_LOGE("Read charge control failed.");
+		AXP192_PMU_LOGE("Read charge control register 1 failed.");
 		return result;
 	}
 
-	charge_ctrl.inter_stop_current = (uint8_t)stop_current_index;
-	result = write_byte(AXP192_REG_ADDR_CHARGE_CTRL, charge_ctrl.byte);
+	charge_ctrl1.inter_stop_current = (uint8_t)stop_current_index;
+	result = this->write_byte(AXP192_REG_ADDR_CHARGE_CTRL1, charge_ctrl1.byte);
 	if (result != ESP_OK) {
-		AXP192_PMU_LOGE("Write charge control failed.");
+		AXP192_PMU_LOGE("Write charge control register 1 failed.");
 		return result;
 	}
 
@@ -522,17 +587,69 @@ esp_err_t Axp192Pmu::set_charge_stop_current(Axp192ChargeStopCur_t stop_current_
 	return ESP_OK;
 }
 
+esp_err_t Axp192Pmu::set_pre_charge_timeout(Axp192PreChargeTimeout_t timeout_index) {
+	Axp192ChargeCtrl2Reg_t charge_ctrl2;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_CHARGE_CTRL2, &(charge_ctrl2.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read charge control register 2 failed.");
+		return result;
+	}
+
+	charge_ctrl2.pre_charge_timeout = (uint8_t)timeout_index;
+	result = this->write_byte(AXP192_REG_ADDR_CHARGE_CTRL2, charge_ctrl2.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write charge control register 2 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGI("Set pre-charge timeout index to %d(%s).", timeout_index, \
+	(timeout_index == AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_30MIN) ? "30 minute" : \
+	(timeout_index == AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_40MIN) ? "40 minute" : \
+	(timeout_index == AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_50MIN) ? "50 minute" : \
+	(timeout_index == AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_60MIN) ? "60 minute" : "invalid value");
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::set_charge_timeout(Axp192ChargeTimeout_t timeout_index){
+	Axp192ChargeCtrl2Reg_t charge_ctrl2;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_CHARGE_CTRL2, &(charge_ctrl2.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read charge control register 2 failed.");
+		return result;
+	}
+
+	charge_ctrl2.charge_timeout = (uint8_t)timeout_index;
+	result = this->write_byte(AXP192_REG_ADDR_CHARGE_CTRL2, charge_ctrl2.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write charge control register 2 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGI("Set charge timeout index to %d(%s).", timeout_index, \
+	(timeout_index == AXP192_REG_VALUE_CHARGE_TIMEOUT_7H) ? "7 hour" : \
+	(timeout_index == AXP192_REG_VALUE_CHARGE_TIMEOUT_8H) ? "8 hour" : \
+	(timeout_index == AXP192_REG_VALUE_CHARGE_TIMEOUT_9H) ? "9 hour" : \
+	(timeout_index == AXP192_REG_VALUE_CHARGE_TIMEOUT_10H) ? "10 hour" : "invalid value");
+
+	return ESP_OK;
+
+}
+
+
 esp_err_t Axp192Pmu::set_dcdc1_mode(Axp192DcdcMode_t mode) {
 	Axp192DcdcModeCtrlReg_t dcdc_mode_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, &(dcdc_mode_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, &(dcdc_mode_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read dcdc1 mode control failed.");
 		return result;
 	}
 
 	dcdc_mode_ctrl.dcdc1_mode = mode;
-	result = write_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, dcdc_mode_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, dcdc_mode_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write dcdc1 mode control failed.");
 		return result;
@@ -548,14 +665,14 @@ esp_err_t Axp192Pmu::set_dcdc1_mode(Axp192DcdcMode_t mode) {
 esp_err_t Axp192Pmu::set_dcdc2_mode(Axp192DcdcMode_t mode) {
 	Axp192DcdcModeCtrlReg_t dcdc_mode_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, &(dcdc_mode_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, &(dcdc_mode_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read dcdc2 mode control failed.");
 		return result;
 	}
 
 	dcdc_mode_ctrl.dcdc2_mode = mode;
-	result = write_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, dcdc_mode_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, dcdc_mode_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write dcdc2 mode control failed.");
 		return result;
@@ -571,14 +688,14 @@ esp_err_t Axp192Pmu::set_dcdc2_mode(Axp192DcdcMode_t mode) {
 esp_err_t Axp192Pmu::set_dcdc3_mode(Axp192DcdcMode_t mode) {
 	Axp192DcdcModeCtrlReg_t dcdc_mode_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, &(dcdc_mode_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, &(dcdc_mode_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read dcdc3 mode control failed.");
 		return result;
 	}
 
 	dcdc_mode_ctrl.dcdc3_mode = mode;
-	result = write_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, dcdc_mode_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_DCDC_MODE_CTRL, dcdc_mode_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write dcdc3 mode control failed.");
 		return result;
@@ -594,14 +711,14 @@ esp_err_t Axp192Pmu::set_dcdc3_mode(Axp192DcdcMode_t mode) {
 esp_err_t Axp192Pmu::set_gpio0_mode(Axp192Gpio012Mode_t mode) {
 	Axp192Gpio012ModeCtrlReg_t gpio0_mode_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO0_MODE_CTRL, &(gpio0_mode_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO0_MODE_CTRL, &(gpio0_mode_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio0 mode control failed.");
 		return result;
 	}
 
 	gpio0_mode_ctrl.mode = mode;
-	result = write_byte(AXP192_REG_ADDR_GPIO0_MODE_CTRL, gpio0_mode_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO0_MODE_CTRL, gpio0_mode_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio0 mode control failed.");
 		return result;
@@ -623,14 +740,14 @@ esp_err_t Axp192Pmu::set_gpio0_mode(Axp192Gpio012Mode_t mode) {
 esp_err_t Axp192Pmu::set_gpio1_mode(Axp192Gpio012Mode_t mode) {
 	Axp192Gpio012ModeCtrlReg_t gpio1_mode_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO1_MODE_CTRL, &(gpio1_mode_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO1_MODE_CTRL, &(gpio1_mode_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio1 mode control failed.");
 		return result;
 	}
 
 	gpio1_mode_ctrl.mode = mode;
-	result = write_byte(AXP192_REG_ADDR_GPIO1_MODE_CTRL, gpio1_mode_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO1_MODE_CTRL, gpio1_mode_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio1 mode control failed.");
 		return result;
@@ -651,14 +768,14 @@ esp_err_t Axp192Pmu::set_gpio1_mode(Axp192Gpio012Mode_t mode) {
 esp_err_t Axp192Pmu::set_gpio2_mode(Axp192Gpio012Mode_t mode) {
 	Axp192Gpio012ModeCtrlReg_t gpio2_mode_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO2_MODE_CTRL, &(gpio2_mode_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO2_MODE_CTRL, &(gpio2_mode_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio2 mode control failed.");
 		return result;
 	}
 
 	gpio2_mode_ctrl.mode = mode;
-	result = write_byte(AXP192_REG_ADDR_GPIO2_MODE_CTRL, gpio2_mode_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO2_MODE_CTRL, gpio2_mode_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio2 mode control failed.");
 		return result;
@@ -679,14 +796,14 @@ esp_err_t Axp192Pmu::set_gpio2_mode(Axp192Gpio012Mode_t mode) {
 esp_err_t Axp192Pmu::set_gpio3_mode(Axp192Gpio34Mode_t mode) {
 	Axp192Gpio34ModeCtrlReg_t gpio34_mode_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO34_MODE_CTRL, &(gpio34_mode_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO34_MODE_CTRL, &(gpio34_mode_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio34 mode control failed.");
 		return result;
 	}
 
 	gpio34_mode_ctrl.gpio3_mode = mode;
-	result = write_byte(AXP192_REG_ADDR_GPIO34_MODE_CTRL, gpio34_mode_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO34_MODE_CTRL, gpio34_mode_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio34 mode control failed.");
 		return result;
@@ -704,14 +821,14 @@ esp_err_t Axp192Pmu::set_gpio3_mode(Axp192Gpio34Mode_t mode) {
 esp_err_t Axp192Pmu::set_gpio4_mode(Axp192Gpio34Mode_t mode) {
 	Axp192Gpio34ModeCtrlReg_t gpio34_mode_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO34_MODE_CTRL, &(gpio34_mode_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO34_MODE_CTRL, &(gpio34_mode_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio34 mode control failed.");
 		return result;
 	}
 
 	gpio34_mode_ctrl.gpio4_mode = mode;
-	result = write_byte(AXP192_REG_ADDR_GPIO34_MODE_CTRL, gpio34_mode_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO34_MODE_CTRL, gpio34_mode_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio34 mode control failed.");
 		return result;
@@ -729,14 +846,14 @@ esp_err_t Axp192Pmu::set_gpio4_mode(Axp192Gpio34Mode_t mode) {
 esp_err_t Axp192Pmu::set_gpio0_level(bool high) {
 	Axp192Gpio012LevelCtrlReg_t gpio012_level_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, &(gpio012_level_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, &(gpio012_level_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio0 level control failed.");
 		return result;
 	}
 
 	gpio012_level_ctrl.gpio0_level = (high) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, gpio012_level_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, gpio012_level_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio0 level control failed.");
 		return result;
@@ -750,14 +867,14 @@ esp_err_t Axp192Pmu::set_gpio0_level(bool high) {
 esp_err_t Axp192Pmu::set_gpio1_level(bool high) {
 	Axp192Gpio012LevelCtrlReg_t gpio012_level_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, &(gpio012_level_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, &(gpio012_level_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio1 level control failed.");
 		return result;
 	}
 	
 	gpio012_level_ctrl.gpio1_level = (high) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, gpio012_level_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, gpio012_level_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio1 level control failed.");
 		return result;
@@ -771,14 +888,14 @@ esp_err_t Axp192Pmu::set_gpio1_level(bool high) {
 esp_err_t Axp192Pmu::set_gpio2_level(bool high)	{
 	Axp192Gpio012LevelCtrlReg_t gpio012_level_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, &(gpio012_level_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, &(gpio012_level_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio2 level control failed.");
 		return result;
 	}
 
 	gpio012_level_ctrl.gpio2_level = (high) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, gpio012_level_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO012_LEVEL_CTRL, gpio012_level_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio2 level control failed.");
 		return result;
@@ -792,14 +909,14 @@ esp_err_t Axp192Pmu::set_gpio2_level(bool high)	{
 esp_err_t Axp192Pmu::set_gpio3_level(bool high) {
 	Axp192Gpio34LevelCtrlReg_t gpio34_level_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO34_LEVEL_CTRL, &(gpio34_level_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO34_LEVEL_CTRL, &(gpio34_level_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio3 level control failed.");
 		return result;
 	}
 
 	gpio34_level_ctrl.gpio3_level = (high) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_GPIO34_LEVEL_CTRL, gpio34_level_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO34_LEVEL_CTRL, gpio34_level_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio3 level control failed.");
 		return result;
@@ -813,14 +930,14 @@ esp_err_t Axp192Pmu::set_gpio3_level(bool high) {
 esp_err_t Axp192Pmu::set_gpio4_level(bool high) {
 	Axp192Gpio34LevelCtrlReg_t gpio34_level_ctrl;
 
-	esp_err_t result = read_byte(AXP192_REG_ADDR_GPIO34_LEVEL_CTRL, &(gpio34_level_ctrl.byte));
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_GPIO34_LEVEL_CTRL, &(gpio34_level_ctrl.byte));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read gpio4 level control failed.");
 		return result;
 	}
 
 	gpio34_level_ctrl.gpio4_level = (high) ? 1 : 0;
-	result = write_byte(AXP192_REG_ADDR_GPIO34_LEVEL_CTRL, gpio34_level_ctrl.byte);
+	result = this->write_byte(AXP192_REG_ADDR_GPIO34_LEVEL_CTRL, gpio34_level_ctrl.byte);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write gpio4 level control failed.");
 		return result;
@@ -829,6 +946,65 @@ esp_err_t Axp192Pmu::set_gpio4_level(bool high) {
 	AXP192_PMU_LOGI("Set gpio4 level to %d.", (high) ? 1 : 0);
 
 	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::set_pwm1_frequency(uint8_t frequency) {
+	uint8_t freq_ctrl = PWM_CLOCK_FREQ / PWM_DUTY_CYCLE_DEEPTH / frequency;
+
+	esp_err_t result = this->write_byte(AXP192_REG_ADDR_PWM1_FREQ_CTRL, freq_ctrl);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write pwm1 frequency control failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGI("Set pwm1 frequency register to %d.", freq_ctrl);
+
+	return ESP_OK;
+
+}
+
+esp_err_t Axp192Pmu::set_pwm1_duty_cycle_divisor(uint8_t divisor) {
+	esp_err_t result = this->write_byte(AXP192_REG_ADDR_PWM1_DUTY_CTRL1, divisor);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write pwm1 duty cycle control 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGI("Set pwm1 duty cycle 1 register to %d.", divisor);
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::set_pwm1_duty_cycle(uint8_t duty_cycle) {
+	esp_err_t result = this->write_byte(AXP192_REG_ADDR_PWM1_DUTY_CTRL2, duty_cycle);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write pwm1 duty cycle control 2 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGI("Set pwm1 duty cycle 2 register to %d.", duty_cycle);
+
+	return ESP_OK;
+}
+
+Axp192ChargingInterCurrent_t Axp192Pmu::calc_charging_current_index(uint32_t current_ma) {
+	return
+	(current_ma <= 145) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_100MA :
+	(current_ma <= 235) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_190MA :
+	(current_ma <= 320) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_280MA :
+	(current_ma <= 405) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_360MA :
+	(current_ma <= 500) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_450MA :
+	(current_ma <= 590) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_550MA :
+	(current_ma <= 665) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_630MA :
+	(current_ma <= 740) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_700MA :
+	(current_ma <= 830) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_780MA :
+	(current_ma <= 920) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_880MA :
+	(current_ma <= 980) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_960MA :
+	(current_ma <= 1040) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1000MA :
+	(current_ma <= 1120) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1080MA :
+	(current_ma <= 1200) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1160MA :
+	(current_ma <= 1280) ? AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1240MA :
+	AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1320MA;
 }
 
 Axp192Pmu *g_p_axp192_pmu = NULL;

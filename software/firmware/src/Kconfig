@@ -1,6 +1,6 @@
 menu "Bluethroat Paragliding Variometer Configurations"
     choice BLUETHROAD_TARGET_DEVICE
-	    prompt "Target device - Auto selected according to environment variable, DO NOT modify it!"
+	    prompt "Target device - Auto selecte, DO NOT modify it!"
 		default BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS if $(BLUETHROAD_PIOENV) = "m5stack-stickcplus"
 		default BLUETHROAD_TARGET_DEVICE_M5CORE2AWS if $(BLUETHROAD_PIOENV) = "m5stack-core2aws"
 		default BLUETHROAD_TARGET_DEVICE_M5CORES3 if $(BLUETHROAD_PIOENV) = "m5stack-cores3"
@@ -202,22 +202,22 @@ menu "Bluethroat Paragliding Variometer Configurations"
         choice I2C_DEVICE_AXP192_CHARGING_CURRENT
             prompt "Charging current configuation"
             depends on I2C_DEVICE_AXP192
-            default I2C_DEVICE_AXP192_CHARGE_CURRENT_03C
+            default I2C_DEVICE_AXP192_CHARGING_CURRENT_03C
             help
                 Normally, the charging current (mA or A) of the lithium-ion battery 
                 should be set to 30% of the battery capacity (mAh or Ah). 
                 A low charging current will help extend the battery life, and a high 
                 charging current will help shorten the totaly charging time.
 
-            config I2C_DEVICE_AXP192_CHARGE_CURRENT_01C
+            config I2C_DEVICE_AXP192_CHARGING_CURRENT_01C
                 bool "0.1C"
-            config I2C_DEVICE_AXP192_CHARGE_CURRENT_03C
+            config I2C_DEVICE_AXP192_CHARGING_CURRENT_03C
                 bool "0.3C"
-            config I2C_DEVICE_AXP192_CHARGE_CURRENT_05C
+            config I2C_DEVICE_AXP192_CHARGING_CURRENT_05C
                 bool "0.5C"
-            config I2C_DEVICE_AXP192_CHARGE_CURRENT_07C
+            config I2C_DEVICE_AXP192_CHARGING_CURRENT_07C
                 bool "0.7C"
-            config I2C_DEVICE_AXP192_CHARGE_CURRENT_10C
+            config I2C_DEVICE_AXP192_CHARGING_CURRENT_10C
                 bool "1.0C"
         endchoice
 

@@ -63,9 +63,9 @@ void BluethroatMsgProc::message_loop() {
 		if (pdTRUE == xQueueReceive(this->m_queue_handle, &message, portMAX_DELAY)) {
 			MSG_PROC_LOGV("Receive message from queue, message type:%d.", message.type);
 			switch (message.type) {
-			case BLUETHROAT_MSG_BUTTON:
+			case BLUETHROAT_MSG_TYPE_BUTTON:
 				break;
-			case BLUETHROAT_MSG_RTC:
+			case BLUETHROAT_MSG_TYPE_RTC:
 				struct tm stm_time;
 				stm_time.tm_sec = message.rtc_data.second,
 				stm_time.tm_min = message.rtc_data.minute,
@@ -76,28 +76,28 @@ void BluethroatMsgProc::message_loop() {
 				Bm8563Rtc::SetSysTime(&stm_time);
 				break;
 
-			case BLUETHROAT_MSG_BAROMETER:
+			case BLUETHROAT_MSG_TYPE_BAROMETER:
 				break;
 
-    		case BLUETHROAT_MSG_HYGROMETER:
+    		case BLUETHROAT_MSG_TYPE_HYGROMETER:
 				break;
 
-    		case BLUETHROAT_MSG_ANEMOMETER:
+    		case BLUETHROAT_MSG_TYPE_ANEMOMETER:
 				break;
 
-    		case BLUETHROAT_MSG_ACCELERATION:
+    		case BLUETHROAT_MSG_TYPE_ACCELERATION:
 				break;
 
-    		case BLUETHROAT_MSG_ROTATION:
+    		case BLUETHROAT_MSG_TYPE_ROTATION:
 				break;
 
-    		case BLUETHROAT_MSG_GEOMAGNATIC:
+    		case BLUETHROAT_MSG_TYPE_GEOMAGNATIC:
 				break;
 
-    		case BLUETHROAT_MSG_POWER:
+    		case BLUETHROAT_MSG_TYPE_POWER:
 				break;
 
-    		case BLUETHROAT_MSG_GPS:
+    		case BLUETHROAT_MSG_TYPE_GPS:
 				break;
 				
     		default:

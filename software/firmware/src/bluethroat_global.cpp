@@ -31,7 +31,7 @@ const TaskParam_t g_TaskParam[] = {
 #if CONFIG_BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS
 #elif CONFIG_BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
     [TASK_INDEX_MSG_PROC]               = {.task_name = "MSG_PROC",         .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES -  4) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_0,    .task_interval = (pdMS_TO_TICKS(             50))},
-    [TASK_INDEX_AXP192_PMU]             = {.task_name = "AXP192_PMU",       .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES +  2) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_0,    .task_interval = (pdMS_TO_TICKS(           1000))},
+    [TASK_INDEX_AXP192_PMU]             = {.task_name = "AXP192_PMU",       .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES +  2) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_0,    .task_interval = (pdMS_TO_TICKS(             20))},
     [TASK_INDEX_BM8563_RTC]             = {.task_name = "BM8563_RTC",       .task_stack_size = (2048 * 2),      .task_priority = ((tskIDLE_PRIORITY     +  2) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS( 15 * 60 * 1000))},
     [TASK_INDEX_DPS3XX_BAROMETER]       = {.task_name = "DPS3XX_BARO",      .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES -  8) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS(              0))},
     [TASK_INDEX_DPS3XX_ANEMOMETER]      = {.task_name = "DPS3XX_ANEMO",     .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES -  8) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS(              0))},

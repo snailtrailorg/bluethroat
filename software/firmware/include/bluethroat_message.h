@@ -3,16 +3,17 @@
 #include <stdint.h>
 
 typedef enum {
-    BLUETHROAT_MSG_BUTTON = 0,
-    BLUETHROAT_MSG_RTC,
-    BLUETHROAT_MSG_BAROMETER,
-    BLUETHROAT_MSG_ANEMOMETER,
-    BLUETHROAT_MSG_HYGROMETER,
-    BLUETHROAT_MSG_ACCELERATION,
-    BLUETHROAT_MSG_ROTATION,
-    BLUETHROAT_MSG_GEOMAGNATIC,
-    BLUETHROAT_MSG_POWER,
-    BLUETHROAT_MSG_GPS,
+    BLUETHROAT_MSG_TYPE_BUTTON = 0,
+    BLUETHROAT_MSG_TYPE_PMU,
+    BLUETHROAT_MSG_TYPE_RTC,
+    BLUETHROAT_MSG_TYPE_BAROMETER,
+    BLUETHROAT_MSG_TYPE_ANEMOMETER,
+    BLUETHROAT_MSG_TYPE_HYGROMETER,
+    BLUETHROAT_MSG_TYPE_ACCELERATION,
+    BLUETHROAT_MSG_TYPE_ROTATION,
+    BLUETHROAT_MSG_TYPE_GEOMAGNATIC,
+    BLUETHROAT_MSG_TYPE_POWER,
+    BLUETHROAT_MSG_TYPE_GPS,
     // ensure to occupy 4 byte space to avoid efficiency reduction caused by misalignment
     BLUETHROAT_MSG_INVALID = 0x7fffffff,
 } BluethroatMsgType_t;
@@ -36,6 +37,13 @@ typedef struct {
     ButtonIndex_t index;
     ButtonAct_t act;
 } ButtonData_t;
+
+typedef struct {
+    uint16_t battery_voltage;
+    bool battery_charging;
+    bool battery_activiting;
+    bool charge_undercurrent;
+} PmuData_t;
 
 typedef struct {
     uint8_t second;
@@ -101,6 +109,7 @@ typedef struct {
     union {
         ButtonData_t button_data;
         RtcData_t rtc_data;
+        PmuData_t pmu_data;
         BarometerData_t barometer_data;
         AnemometerData_t anemometer_data;
         HygrometerData_t hygrometer_data;

@@ -1,6 +1,52 @@
 #pragma once
 
+/***********************************************************************************************************************
+ * If the AXP192 module is not configured, all codes in this file will be ignored. 
+ * Use a configuration tool such as menuconfig to configure it.
+***********************************************************************************************************************/
+#include <sdkconfig.h>
+#if CONFIG_I2C_DEVICE_AXP192
+/***********************************************************************************************************************
+ * If the AXP192 module is not configured, all codes in this file will be ignored. 
+ * Use a configuration tool such as menuconfig to configure it.
+***********************************************************************************************************************/
+
 #include "drivers/i2c_device.h"
+
+/***********************************************************************************************************************
+ * Axp192 charging current configuration parameters defination
+***********************************************************************************************************************/
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_CURRENT_01C
+#define I2C_DEVICE_AXP192_DEFAULT_CHARGING_CURRENT (CONFIG_I2C_DEVICE_AXP192_BATTERY_CAPACITY_MAH * 10 / 100)
+#elif CONFIG_I2C_DEVICE_AXP192_CHARGING_CURRENT_03C
+#define I2C_DEVICE_AXP192_DEFAULT_CHARGING_CURRENT (CONFIG_I2C_DEVICE_AXP192_BATTERY_CAPACITY_MAH * 30 / 100)
+#elif CONFIG_I2C_DEVICE_AXP192_CHARGING_CURRENT_05C
+#define I2C_DEVICE_AXP192_DEFAULT_CHARGING_CURRENT (CONFIG_I2C_DEVICE_AXP192_BATTERY_CAPACITY_MAH * 50 / 100)
+#elif CONFIG_I2C_DEVICE_AXP192_CHARGING_CURRENT_07C
+#define I2C_DEVICE_AXP192_DEFAULT_CHARGING_CURRENT (CONFIG_I2C_DEVICE_AXP192_BATTERY_CAPACITY_MAH * 70 / 100)
+#elif CONFIG_I2C_DEVICE_AXP192_CHARGING_CURRENT_10C
+#define I2C_DEVICE_AXP192_DEFAULT_CHARGING_CURRENT (CONFIG_I2C_DEVICE_AXP192_BATTERY_CAPACITY_MAH * 100 / 100)
+#endif
+
+/***********************************************************************************************************************
+ * Axp192 software LED configuration parameters defination
+***********************************************************************************************************************/
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+
+typedef enum {
+    SOFTWARE_LED_OFF = 0,
+    SOFTWARE_LED_ON,
+    SOFTWARE_LED_SLOW_FLASH,
+    SOFTWARE_LED_FAST_FLASH,
+} SoftwareLedStatus_t;
+
+#define SOFTWARE_LED_SLOW_FLASH_PEROID_MS       (2000)
+#define SOFTWARE_LED_FAST_FLASH_PEROID_MS       (500)
+
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#endif
+
+#endif
 
 /***********************************************************************************************************************
 * Axp192 power status registers address，structure and related configuration value defination
@@ -33,6 +79,39 @@ typedef union {
 } __attribute__ ((packed)) Axp192PowerStatusReg_t;
 
 #define AXP192_REG_VALUE_POWER_STATUS_CHARGING  (0x04)
+
+/***********************************************************************************************************************
+ * Axp192 power mode control registers address，structure and related configuration value defination
+***********************************************************************************************************************/
+#define AXP192_REG_ADDR_CHARGING_STATUS         (0x01)
+
+typedef union {
+    uint8_t byte;
+    struct {
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+        uint8_t                     : 1;
+        uint8_t power_on_off_type   : 1;
+        uint8_t charge_undercurrent : 1;
+        uint8_t battery_activating  : 1;
+        uint8_t                     : 1;
+        uint8_t has_battery         : 1;
+        uint8_t battery_charging    : 1;
+        uint8_t battery_overheat    : 1;
+#else
+        uint8_t battery_overheat    : 1;
+        uint8_t battery_charging    : 1;
+        uint8_t has_battery         : 1;
+        uint8_t                     : 1;
+        uint8_t battery_activating  : 1;
+        uint8_t charge_undercurrent : 1;
+        uint8_t power_on_off_type   : 1;
+        uint8_t                     : 1;
+#endif 
+    };
+} __attribute__ ((packed)) Axp192ChargingStatusReg_t;
+
+#define AXP192_REG_VALUE_POWER_ON_OFF_TYPE_A    (0x00)
+#define AXP192_REG_VALUE_POWER_ON_OFF_TYPE_B    (0x01)
 
 /***********************************************************************************************************************
 * Axp192 power output control registers address，structure and related configuration value defination
@@ -224,7 +303,7 @@ typedef enum {
 /***********************************************************************************************************************
 * Axp192 battery charge control registers address，structure and related configuration value defination
 ***********************************************************************************************************************/
-#define AXP192_REG_ADDR_CHARGE_CTRL             (0x33)
+#define AXP192_REG_ADDR_CHARGE_CTRL1            (0x33)
 
 typedef union {
     uint8_t byte;
@@ -275,9 +354,56 @@ typedef enum {
 } Axp192ChargeTargetVolt_t;
 
 /***********************************************************************************************************************
+ * Axp192 battery charge control2 registers address，structure and related configuration value defination
+***********************************************************************************************************************/
+#define AXP192_REG_ADDR_CHARGE_CTRL2            (0x34)
+
+typedef union {
+    uint8_t byte;
+    struct {
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+        uint8_t charge_timeout      : 2;
+        uint8_t exter_path_en       : 1;
+        uint8_t exter_path_current  : 3;
+        uint8_t pre_charge_timeout  : 2;
+#else
+        uint8_t pre_charge_timeout  : 2;
+        uint8_t exter_path_current  : 3;
+        uint8_t exter_path_en       : 1;
+        uint8_t charge_timeout      : 2;
+#endif
+    };
+} __attribute__ ((packed)) Axp192ChargeCtrl2Reg_t;
+
+typedef enum {
+    AXP192_REG_VALUE_CHARGE_TIMEOUT_7H = 0x00,
+    AXP192_REG_VALUE_CHARGE_TIMEOUT_8H,
+    AXP192_REG_VALUE_CHARGE_TIMEOUT_9H,
+    AXP192_REG_VALUE_CHARGE_TIMEOUT_10H,
+} Axp192ChargeTimeout_t;
+
+typedef enum {
+    AXP192_REG_VALUE_EXTER_PATH_CURRENT_300MA = 0x00,
+    AXP192_REG_VALUE_EXTER_PATH_CURRENT_400MA,
+    AXP192_REG_VALUE_EXTER_PATH_CURRENT_500MA,
+    AXP192_REG_VALUE_EXTER_PATH_CURRENT_600MA,
+    AXP192_REG_VALUE_EXTER_PATH_CURRENT_700MA,
+    AXP192_REG_VALUE_EXTER_PATH_CURRENT_800MA,
+    AXP192_REG_VALUE_EXTER_PATH_CURRENT_900MA,
+    AXP192_REG_VALUE_EXTER_PATH_CURRENT_1000MA,
+} Axp192ExterPathCurrent_t;
+
+typedef enum {
+    AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_30MIN = 0x00,
+    AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_40MIN,
+    AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_50MIN,
+    AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_60MIN,
+} Axp192PreChargeTimeout_t;
+
+/***********************************************************************************************************************
  * Axp192 spare battery charge control registers address，structure and related configuration value defination
 ***********************************************************************************************************************/
-#define AXP192_REG_ADDR_SPARE_BAT_CHARGE_CTRL   (0x34)
+#define AXP192_REG_ADDR_SPARE_BAT_CHARGE_CTRL   (0x35)
 
 typedef union {
     uint8_t byte;
@@ -443,6 +569,24 @@ typedef union {
 } __attribute__ ((packed)) Axp192Gpio34LevelCtrlReg_t;
 
 /***********************************************************************************************************************
+ * Axp192 battery voltage registers address defination
+ * The battery voltage is a 12-bit data combined with two registers, first contains high 8 bits data, 
+ * following contains low 4 bits data in bits[3:0].
+ * the voltage value is calculated as follows: Vbat = (Vbat_reg * 1.1) / 1000
+***********************************************************************************************************************/
+#define AXP192_REG_ADDR_BATTERY_VOLTAGE_HIGH    (0x78)
+#define AXP192_REG_ADDR_BATTERY_VOLTAGE_LOW     (0x79)
+
+/***********************************************************************************************************************
+ * Axp192 battery status registers, defined for periodic battery status report
+***********************************************************************************************************************/
+typedef struct {
+    Axp192PowerStatusReg_t power_status;
+    Axp192ChargingStatusReg_t charging_status;
+    uint8_t bat_volt[2];
+}  __attribute__ ((packed)) Axp192PmuStatus_t;
+
+/***********************************************************************************************************************
  * Axp192 PWM frequency and duty cycle registers address defination
  * PWM output frequency = 2.25MHz / (FREQ_CTRL + 1) / DUTY_CTRL1
  * PWM output duty cycle = DUTY_CTRL2 / DUTY_CTRL1
@@ -461,23 +605,23 @@ typedef union {
 ***********************************************************************************************************************/
 class Axp192Pmu : public I2cDevice {
 public:
-    const uint8_t m_sin_table[256] = {
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x02, 0x03, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 
-        0x0A, 0x0C, 0x0D, 0x0F, 0x10, 0x12, 0x13, 0x15, 0x17, 0x19, 0x1B, 0x1D, 0x1F, 0x21, 0x23, 
-        0x27, 0x2A, 0x2C, 0x2E, 0x31, 0x33, 0x36, 0x38, 0x3B, 0x3E, 0x40, 0x43, 0x46, 0x49, 0x4C, 
-        0x51, 0x54, 0x57, 0x5A, 0x5D, 0x60, 0x63, 0x67, 0x6A, 0x6D, 0x70, 0x73, 0x76, 0x79, 0x7C, 
-        0x83, 0x86, 0x89, 0x8C, 0x8F, 0x92, 0x95, 0x98, 0x9C, 0x9F, 0xA2, 0xA5, 0xA8, 0xAB, 0xAE, 
-        0xB3, 0xB6, 0xB9, 0xBC, 0xBF, 0xC1, 0xC4, 0xC7, 0xC9, 0xCC, 0xCE, 0xD1, 0xD3, 0xD5, 0xD8, 
-        0xDC, 0xDE, 0xE0, 0xE2, 0xE4, 0xE6, 0xE8, 0xEA, 0xEC, 0xED, 0xEF, 0xF0, 0xF2, 0xF3, 0xF5, 
-        0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFC, 0xFD, 0xFE, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE, 0xFD, 0xFC, 0xFC, 0xFB, 0xFA, 0xF9, 0xF8, 0xF7, 
-        0xF5, 0xF3, 0xF2, 0xF0, 0xEF, 0xED, 0xEC, 0xEA, 0xE8, 0xE6, 0xE4, 0xE2, 0xE0, 0xDE, 0xDC, 
-        0xD8, 0xD5, 0xD3, 0xD1, 0xCE, 0xCC, 0xC9, 0xC7, 0xC4, 0xC1, 0xBF, 0xBC, 0xB9, 0xB6, 0xB3, 
-        0xAE, 0xAB, 0xA8, 0xA5, 0xA2, 0x9F, 0x9C, 0x98, 0x95, 0x92, 0x8F, 0x8C, 0x89, 0x86, 0x83, 
-        0x7C, 0x79, 0x76, 0x73, 0x70, 0x6D, 0x6A, 0x67, 0x63, 0x60, 0x5D, 0x5A, 0x57, 0x54, 0x51, 
-        0x4C, 0x49, 0x46, 0x43, 0x40, 0x3E, 0x3B, 0x38, 0x36, 0x33, 0x31, 0x2E, 0x2C, 0x2A, 0x27, 
-        0x23, 0x21, 0x1F, 0x1D, 0x1B, 0x19, 0x17, 0x15, 0x13, 0x12, 0x10, 0x0F, 0x0D, 0x0C, 0x0A, 
-        0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x03, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 
+    const uint8_t m_duty_cycle_table[256] = {
+        0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x09, 0x0C, 0x0E, 0x10, 0x13, 0x16, 
+        0x18, 0x1C, 0x1F, 0x22, 0x26, 0x29, 0x2D, 0x31, 0x35, 0x3A, 0x3E, 0x42, 0x47, 0x4B, 0x50, 0x55, 
+        0x5A, 0x5F, 0x64, 0x68, 0x6E, 0x73, 0x78, 0x7D, 0x82, 0x87, 0x8C, 0x91, 0x96, 0x9B, 0xA0, 0xA5, 
+        0xAA, 0xAE, 0xB3, 0xB8, 0xBC, 0xC1, 0xC5, 0xC9, 0xCD, 0xD1, 0xD5, 0xD9, 0xDC, 0xE0, 0xE3, 0xE6, 
+        0xE9, 0xEC, 0xEF, 0xF1, 0xF3, 0xF5, 0xF7, 0xF9, 0xFA, 0xFC, 0xFD, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 
+        0xFF, 0xFF, 0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xF9, 0xF8, 0xF6, 0xF4, 0xF1, 0xEF, 0xEC, 0xEA, 0xE7, 
+        0xE4, 0xE1, 0xDD, 0xDA, 0xD6, 0xD2, 0xCE, 0xCA, 0xC6, 0xC2, 0xBD, 0xB9, 0xB4, 0xAF, 0xAB, 0xA6, 
+        0xA1, 0x9C, 0x97, 0x92, 0x8D, 0x88, 0x83, 0x7E, 0x79, 0x74, 0x6F, 0x6A, 0x65, 0x60, 0x5B, 0x56, 
+        0x51, 0x4C, 0x48, 0x43, 0x3F, 0x3A, 0x36, 0x32, 0x2E, 0x2A, 0x27, 0x23, 0x20, 0x1C, 0x19, 0x16, 
+        0x13, 0x11, 0x0E, 0x0C, 0x0A, 0x08, 0x06, 0x05, 0x03, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
     };
 
 public:
@@ -511,6 +655,8 @@ public:
     esp_err_t set_charge_voltage(Axp192ChargeTargetVolt_t volt_index);
     esp_err_t set_charge_current(Axp192ChargingInterCurrent_t current_index);
     esp_err_t set_charge_stop_current(Axp192ChargeStopCur_t current_index);
+    esp_err_t set_pre_charge_timeout(Axp192PreChargeTimeout_t timeout_index);
+    esp_err_t set_charge_timeout(Axp192ChargeTimeout_t timeout_index);
 
     esp_err_t set_dcdc1_mode(Axp192DcdcMode_t mode);
     esp_err_t set_dcdc2_mode(Axp192DcdcMode_t mode);
@@ -527,9 +673,12 @@ public:
     esp_err_t set_gpio2_level(bool high);
     esp_err_t set_gpio3_level(bool high);
     esp_err_t set_gpio4_level(bool high);
+    esp_err_t set_pwm1_frequency(uint8_t frequency);
+    esp_err_t set_pwm1_duty_cycle_divisor(uint8_t divisor);
+    esp_err_t set_pwm1_duty_cycle(uint8_t duty_cycle);
 
 private:
-    Axp192ChargingInterCurrent_t calc_charging_current_index(uint16_t current_ma);
+    Axp192ChargingInterCurrent_t calc_charging_current_index(uint32_t current_ma);
 };
 
 extern Axp192Pmu *g_p_axp192_pmu;
@@ -547,3 +696,13 @@ esp_err_t ResetScreen();
 #ifdef __cplusplus
 }
 #endif
+
+/***********************************************************************************************************************
+ * If the AXP192 module is not configured, all codes in this file will be ignored. 
+ * Use a configuration tool such as menuconfig to configure it.
+***********************************************************************************************************************/
+#endif
+/***********************************************************************************************************************
+ * If the AXP192 module is not configured, all codes in this file will be ignored. 
+ * Use a configuration tool such as menuconfig to configure it.
+***********************************************************************************************************************/
