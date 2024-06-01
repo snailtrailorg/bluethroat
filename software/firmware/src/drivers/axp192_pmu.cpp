@@ -46,7 +46,7 @@
 
 static const char *TAG = "AXP192_PMU";
 
-Axp192Pmu::Axp192Pmu() : I2cDevice() {
+Axp192Pmu::Axp192Pmu() : I2cDevice(){
 	AXP192_PMU_LOGI("Create axp192 pmu device.");
 }
 
@@ -55,6 +55,10 @@ Axp192Pmu::~Axp192Pmu() {
 }
 
 esp_err_t Axp192Pmu::init_device() {
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+	m_software_led_state = SOFTWARE_LED_STATE_OFF;
+#endif
+
     enable_external_module(false);
     software_enable_vbus(false);
     set_voff_voltage(AXP192_REG_VALUE_VOFF_VOLT_3000MV);
@@ -82,22 +86,22 @@ esp_err_t Axp192Pmu::init_device() {
 	set_charge_timeout(AXP192_REG_VALUE_CHARGE_TIMEOUT_10H);
 
     set_gpio0_level(true);
-    set_gpio1_level(true);
-    set_gpio2_level(false);
-    set_gpio3_level(true);
-    set_gpio4_level(true);
-
     set_gpio0_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
+
 #if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
-	set_gpio1_mode(AXP192_REG_VALUE_GPIO012_LDO_PWM);
-	set_pwm1_frequency(PWM_OUTPUT_FREQ);
-	set_pwm1_duty_cycle_divisor(PWM_DUTY_CYCLE_DEEPTH - 1);
+	set_pwm1_init_param(0x00, 0xff);
 	set_pwm1_duty_cycle(0xff);
+	set_gpio1_mode(AXP192_REG_VALUE_GPIO012_LDO_PWM);
 #else
     set_gpio1_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
+	set_gpio1_level(true);
 #endif
+
+    set_gpio2_level(false);
     set_gpio2_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
+    set_gpio3_level(true);
     set_gpio3_mode(AXP192_REG_VALUE_GPIO34_OUTPUT_NMOS_OD);
+    set_gpio4_level(true);
     set_gpio4_mode(AXP192_REG_VALUE_GPIO34_OUTPUT_NMOS_OD);
 
     return ESP_OK;
@@ -138,17 +142,14 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 	Axp192PmuStatus_t *p_pmu_status = (Axp192PmuStatus_t *)in_data;
 
 #if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
-
-	typedef enum {
-		SOFTWARE_LED_STATE_OFF = 0,
-		SOFTWARE_LED_STATE_ON,
-		SOFTWARE_LED_STATE_BLINK_SLOW,
-		SOFTWARE_LED_STATE_BLINK_FAST,
-	} SoftwareLedState_t;
-
-	#define SOFTWARE_LED_BLINK_INTERVAL_SLOW 	(2 * 1000 / portTICK_PERIOD_MS)
-	#define SOFTWARE_LED_BLINK_INTERVAL_FAST 	(1 * 1000 / portTICK_PERIOD_MS)
-
+    m_software_led_state = \
+		(p_pmu_status->charging_status.battery_activating) ? SOFTWARE_LED_STATE_FLASH_FAST : \
+		(p_pmu_status->charging_status.charge_undercurrent) ? SOFTWARE_LED_STATE_FLASH_SLOW : \
+		(p_pmu_status->power_status.charging) ? SOFTWARE_LED_STATE_FLASH_NORMAL : \
+		(p_pmu_status->power_status.acin_pres) ? SOFTWARE_LED_STATE_ON : \
+		SOFTWARE_LED_STATE_OFF;
+	
+	software_led_loop();
 #endif
 
 	static uint8_t counter = 0;
@@ -174,6 +175,89 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 
     return ESP_OK;
 }
+
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+esp_err_t Axp192Pmu::software_led_loop() {
+	static SoftwareLedState_t last_state = SOFTWARE_LED_STATE_OFF;
+	esp_err_t result = ESP_OK;
+
+	if (m_software_led_state == SOFTWARE_LED_STATE_OFF) {
+		if (last_state != SOFTWARE_LED_STATE_OFF) {
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+			result = set_pwm1_duty_cycle(0xFF);
+#else
+			result = set_gpio1_level(true);
+#endif
+		}
+	} else if (m_software_led_state == SOFTWARE_LED_STATE_ON) {
+		if (last_state != SOFTWARE_LED_STATE_ON) {
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+			result = set_pwm1_duty_cycle(0x00);
+#else
+			result = set_gpio1_level(false);
+#endif
+		}
+	} else {
+		TickType_t ticks = xTaskGetTickCount();
+
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+		uint32_t index;
+# else
+		uint32_t phrase, peroiod;
+#endif
+
+		switch (m_software_led_state) {
+		case SOFTWARE_LED_STATE_FLASH_SLOW:
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+			index = (ticks % SOFTWARE_LED_FLASH_SLOW_PEROID_TICKS) * PWM_DUTY_CYCLE_TABLE_SIZE / SOFTWARE_LED_FLASH_SLOW_PEROID_TICKS;
+#else
+			phrase = ticks % SOFTWARE_LED_FLASH_SLOW_PEROID_TICKS;
+			peroiod = SOFTWARE_LED_FLASH_SLOW_PEROID_TICKS;
+#endif
+			break;
+		case SOFTWARE_LED_STATE_FLASH_NORMAL:
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+			index = (ticks % SOFTWARE_LED_FLASH_NORMAL_PEROID_TICKS) * PWM_DUTY_CYCLE_TABLE_SIZE / SOFTWARE_LED_FLASH_NORMAL_PEROID_TICKS;
+#else
+			phrase = ticks % SOFTWARE_LED_FLASH_NORMAL_PEROID_TICKS;
+			peroiod = SOFTWARE_LED_FLASH_NORMAL_PEROID_TICKS;
+#endif
+			break;
+		case SOFTWARE_LED_STATE_FLASH_FAST:
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+			index = (ticks % SOFTWARE_LED_FLASH_FAST_PEROID_TICKS) * PWM_DUTY_CYCLE_TABLE_SIZE / SOFTWARE_LED_FLASH_FAST_PEROID_TICKS;
+#else
+			phrase = ticks % SOFTWARE_LED_FLASH_FAST_PEROID_TICKS;
+			peroiod = SOFTWARE_LED_FLASH_FAST_PEROID_TICKS;
+#endif
+			break;
+		default:
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+			index = 0;
+#else
+			phrase = 1;
+			peroiod = 2;
+#endif
+		}
+
+#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+		result = set_pwm1_duty_cycle(m_duty_cycle_table[index]);
+#else
+		if (phrase == 0) {
+			result = set_gpio1_level(fasle);
+		} else if (phrase == peroiod * 372 / 1000) { // 37.2%, golden section
+			result = set_gpio1_level(true);
+		} else {
+			result ESP_OK;
+		}
+#endif
+	}
+
+	last_state = m_software_led_state;
+
+	return result;
+}
+#endif
 
 esp_err_t Axp192Pmu::enable_dcdc1(bool enable) {
 	Axp192PowerOutputCtrlReg_t power_output_ctrl;
@@ -948,32 +1032,25 @@ esp_err_t Axp192Pmu::set_gpio4_level(bool high) {
 	return ESP_OK;
 }
 
-esp_err_t Axp192Pmu::set_pwm1_frequency(uint8_t frequency) {
-	uint8_t freq_ctrl = PWM_CLOCK_FREQ / PWM_DUTY_CYCLE_DEEPTH / frequency;
-
-	esp_err_t result = this->write_byte(AXP192_REG_ADDR_PWM1_FREQ_CTRL, freq_ctrl);
+esp_err_t Axp192Pmu::set_pwm1_init_param(uint8_t clock_factor, uint8_t duty_cycle_divisor) {
+	esp_err_t result = this->write_byte(AXP192_REG_ADDR_PWM1_FREQ_CTRL, clock_factor);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write pwm1 frequency control failed.");
 		return result;
 	}
 
-	AXP192_PMU_LOGI("Set pwm1 frequency register to %d.", freq_ctrl);
-
-	return ESP_OK;
-
-}
-
-esp_err_t Axp192Pmu::set_pwm1_duty_cycle_divisor(uint8_t divisor) {
-	esp_err_t result = this->write_byte(AXP192_REG_ADDR_PWM1_DUTY_CTRL1, divisor);
+	result = this->write_byte(AXP192_REG_ADDR_PWM1_DUTY_CTRL1, duty_cycle_divisor);
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Write pwm1 duty cycle control 1 failed.");
 		return result;
 	}
 
-	AXP192_PMU_LOGI("Set pwm1 duty cycle 1 register to %d.", divisor);
+	AXP192_PMU_LOGI("Set pwm1 frequency register to %d, duty cycle 1 register to %d.", clock_factor, duty_cycle_divisor);
 
 	return ESP_OK;
+
 }
+
 
 esp_err_t Axp192Pmu::set_pwm1_duty_cycle(uint8_t duty_cycle) {
 	esp_err_t result = this->write_byte(AXP192_REG_ADDR_PWM1_DUTY_CTRL2, duty_cycle);
