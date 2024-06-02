@@ -93,8 +93,8 @@ esp_err_t Axp192Pmu::init_device() {
 	set_pwm1_duty_cycle(0xff);
 	set_gpio1_mode(AXP192_REG_VALUE_GPIO012_LDO_PWM);
 #else
-    set_gpio1_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
 	set_gpio1_level(true);
+    set_gpio1_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
 #endif
 
     set_gpio2_level(false);
@@ -132,8 +132,8 @@ esp_err_t Axp192Pmu::fetch_data(uint8_t *data, uint8_t size) {
 		return result;
 	}
 
-	AXP192_PMU_LOGI("Read battery status successful, data are as follows:");
-	AXP192_PMU_BUFFER_LOGI(p_pmu_status, sizeof(Axp192PmuStatus_t));
+	AXP192_PMU_LOGD("Read battery status successful, data are as follows:");
+	AXP192_PMU_BUFFER_LOGD(p_pmu_status, sizeof(Axp192PmuStatus_t));
 
     return ESP_OK;
 }
@@ -153,7 +153,8 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 #endif
 
 	static uint8_t counter = 0;
-	if (counter++ >= 50) {
+	counter += m_p_task_param->task_interval;
+	if (counter >= AXP192_PMU_STATUE_REPORT_INTERVAL) {
 		counter = 0;
 
 		uint16_t voltage = p_pmu_status->bat_volt[0];
@@ -166,7 +167,7 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 		p_message->pmu_data.battery_activiting = p_pmu_status->charging_status.battery_activating;
 		p_message->pmu_data.charge_undercurrent = p_pmu_status->charging_status.charge_undercurrent;
 
-		AXP192_PMU_LOGI("Repoer bettary status: voltage=%dmV, charging=%s, activating=%s, undercurrent=%s.", \
+		AXP192_PMU_LOGD("Repoer bettary status: voltage=%dmV, charging=%s, activating=%s, undercurrent=%s.", \
 			p_message->pmu_data.battery_voltage, 
 			(p_message->pmu_data.battery_charging) ? "true" : "false", \
 			(p_message->pmu_data.battery_activiting) ? "true" : "false", \
@@ -201,9 +202,12 @@ esp_err_t Axp192Pmu::software_led_loop() {
 		TickType_t ticks = xTaskGetTickCount();
 
 #if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+		static uint32_t last_index = 0;
 		uint32_t index;
 # else
+		static bool last_level = false;
 		uint32_t phrase, peroiod;
+		bool level;
 #endif
 
 		switch (m_software_led_state) {
@@ -241,14 +245,15 @@ esp_err_t Axp192Pmu::software_led_loop() {
 		}
 
 #if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
-		result = set_pwm1_duty_cycle(m_duty_cycle_table[index]);
+		if (index != last_index) {
+			result = set_pwm1_duty_cycle(m_duty_cycle_table[index]);
+			last_index = index;
+		}
 #else
-		if (phrase == 0) {
-			result = set_gpio1_level(fasle);
-		} else if (phrase == peroiod * 372 / 1000) { // 37.2%, golden section
-			result = set_gpio1_level(true);
-		} else {
-			result ESP_OK;
+		level = (phrase < peroiod * 372 / 1000) ? false : true;
+		if (level != last_level) {
+			result = set_gpio1_level(level);
+			last_level = level;
 		}
 #endif
 	}
