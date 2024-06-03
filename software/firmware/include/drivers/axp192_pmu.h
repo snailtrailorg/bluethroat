@@ -403,6 +403,19 @@ typedef union {
 } __attribute__ ((packed)) Axp192SpareBatChargeCtrlReg_t;
 
 /***********************************************************************************************************************
+ * Axp192 battery voltage and current ADC result registers address defination
+ * The battery voltage is a 12-bit data combined with two registers, first contains high 8 bits data, 
+ * following contains low 4 bits data in bits[3:0].
+ * the voltage value is calculated as follows: Vbat = (Vbat_reg * 1.1) / 1000
+***********************************************************************************************************************/
+#define AXP192_REG_ADDR_BATTERY_VOLTAGE_H       (0x78)
+#define AXP192_REG_ADDR_BATTERY_VOLTAGE_L       (0x79)
+#define AXP192_REG_ADDR_CHARGING_CURRENT_H      (0x7A)
+#define AXP192_REG_ADDR_CHARGING_CURRENT_L      (0x7B)
+#define AXP192_REG_ADDR_DISCHARGING_CURRENT_H   (0x7C)
+#define AXP192_REG_ADDR_DISCHARGING_CURRENT_L   (0x7D)
+
+/***********************************************************************************************************************
  * Axp192 dcdc mode control registers address，structure and related configuration value defination
 ***********************************************************************************************************************/
 #define AXP192_REG_ADDR_DCDC_MODE_CTRL          (0x80)
@@ -430,6 +443,37 @@ typedef enum {
     AXP192_REG_VALUE_DCDC_MODE_PFM_PWM        = 0x00,
     AXP192_REG_VALUE_DCDC_MODE_PWM            = 0x01,
 } Axp192DcdcMode_t;
+
+/***********************************************************************************************************************
+ * Axp192 ADC control1 register address，structure and related configuration value defination
+***********************************************************************************************************************/
+#define AXP192_REG_ADDR_ADC_CTRL1               (0x82)
+
+typedef union {
+    uint8_t byte;
+    struct {
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+        uint8_t bat_temp_adc_en     : 1;
+        uint8_t aps_volt_adc_en     : 1;
+        uint8_t vbus_cur_adc_en     : 1;
+        uint8_t vbus_volt_adc_en    : 1;
+        uint8_t acin_cur_adc_en     : 1;
+        uint8_t acin_volt_adc_en    : 1;
+        uint8_t bat_cur_adc_en      : 1;
+        uint8_t bat_volt_adc_en     : 1;
+#else
+        uint8_t bat_volt_adc_en      : 1;
+        uint8_t bat_cur_adc_en      : 1;
+        uint8_t acin_volt_adc_en     : 1;
+        uint8_t acin_cur_adc_en     : 1;
+        uint8_t vbus_volt_adc_en     : 1;
+        uint8_t vbus_cur_adc_en     : 1;
+        uint8_t aps_volt_adc_en      : 1;
+        uint8_t ts_adc_en           : 1;
+#endif
+    };
+} __attribute__ ((packed)) Axp192AdcCtrl1Reg_t;
+
 
 /***********************************************************************************************************************
  * Axp192 gpio0 mode control registers address，structure and related configuration value defination
@@ -549,15 +593,6 @@ typedef union {
 } __attribute__ ((packed)) Axp192Gpio34LevelCtrlReg_t;
 
 /***********************************************************************************************************************
- * Axp192 battery voltage registers address defination
- * The battery voltage is a 12-bit data combined with two registers, first contains high 8 bits data, 
- * following contains low 4 bits data in bits[3:0].
- * the voltage value is calculated as follows: Vbat = (Vbat_reg * 1.1) / 1000
-***********************************************************************************************************************/
-#define AXP192_REG_ADDR_BATTERY_VOLTAGE_HIGH    (0x78)
-#define AXP192_REG_ADDR_BATTERY_VOLTAGE_LOW     (0x79)
-
-/***********************************************************************************************************************
  * Axp192 PWM frequency and duty cycle registers address defination
  * PWM output frequency = 2.25MHz / (FREQ_CTRL + 1) / DUTY_CTRL1
  * PWM output duty cycle = DUTY_CTRL2 / DUTY_CTRL1
@@ -596,7 +631,9 @@ typedef enum {
 typedef struct {
     Axp192PowerStatusReg_t power_status;
     Axp192ChargingStatusReg_t charging_status;
-    uint8_t bat_volt[2];
+    uint8_t battery_voltage[2];
+    uint8_t battery_charging_current[2];
+    uint8_t battery_discharging_current[2];
 }  __attribute__ ((packed)) Axp192PmuStatus_t;
 
 #define AXP192_PMU_STATUE_REPORT_INTERVAL       (pdMS_TO_TICKS(1000))
@@ -682,6 +719,16 @@ public:
 
     esp_err_t set_pwm1_init_param(uint8_t clock_factor, uint8_t duty_cycle_divisor);
     esp_err_t set_pwm1_duty_cycle(uint8_t duty_cycle);
+
+    esp_err_t enable_battery_voltage_adc(bool enable);
+    esp_err_t enable_battery_current_adc(bool enable);
+    esp_err_t enable_acin_voltage_adc(bool enable);
+    esp_err_t enable_acin_current_adc(bool enable);
+    esp_err_t enable_vbus_voltage_adc(bool enable);
+    esp_err_t enable_vbus_current_adc(bool enable);
+    esp_err_t enable_aps_voltage_adc(bool enable);
+    esp_err_t enable_battery_temperature_adc(bool enable);
+
 
 private:
     Axp192ChargingInterCurrent_t calc_charging_current_index(uint32_t current_ma);

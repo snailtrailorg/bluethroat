@@ -46,9 +46,10 @@ static const char *TAG = "BLUETHROAT_MAIN";
 extern "C" void app_main(void);
 
 void app_main() {
+    esp_log_level_set("AXP192_PMU", ESP_LOG_INFO);
+    esp_log_level_set("FT6X36", ESP_LOG_WARN);
     esp_log_level_set("DPS3XX_BARO", ESP_LOG_WARN);
     esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_WARN);
-    esp_log_level_set("FT6X36", ESP_LOG_WARN);
 
     /* step 0: print motd */
     BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer version %s, powered by snailtrail.org", esp_app_get_description()->version);

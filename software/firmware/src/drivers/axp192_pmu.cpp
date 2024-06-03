@@ -104,6 +104,9 @@ esp_err_t Axp192Pmu::init_device() {
     set_gpio4_level(true);
     set_gpio4_mode(AXP192_REG_VALUE_GPIO34_OUTPUT_NMOS_OD);
 
+	enable_battery_voltage_adc(true);
+	enable_battery_current_adc(true);
+
     return ESP_OK;
 }
 
@@ -126,9 +129,21 @@ esp_err_t Axp192Pmu::fetch_data(uint8_t *data, uint8_t size) {
 		return result;
 	}
 
-	result = this->read_buffer(AXP192_REG_ADDR_BATTERY_VOLTAGE_HIGH, p_pmu_status->bat_volt, sizeof(p_pmu_status->bat_volt));
+	result = this->read_buffer(AXP192_REG_ADDR_BATTERY_VOLTAGE_H, p_pmu_status->battery_voltage, sizeof(p_pmu_status->battery_voltage));
 	if (result != ESP_OK) {
 		AXP192_PMU_LOGE("Read battery voltage failed.");
+		return result;
+	}
+
+	result = this->read_buffer(AXP192_REG_ADDR_CHARGING_CURRENT_H, p_pmu_status->battery_charging_current, sizeof(p_pmu_status->battery_charging_current));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read battery charging current failed.");
+		return result;
+	}
+
+	result = this->read_buffer(AXP192_REG_ADDR_DISCHARGING_CURRENT_H, p_pmu_status->battery_discharging_current, sizeof(p_pmu_status->battery_discharging_current));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read battery discharging current failed.");
 		return result;
 	}
 
@@ -157,18 +172,30 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 	if (counter >= AXP192_PMU_STATUE_REPORT_INTERVAL) {
 		counter = 0;
 
-		uint16_t voltage = p_pmu_status->bat_volt[0];
-		voltage <<= 4; voltage |= (p_pmu_status->bat_volt[1] & 0x0f);
+		uint16_t voltage = p_pmu_status->battery_voltage[0];
+		voltage <<= 4; voltage |= (p_pmu_status->battery_voltage[1] & 0x0f);
 		voltage *= 11; voltage /= 10;
+
+		uint16_t charging_current = p_pmu_status->battery_charging_current[0];
+		charging_current <<= 5; charging_current |= (p_pmu_status->battery_charging_current[1] & 0x1f);
+		charging_current >>= 1;
+
+		uint16_t discharging_current = p_pmu_status->battery_discharging_current[0];
+		discharging_current <<= 5; discharging_current |= (p_pmu_status->battery_discharging_current[1] & 0x1f);
+		discharging_current >>= 1;
+
+		int16_t battery_current = discharging_current;
+		battery_current -= charging_current;
 
 		p_message->type = BLUETHROAT_MSG_TYPE_PMU;
 		p_message->pmu_data.battery_voltage = voltage;
+		p_message->pmu_data.battery_current = battery_current;
 		p_message->pmu_data.battery_charging = p_pmu_status->power_status.charging;
 		p_message->pmu_data.battery_activiting = p_pmu_status->charging_status.battery_activating;
 		p_message->pmu_data.charge_undercurrent = p_pmu_status->charging_status.charge_undercurrent;
 
-		AXP192_PMU_LOGD("Repoer bettary status: voltage=%dmV, charging=%s, activating=%s, undercurrent=%s.", \
-			p_message->pmu_data.battery_voltage, 
+		AXP192_PMU_LOGI("Battary status: voltage=%dmV, charging_current=%dmA, discharging_current=%dmA, charging=%s, activating=%s, undercurrent=%s.", \
+			p_message->pmu_data.battery_voltage, charging_current, discharging_current, \
 			(p_message->pmu_data.battery_charging) ? "true" : "false", \
 			(p_message->pmu_data.battery_activiting) ? "true" : "false", \
 			(p_message->pmu_data.charge_undercurrent) ? "true" : "false");
@@ -948,7 +975,7 @@ esp_err_t Axp192Pmu::set_gpio0_level(bool high) {
 		return result;
 	}
 
-	AXP192_PMU_LOGI("Set gpio0 level to %d.", (high) ? 1 : 0);
+	AXP192_PMU_LOGD("Set gpio0 level to %d.", (high) ? 1 : 0);
 
 	return ESP_OK;
 }
@@ -969,7 +996,7 @@ esp_err_t Axp192Pmu::set_gpio1_level(bool high) {
 		return result;
 	}
 
-	AXP192_PMU_LOGI("Set gpio1 level to %d.", (high) ? 1 : 0);
+	AXP192_PMU_LOGD("Set gpio1 level to %d.", (high) ? 1 : 0);
 
 	return ESP_OK;
 }
@@ -990,7 +1017,7 @@ esp_err_t Axp192Pmu::set_gpio2_level(bool high)	{
 		return result;
 	}
 	
-	AXP192_PMU_LOGI("Set gpio2 level to %d.", (high) ? 1 : 0);
+	AXP192_PMU_LOGD("Set gpio2 level to %d.", (high) ? 1 : 0);
 
 	return ESP_OK;
 }
@@ -1011,7 +1038,7 @@ esp_err_t Axp192Pmu::set_gpio3_level(bool high) {
 		return result;
 	}
 
-	AXP192_PMU_LOGI("Set gpio3 level to %d.", (high) ? 1 : 0);
+	AXP192_PMU_LOGD("Set gpio3 level to %d.", (high) ? 1 : 0);
 
 	return ESP_OK;
 }
@@ -1032,7 +1059,7 @@ esp_err_t Axp192Pmu::set_gpio4_level(bool high) {
 		return result;
 	}
 
-	AXP192_PMU_LOGI("Set gpio4 level to %d.", (high) ? 1 : 0);
+	AXP192_PMU_LOGD("Set gpio4 level to %d.", (high) ? 1 : 0);
 
 	return ESP_OK;
 }
@@ -1064,7 +1091,175 @@ esp_err_t Axp192Pmu::set_pwm1_duty_cycle(uint8_t duty_cycle) {
 		return result;
 	}
 
-	AXP192_PMU_LOGI("Set pwm1 duty cycle 2 register to %d.", duty_cycle);
+	AXP192_PMU_LOGD("Set pwm1 duty cycle 2 register to %d.", duty_cycle);
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::enable_battery_voltage_adc(bool enable) {
+	Axp192AdcCtrl1Reg_t adc_ctrl1;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_ADC_CTRL1, &(adc_ctrl1.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read adc control register 1 failed.");
+		return result;
+	}
+
+	adc_ctrl1.bat_volt_adc_en = (enable) ? 1 : 0;
+	result = this->write_byte(AXP192_REG_ADDR_ADC_CTRL1, adc_ctrl1.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write adc control register 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGD("%s battery voltage adc.", (enable) ? "Enable" : "Disable");
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::enable_battery_current_adc(bool enable) {
+	Axp192AdcCtrl1Reg_t adc_ctrl1;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_ADC_CTRL1, &(adc_ctrl1.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read adc control register 1 failed.");
+		return result;
+	}
+
+	adc_ctrl1.bat_cur_adc_en = (enable) ? 1 : 0;
+	result = this->write_byte(AXP192_REG_ADDR_ADC_CTRL1, adc_ctrl1.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write adc control register 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGD("%s battery current adc.", (enable) ? "Enable" : "Disable");
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::enable_acin_voltage_adc(bool enable) {
+	Axp192AdcCtrl1Reg_t adc_ctrl1;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_ADC_CTRL1, &(adc_ctrl1.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read adc control register 1 failed.");
+		return result;
+	}
+
+	adc_ctrl1.acin_volt_adc_en = (enable) ? 1 : 0;
+	result = this->write_byte(AXP192_REG_ADDR_ADC_CTRL1, adc_ctrl1.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write adc control register 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGD("%s acin voltage adc.", (enable) ? "Enable" : "Disable");
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::enable_acin_current_adc(bool enable) {
+	Axp192AdcCtrl1Reg_t adc_ctrl1;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_ADC_CTRL1, &(adc_ctrl1.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read adc control register 1 failed.");
+		return result;
+	}
+
+	adc_ctrl1.acin_cur_adc_en = (enable) ? 1 : 0;
+	result = this->write_byte(AXP192_REG_ADDR_ADC_CTRL1, adc_ctrl1.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write adc control register 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGD("%s acin current adc.", (enable) ? "Enable" : "Disable");
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::enable_vbus_voltage_adc(bool enable) {
+	Axp192AdcCtrl1Reg_t adc_ctrl1;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_ADC_CTRL1, &(adc_ctrl1.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read adc control register 1 failed.");
+		return result;
+	}
+
+	adc_ctrl1.vbus_volt_adc_en = (enable) ? 1 : 0;
+	result = this->write_byte(AXP192_REG_ADDR_ADC_CTRL1, adc_ctrl1.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write adc control register 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGD("%s vbus voltage adc.", (enable) ? "Enable" : "Disable");
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::enable_vbus_current_adc(bool enable) {
+	Axp192AdcCtrl1Reg_t adc_ctrl1;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_ADC_CTRL1, &(adc_ctrl1.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read adc control register 1 failed.");
+		return result;
+	}
+
+	adc_ctrl1.vbus_cur_adc_en = (enable) ? 1 : 0;
+	result = this->write_byte(AXP192_REG_ADDR_ADC_CTRL1, adc_ctrl1.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write adc control register 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGD("%s vbus current adc.", (enable) ? "Enable" : "Disable");
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::enable_aps_voltage_adc(bool enable) {
+	Axp192AdcCtrl1Reg_t adc_ctrl1;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_ADC_CTRL1, &(adc_ctrl1.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read adc control register 1 failed.");
+		return result;
+	}
+
+	adc_ctrl1.aps_volt_adc_en = (enable) ? 1 : 0;
+	result = this->write_byte(AXP192_REG_ADDR_ADC_CTRL1, adc_ctrl1.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write adc control register 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGD("%s aps voltage adc.", (enable) ? "Enable" : "Disable");
+
+	return ESP_OK;
+}
+
+esp_err_t Axp192Pmu::enable_battery_temperature_adc(bool enable) {
+	Axp192AdcCtrl1Reg_t adc_ctrl1;
+
+	esp_err_t result = this->read_byte(AXP192_REG_ADDR_ADC_CTRL1, &(adc_ctrl1.byte));
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Read adc control register 1 failed.");
+		return result;
+	}
+
+	adc_ctrl1.bat_temp_adc_en = (enable) ? 1 : 0;
+	result = this->write_byte(AXP192_REG_ADDR_ADC_CTRL1, adc_ctrl1.byte);
+	if (result != ESP_OK) {
+		AXP192_PMU_LOGE("Write adc control register 1 failed.");
+		return result;
+	}
+
+	AXP192_PMU_LOGD("%s battery temperature adc.", (enable) ? "Enable" : "Disable");
 
 	return ESP_OK;
 }

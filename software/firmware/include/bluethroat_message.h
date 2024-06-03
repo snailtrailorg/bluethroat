@@ -40,10 +40,15 @@ typedef struct {
 
 typedef struct {
     uint16_t battery_voltage;
-    bool battery_charging;
-    bool battery_activiting;
-    bool charge_undercurrent;
-} PmuData_t;
+    int16_t battery_current;
+    struct {
+        uint8_t acin_present           : 1;
+        uint8_t battery_charging       : 1;
+        uint8_t battery_activiting     : 1;
+        uint8_t charge_undercurrent    : 1;
+        uint8_t                        : 4;
+    };
+} __attribute__ ((packed)) PmuData_t;
 
 typedef struct {
     uint8_t second;
@@ -53,7 +58,7 @@ typedef struct {
     uint8_t day;
     uint8_t month;
     uint16_t year;
-} RtcData_t;
+} __attribute__ ((packed)) RtcData_t;
 
 typedef struct {
     float temperature;
