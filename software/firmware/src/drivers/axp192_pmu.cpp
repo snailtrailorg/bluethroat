@@ -194,7 +194,7 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 		p_message->pmu_data.battery_activiting = p_pmu_status->charging_status.battery_activating;
 		p_message->pmu_data.charge_undercurrent = p_pmu_status->charging_status.charge_undercurrent;
 
-		AXP192_PMU_LOGI("Battary status: voltage=%dmV, battery_current=%dmA, charging=%s, activating=%s, undercurrent=%s.", \
+		AXP192_PMU_LOGD("Battary status: voltage=%dmV, battery_current=%dmA, charging=%s, activating=%s, undercurrent=%s.", \
 			p_message->pmu_data.battery_voltage, p_message->pmu_data.battery_current, \
 			(p_message->pmu_data.battery_charging) ? "true" : "false", \
 			(p_message->pmu_data.battery_activiting) ? "true" : "false", \
