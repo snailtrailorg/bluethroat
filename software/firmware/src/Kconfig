@@ -221,20 +221,20 @@ menu "Bluethroat Paragliding Variometer Configurations"
                 bool "1.0C"
         endchoice
 
-        config I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
-            bool "Drive charging LED with GPIO1"
+        config I2C_DEVICE_AXP192_SOFTWARE_LED
+            bool "Drive LED with GPIO1"
             depends on I2C_DEVICE_AXP192 && BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
             default y
             help
-                Drive charging LED with GPIO1, which is connected 
-                to the charging LED on M5Core2 for AWS.
+                Drive LED with GPIO1, which is connected to the LED 
+                on M5Core2 for AWS.
 
-        config I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
-            bool "Drive charging LED with AXP192 PWM generator"
-            depends on I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+        config I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
+            bool "Drive LED with AXP192 PWM generator"
+            depends on I2C_DEVICE_AXP192_SOFTWARE_LED
             default y
             help
-                Drive charging LED with AXP192 PWM generator.
+                Drive LED with AXP192 PWM generator.
                 Using PWM waveform to drive LED can make the brightness 
                 change more smoothly and provide a better user experience.
 

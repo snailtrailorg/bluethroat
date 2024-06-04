@@ -605,7 +605,7 @@ typedef union {
 /***********************************************************************************************************************
  * Axp192 software LED configuration parameters defination
 ***********************************************************************************************************************/
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
 
 typedef enum {
     SOFTWARE_LED_STATE_OFF = 0,
@@ -619,7 +619,7 @@ typedef enum {
 #define SOFTWARE_LED_FLASH_NORMAL_PEROID_TICKS  (pdMS_TO_TICKS(1000))
 #define SOFTWARE_LED_FLASH_FAST_PEROID_TICKS    (pdMS_TO_TICKS(500))
 
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 #define PWM_DUTY_CYCLE_TABLE_SIZE               (0x100)
 #endif
 
@@ -643,9 +643,9 @@ typedef struct {
 ***********************************************************************************************************************/
 class Axp192Pmu : public I2cDevice {
 public:
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
     SoftwareLedState_t m_software_led_state;
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
     const uint8_t m_duty_cycle_table[PWM_DUTY_CYCLE_TABLE_SIZE] = {
         0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xF9, 0xF7, 0xF6, 0xF3, 0xF1, 0xEF, 0xEC, 0xE9, 
         0xE7, 0xE3, 0xE0, 0xDD, 0xD9, 0xD6, 0xD2, 0xCE, 0xCA, 0xC5, 0xC1, 0xBD, 0xB8, 0xB4, 0xAF, 0xAA, 
@@ -732,8 +732,8 @@ public:
 
 private:
     Axp192ChargingInterCurrent_t calc_charging_current_index(uint32_t current_ma);
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
-    esp_err_t software_led_loop();
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
+    esp_err_t software_led_loop(SoftwareLedState_t software_led_state);
 #endif
 };
 
@@ -748,6 +748,9 @@ esp_err_t SystemPowerOff();
 esp_err_t EnableBusPower(bool enable);
 esp_err_t EnableSpeaker(bool enable);
 esp_err_t ResetScreen();
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
+esp_err_t SetSystemLedState(SoftwareLedState_t state);
+#endif
 
 #ifdef __cplusplus
 }

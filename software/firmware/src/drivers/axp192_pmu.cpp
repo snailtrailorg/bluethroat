@@ -55,8 +55,8 @@ Axp192Pmu::~Axp192Pmu() {
 }
 
 esp_err_t Axp192Pmu::init_device() {
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
-	m_software_led_state = SOFTWARE_LED_STATE_OFF;
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
+	m_software_led_state = SOFTWARE_LED_STATE_FLASH_SLOW;
 #endif
 
     enable_external_module(false);
@@ -88,7 +88,7 @@ esp_err_t Axp192Pmu::init_device() {
     set_gpio0_level(true);
     set_gpio0_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
 
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 	set_pwm1_init_param(0x00, 0xff);
 	set_pwm1_duty_cycle(0xff);
 	set_gpio1_mode(AXP192_REG_VALUE_GPIO012_LDO_PWM);
@@ -156,15 +156,15 @@ esp_err_t Axp192Pmu::fetch_data(uint8_t *data, uint8_t size) {
 esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
 	Axp192PmuStatus_t *p_pmu_status = (Axp192PmuStatus_t *)in_data;
 
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
-    m_software_led_state = \
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
+    SoftwareLedState_t software_led_state = \
 		(p_pmu_status->charging_status.battery_activating) ? SOFTWARE_LED_STATE_FLASH_FAST : \
-		(p_pmu_status->charging_status.charge_undercurrent) ? SOFTWARE_LED_STATE_FLASH_SLOW : \
+		(p_pmu_status->charging_status.charge_undercurrent) ? SOFTWARE_LED_STATE_FLASH_FAST : \
 		(p_pmu_status->power_status.charging) ? SOFTWARE_LED_STATE_FLASH_NORMAL : \
 		(p_pmu_status->power_status.acin_pres) ? SOFTWARE_LED_STATE_ON : \
-		SOFTWARE_LED_STATE_OFF;
+		m_software_led_state;
 	
-	software_led_loop();
+	software_led_loop(software_led_state);
 #endif
 
 	static uint8_t counter = 0;
@@ -204,22 +204,22 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
     return ESP_OK;
 }
 
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED
-esp_err_t Axp192Pmu::software_led_loop() {
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
+esp_err_t Axp192Pmu::software_led_loop(SoftwareLedState_t software_led_state) {
 	static SoftwareLedState_t last_state = SOFTWARE_LED_STATE_OFF;
 	esp_err_t result = ESP_OK;
 
-	if (m_software_led_state == SOFTWARE_LED_STATE_OFF) {
+	if (software_led_state == SOFTWARE_LED_STATE_OFF) {
 		if (last_state != SOFTWARE_LED_STATE_OFF) {
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 			result = set_pwm1_duty_cycle(0xFF);
 #else
 			result = set_gpio1_level(true);
 #endif
 		}
-	} else if (m_software_led_state == SOFTWARE_LED_STATE_ON) {
+	} else if (software_led_state == SOFTWARE_LED_STATE_ON) {
 		if (last_state != SOFTWARE_LED_STATE_ON) {
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 			result = set_pwm1_duty_cycle(0x00);
 #else
 			result = set_gpio1_level(false);
@@ -228,7 +228,7 @@ esp_err_t Axp192Pmu::software_led_loop() {
 	} else {
 		TickType_t ticks = xTaskGetTickCount();
 
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 		static uint32_t last_index = 0;
 		uint32_t index;
 # else
@@ -237,9 +237,9 @@ esp_err_t Axp192Pmu::software_led_loop() {
 		bool level;
 #endif
 
-		switch (m_software_led_state) {
+		switch (software_led_state) {
 		case SOFTWARE_LED_STATE_FLASH_SLOW:
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 			index = (ticks % SOFTWARE_LED_FLASH_SLOW_PEROID_TICKS) * PWM_DUTY_CYCLE_TABLE_SIZE / SOFTWARE_LED_FLASH_SLOW_PEROID_TICKS;
 #else
 			phrase = ticks % SOFTWARE_LED_FLASH_SLOW_PEROID_TICKS;
@@ -247,7 +247,7 @@ esp_err_t Axp192Pmu::software_led_loop() {
 #endif
 			break;
 		case SOFTWARE_LED_STATE_FLASH_NORMAL:
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 			index = (ticks % SOFTWARE_LED_FLASH_NORMAL_PEROID_TICKS) * PWM_DUTY_CYCLE_TABLE_SIZE / SOFTWARE_LED_FLASH_NORMAL_PEROID_TICKS;
 #else
 			phrase = ticks % SOFTWARE_LED_FLASH_NORMAL_PEROID_TICKS;
@@ -255,7 +255,7 @@ esp_err_t Axp192Pmu::software_led_loop() {
 #endif
 			break;
 		case SOFTWARE_LED_STATE_FLASH_FAST:
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 			index = (ticks % SOFTWARE_LED_FLASH_FAST_PEROID_TICKS) * PWM_DUTY_CYCLE_TABLE_SIZE / SOFTWARE_LED_FLASH_FAST_PEROID_TICKS;
 #else
 			phrase = ticks % SOFTWARE_LED_FLASH_FAST_PEROID_TICKS;
@@ -263,7 +263,8 @@ esp_err_t Axp192Pmu::software_led_loop() {
 #endif
 			break;
 		default:
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+			AXP192_PMU_LOGE("Invalid software led state.");
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 			index = 0;
 #else
 			phrase = 1;
@@ -271,7 +272,7 @@ esp_err_t Axp192Pmu::software_led_loop() {
 #endif
 		}
 
-#if CONFIG_I2C_DEVICE_AXP192_CHARGING_SOFTWARE_LED_PWM
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
 		if (index != last_index) {
 			result = set_pwm1_duty_cycle(m_duty_cycle_table[index]);
 			last_index = index;
@@ -285,7 +286,7 @@ esp_err_t Axp192Pmu::software_led_loop() {
 #endif
 	}
 
-	last_state = m_software_led_state;
+	last_state = software_led_state;
 
 	return result;
 }
@@ -1377,6 +1378,20 @@ esp_err_t ResetScreen() {
 
 	return result;
 }
+
+#if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
+esp_err_t SetSystemLedState(SoftwareLedState_t state) {
+	if (g_p_axp192_pmu == NULL) {
+		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
+		return ESP_FAIL;
+	}
+
+	g_p_axp192_pmu->m_software_led_state = state;
+
+	return ESP_OK;
+}
+#endif
+
 
 /***********************************************************************************************************************
  * If the AXP192 module is not configured, all codes in this file will be ignored. 
