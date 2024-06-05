@@ -253,7 +253,7 @@ esp_err_t I2cMaster::ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t
 		this->unlock();
 
 		if (result != ESP_OK) {
-			I2C_MASTER_LOGW("Read port %d error: %d", this->m_port, result);
+			I2C_MASTER_LOGW("Reading port %d, device_addr 0x%03x, reg_addr 0x%04lx, size %d failed, error number: %d", this->m_port, device_addr, reg_addr, size, result);
 		} else {
 			I2C_MASTER_BUFFER_LOGV(buffer, size);
 		}

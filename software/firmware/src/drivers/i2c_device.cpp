@@ -109,7 +109,7 @@ esp_err_t I2cDevice::Start(const TaskParam_t *p_task_param, QueueHandle_t queue_
 
 		return result;
 	} else {
-		I2C_DEVICE_LOGI("Null I2C device task parameter pointer, no task created.");
+		I2C_DEVICE_LOGD("Null I2C device task parameter pointer, no task created.");
 
 		return ESP_OK;
 	}

@@ -403,6 +403,7 @@ typedef struct {
 ***********************************************************************************************************************/
 class Dps3xxBarometer : public I2cDevice {
 public:
+    char *m_p_instance_name;                            /* instance name for log output */
     Dps3xxMeasureConfig_t m_pressure_cfg;               /* pressure measurement config */
     Dps3xxMeasureConfig_t m_temperature_cfg;            /* temperature measurement config */
     Dps3xxScaledCoefData_t m_coef_data;                 /* scaled coefficient data */
@@ -410,7 +411,7 @@ public:
     FirFilter<uint32_t, uint32_t> *m_p_deep_filter;     /* FIR deep filter for pressure data */
 
 public:
-    Dps3xxBarometer();
+    Dps3xxBarometer(char * p_instance_name);
     ~Dps3xxBarometer();
 
 public:
