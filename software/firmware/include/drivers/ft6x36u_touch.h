@@ -41,6 +41,8 @@ public:
 public:
     virtual esp_err_t init_device();
     virtual esp_err_t deinit_device();
+    virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
+    virtual esp_err_t process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
     void set_long_press_time(TickType_t long_press_time);
     esp_err_t read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t size);
 };

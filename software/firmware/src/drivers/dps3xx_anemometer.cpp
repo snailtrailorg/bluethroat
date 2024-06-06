@@ -28,8 +28,9 @@
 
 static const char *TAG = "DPS3XX_ANEMO";
 
-Dps3xxAnemometer::Dps3xxAnemometer(Dps3xxBarometer *p_barometer) : Dps3xxBarometer("Dsp3xx Anemometer"),  m_p_barometer(p_barometer) {
-    DPS3XX_ANEMO_LOGI("Create dps3xx anemometer device");
+Dps3xxAnemometer::Dps3xxAnemometer(Dps3xxBarometer *p_barometer) : Dps3xxBarometer(), m_p_barometer(p_barometer) {
+    m_p_device_name = TAG;
+    DPS3XX_ANEMO_LOGI("Create %s device", m_p_device_name);
 }
 
 Dps3xxAnemometer::~Dps3xxAnemometer() {
@@ -37,7 +38,7 @@ Dps3xxAnemometer::~Dps3xxAnemometer() {
 
 esp_err_t Dps3xxAnemometer::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
     if (Dps3xxBarometer::process_data(in_data, in_size, p_message) != ESP_OK) {
-        DPS3XX_ANEMO_LOGE("Failed to process barometer data in anemometer class");
+        DPS3XX_ANEMO_LOGE("Failed to process anemometer data in barometer class");
         return ESP_FAIL;
     }
 
@@ -51,6 +52,8 @@ esp_err_t Dps3xxAnemometer::process_data(uint8_t *in_data, uint8_t in_size, Blue
     // p_message->anemometer_data.temperature = p_message->barometer_data.temperature;
     p_message->anemometer_data.total_pressure = (float)total_pressure;
     p_message->anemometer_data.static_pressure = (float)static_pressure;
+
+    DPS3XX_ANEMO_LOGD("Device %s send message: temperature: %f, total pressure: %f, static pressure: %f", m_p_device_name, p_message->anemometer_data.temperature, p_message->anemometer_data.total_pressure, p_message->anemometer_data.static_pressure);
 
     return ESP_OK;
 }

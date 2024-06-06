@@ -240,4 +240,50 @@ menu "Bluethroat Paragliding Variometer Configurations"
 
     endmenu
 
+    menu "GNSS Moudule Configuration"
+        depends on BLUETHROAD_TARGET_DEVICE_M5CORE2AWS || BLUETHROAD_TARGET_DEVICE_M5CORES3
+
+        config GNSS_MODULE_ENABLED
+            bool "Enable GNSS module"
+            default y
+            help
+                GNSS Module is a global positioning wireless communication module 
+                featuring the NEO-M9N-00B GPS module. Compatible with multiple 
+                satellite positioning systems.
+                In addition to its exceptional positioning capabilities, the module 
+                integrates mutible sensors for comprehensive geographic information 
+                measuring. It incorporates a BMI270 six-axis attitude sensor, 
+                a BMM150 three-axis magnetometer, and a BMP280 barometric sensor.
+
+        config GNSS_UART_PORT
+            int "UART port"
+            depends on GNSS_MODULE_ENABLED
+            default 2
+            range 1 2
+            help
+                UART port number for GNSS module
+
+        config GNSS_UART_PORT_TX_PIN
+            int "TX (GPIO pin)"
+            depends on GNSS_MODULE_ENABLED
+            default 14
+            help
+                TX pin for GNSS module UART port
+
+        config GNSS_UART_PORT_RX_PIN
+            int "RX (GPIO pin)"
+            depends on GNSS_MODULE_ENABLED
+            default 13
+            help
+                RX pin for GNSS module UART port
+
+        config GNSS_UART_PORT_BAUDRATE
+            int "Baudrate"
+            depends on GNSS_MODULE_ENABLED
+            default 115200
+            help
+                Baudrate for GNSS module UART port
+
+    endmenu
+
 endmenu

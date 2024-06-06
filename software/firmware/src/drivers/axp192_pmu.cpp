@@ -47,7 +47,8 @@
 static const char *TAG = "AXP192_PMU";
 
 Axp192Pmu::Axp192Pmu() : I2cDevice(){
-	AXP192_PMU_LOGI("Create axp192 pmu device.");
+	m_p_device_name = TAG;
+	AXP192_PMU_LOGI("Create %s device.", m_p_device_name);
 }
 
 Axp192Pmu::~Axp192Pmu() {

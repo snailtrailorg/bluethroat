@@ -33,8 +33,7 @@
 
 static const char *TAG = "MSG_PROC";
 
-BluethroatMsgProc::BluethroatMsgProc(const TaskParam_t *p_task_param) : 
-m_p_task_param(p_task_param) {
+BluethroatMsgProc::BluethroatMsgProc(const TaskParam_t *p_task_param) : m_p_task_param(p_task_param) {
 	MSG_PROC_LOGI("Start blurthraot message procedure.");
 	MSG_PROC_ASSERT(this->m_p_task_param != NULL, "Invalid message procedure task parameter pointer");
 	this->m_queue_handle = xQueueCreate(BLUETHROAT_MSG_QUEUE_LENGTH, sizeof(BluethroatMsg_t));
@@ -45,7 +44,7 @@ m_p_task_param(p_task_param) {
 	}
 
 	if (pdPASS == xTaskCreatePinnedToCore(message_loop_c_entry, this->m_p_task_param->task_name, this->m_p_task_param->task_stack_size, this, this->m_p_task_param->task_priority, &(this->m_task_handle), this->m_p_task_param->task_core_id)) {
-		MSG_PROC_LOGI("Create message task %s successfully.", this->m_p_task_param->task_name);
+		MSG_PROC_LOGI("Create message task %s success.", this->m_p_task_param->task_name);
 	} else {
 		MSG_PROC_LOGE("Create message task %s failed.", this->m_p_task_param->task_name);
 	}

@@ -76,7 +76,8 @@ typedef union {
 } __attribute__ ((packed)) Bm8563rtcTimeRegs_t;
 
 Bm8563Rtc::Bm8563Rtc() : I2cDevice() {
-    ESP_LOGI(TAG, "Create bm5863 rtc device.");
+    m_p_device_name = TAG;
+    ESP_LOGI(TAG, "Create %s device.", m_p_device_name);
 }
 
 Bm8563Rtc::~Bm8563Rtc() {
@@ -185,20 +186,17 @@ inline uint8_t Bm8563Rtc::bcd_to_uint8(uint8_t bcd) {
 
     converter.bcd = bcd;
 
-    return
-        converter.high * 10 
-        + converter.low
-    ;
+    return converter.high * 10 + converter.low;
 }
 
 inline uint16_t Bm8563Rtc::calc_year_day(uint16_t year, uint8_t month, uint8_t day) {
     static const int8_t month_day_diff[12] = {0, 1, -1, 0, 0, 1, 1, 2, 3, 3, 4, 4};
-    return
-        day 
-        + 30 * month 
-        + month_day_diff[month] 
-        + (month > 1) * (year % 4 == 0) 
-        - (month > 1) * (year % 100 == 0 && year % 400 != 0)
+    return \
+        day \
+        + 30 * month \
+        + month_day_diff[month] \
+        + (month > 1) * (year % 4 == 0) \
+        - (month > 1) * (year % 100 == 0 && year % 400 != 0) \
     ;
 }
 

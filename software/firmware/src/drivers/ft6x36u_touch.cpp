@@ -36,7 +36,8 @@ static const char *TAG = "FT6X36U_TOUCH";
 Ft6x36uTouch *g_pFt6x36uTouch = NULL;
 
 Ft6x36uTouch::Ft6x36uTouch() : I2cDevice(), m_long_press_time(BUTTON_DEFAULT_LONG_PRESS_TIME) {
-	FT6X36U_TOUCH_LOGI("Create ft6x36u touch device.");
+	m_p_device_name = TAG;
+	FT6X36U_TOUCH_LOGI("Create %s device.", m_p_device_name);
 	g_pFt6x36uTouch = this;
 }
 
@@ -50,6 +51,19 @@ esp_err_t Ft6x36uTouch::init_device() {
 
 esp_err_t Ft6x36uTouch::deinit_device() {
     return ESP_OK;
+}
+
+esp_err_t Ft6x36uTouch::fetch_data(uint8_t *data, uint8_t size) {
+	(void)data;
+	(void)size;
+	return ESP_OK;
+}
+
+esp_err_t Ft6x36uTouch::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
+	(void)in_data;
+	(void)in_size;
+	(void)p_message;
+	return ESP_OK;
 }
 
 void Ft6x36uTouch::set_long_press_time(TickType_t long_press_time) {

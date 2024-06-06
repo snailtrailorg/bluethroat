@@ -255,7 +255,7 @@ esp_err_t I2cMaster::ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t
 		if (result != ESP_OK) {
 			I2C_MASTER_LOGW("Reading port %d, device_addr 0x%03x, reg_addr 0x%04lx, size %d failed, error number: %d", this->m_port, device_addr, reg_addr, size, result);
 		} else {
-			I2C_MASTER_BUFFER_LOGV(buffer, size);
+			I2C_MASTER_BUFFER_LOGD(buffer, size);
 		}
 	} else {
 		I2C_MASTER_LOGE("Lock could not be obtained for port %d.", this->m_port);
@@ -267,7 +267,8 @@ esp_err_t I2cMaster::ReadBuffer(uint16_t device_addr, uint32_t reg_addr, uint8_t
 
 esp_err_t I2cMaster::WriteBuffer(uint16_t device_addr, uint32_t reg_addr, const uint8_t *buffer, uint16_t size) {
 	I2C_MASTER_ASSERT(this->m_port >= 0 && this->m_port < I2C_NUM_MAX, "Invalid I2C port number: %d, Maximum valid port number is: %d.", this->m_port, I2C_MASTER_NUM_MAX-1);
-	I2C_MASTER_LOGV("Writing port %d, device_addr 0x%03x, reg_addr 0x%04lx", this->m_port, device_addr, reg_addr);
+	I2C_MASTER_LOGD("Writing port %d, device_addr 0x%03x, reg_addr 0x%04lx", this->m_port, device_addr, reg_addr);
+	I2C_MASTER_BUFFER_LOGD(buffer, size);
 
 	esp_err_t result = ESP_OK;
 
