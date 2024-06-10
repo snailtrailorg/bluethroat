@@ -76,8 +76,8 @@ typedef union {
 } __attribute__ ((packed)) Bm8563rtcTimeRegs_t;
 
 Bm8563Rtc::Bm8563Rtc() : I2cDevice() {
-    m_p_device_name = TAG;
-    ESP_LOGI(TAG, "Create %s device.", m_p_device_name);
+    m_p_object_name = TAG;
+    ESP_LOGI(TAG, "Create %s device.", m_p_object_name);
 }
 
 Bm8563Rtc::~Bm8563Rtc() {

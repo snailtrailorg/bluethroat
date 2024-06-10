@@ -36,8 +36,8 @@ static const char *TAG = "FT6X36U_TOUCH";
 Ft6x36uTouch *g_pFt6x36uTouch = NULL;
 
 Ft6x36uTouch::Ft6x36uTouch() : I2cDevice(), m_long_press_time(BUTTON_DEFAULT_LONG_PRESS_TIME) {
-	m_p_device_name = TAG;
-	FT6X36U_TOUCH_LOGI("Create %s device.", m_p_device_name);
+	m_p_object_name = TAG;
+	FT6X36U_TOUCH_LOGI("Create %s device.", m_p_object_name);
 	g_pFt6x36uTouch = this;
 }
 

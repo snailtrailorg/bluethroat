@@ -2,10 +2,12 @@
 
 #include <driver/i2c.h>
 
-#include "drivers/general_device.h"
+#include "drivers/task_object.h"
 #include "drivers/i2c_master.h"
 
-class I2cDevice : public GeneralDevice{
+#define MAX_RAW_DATA_BUFFER_LENGTH		(32)
+
+class I2cDevice : public TaskObject{
 public:
     I2cMaster *m_p_i2c_master;
     uint16_t m_device_addr;
@@ -16,8 +18,12 @@ public:
     ~I2cDevice();
 
 public:
+    static esp_err_t CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr);
     esp_err_t Init(I2cMaster *p_i2c_master, uint16_t device_addr, const gpio_num_t *p_int_pins);
     esp_err_t Deinit();
+
+public:
+    virtual void task_cpp_entry();
 
 public:
     virtual esp_err_t init_device() = 0;
@@ -30,7 +36,4 @@ public:
     esp_err_t write_byte(uint32_t reg_addr, const uint8_t byte_value);
     esp_err_t read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t size);
     esp_err_t write_buffer(uint32_t reg_addr, const uint8_t *buffer, uint16_t size);
-
-public:
-    static esp_err_t CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr);
 };

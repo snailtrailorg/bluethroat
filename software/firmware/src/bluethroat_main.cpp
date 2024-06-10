@@ -9,6 +9,7 @@
 #include "drivers/dps3xx_anemometer.h"
 #include "drivers/ft6x36u_touch.h"
 #include "drivers/axp192_pmu.h"
+#include "drivers/neo_m9n_gnss.h"
 
 #include "bluethroat_global.h"
 #include "bluethroat_ui.h"
@@ -47,7 +48,7 @@ extern "C" void app_main(void);
 
 void app_main() {
     esp_log_level_set("*", ESP_LOG_WARN);
-    esp_log_level_set("GEN_DEVICE", ESP_LOG_INFO);
+    esp_log_level_set("TASK_OBJ", ESP_LOG_INFO);
     esp_log_level_set("I2C_MASTER", ESP_LOG_INFO);
     esp_log_level_set("I2C_DEVICE", ESP_LOG_INFO);
     esp_log_level_set("AXP192_PMU", ESP_LOG_INFO);
@@ -56,6 +57,7 @@ void app_main() {
     esp_log_level_set("BM8563_RTC", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_BARO", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_INFO);
+    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_DEBUG);
 
     /* step 0: print motd */
     BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer version %s, powered by snailtrail.org", esp_app_get_description()->version);
@@ -123,6 +125,8 @@ void app_main() {
     //bluethroat_clock_init();
 
     /* step 12: init gps module */
+    NeoM9nGnss *p_NeoM9nGnss = NULL;
+    (p_NeoM9nGnss = new NeoM9nGnss())->Init(CONFIG_GNSS_UART_PORT, (gpio_num_t)CONFIG_GNSS_UART_PORT_TX_PIN, (gpio_num_t)CONFIG_GNSS_UART_PORT_RX_PIN, (gpio_num_t)UART_PIN_NO_CHANGE, (gpio_num_t)UART_PIN_NO_CHANGE, CONFIG_GNSS_UART_PORT_BAUDRATE);
     //bluethroat_gps_init();
 
     /* step 13: init wifi module */
@@ -141,4 +145,5 @@ void app_main() {
     if (p_Bm8563Rtc != NULL) p_Bm8563Rtc->Start(&(g_TaskParam[TASK_INDEX_BM8563_RTC]), pBluethroatMsgProc->m_queue_handle);
     if (p_Dps3xxBarometer != NULL) p_Dps3xxBarometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
     if (p_Dps3xxAnemometer != NULL) p_Dps3xxAnemometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_ANEMOMETER]), pBluethroatMsgProc->m_queue_handle);
+    if (p_NeoM9nGnss != NULL) p_NeoM9nGnss->Start(&(g_TaskParam[TASK_INDEX_NEO_M9N_GNSS]), pBluethroatMsgProc->m_queue_handle);
 }

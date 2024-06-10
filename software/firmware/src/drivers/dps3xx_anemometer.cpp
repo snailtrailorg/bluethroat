@@ -29,8 +29,8 @@
 static const char *TAG = "DPS3XX_ANEMO";
 
 Dps3xxAnemometer::Dps3xxAnemometer(Dps3xxBarometer *p_barometer) : Dps3xxBarometer(), m_p_barometer(p_barometer) {
-    m_p_device_name = TAG;
-    DPS3XX_ANEMO_LOGI("Create %s device", m_p_device_name);
+    m_p_object_name = TAG;
+    DPS3XX_ANEMO_LOGI("Create %s device", m_p_object_name);
 }
 
 Dps3xxAnemometer::~Dps3xxAnemometer() {
@@ -53,7 +53,7 @@ esp_err_t Dps3xxAnemometer::process_data(uint8_t *in_data, uint8_t in_size, Blue
     p_message->anemometer_data.total_pressure = (float)total_pressure;
     p_message->anemometer_data.static_pressure = (float)static_pressure;
 
-    DPS3XX_ANEMO_LOGD("Device %s send message: temperature: %f, total pressure: %f, static pressure: %f", m_p_device_name, p_message->anemometer_data.temperature, p_message->anemometer_data.total_pressure, p_message->anemometer_data.static_pressure);
+    DPS3XX_ANEMO_LOGD("Device %s send message: temperature: %f, total pressure: %f, static pressure: %f", m_p_object_name, p_message->anemometer_data.temperature, p_message->anemometer_data.total_pressure, p_message->anemometer_data.static_pressure);
 
     return ESP_OK;
 }

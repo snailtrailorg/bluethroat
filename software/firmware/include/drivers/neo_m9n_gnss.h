@@ -2,10 +2,17 @@
 
 #include <driver/uart.h>
 
-#include "drivers/general_device.h"
+#include "drivers/task_object.h"
 #include "bluethroat_message.h"
 
-class NeoM9nGnss : public GeneralDevice{
+#define MNEA_SENTENCE_MAX_SIZE          (0x80)
+#define UART_RECEIVE_BUFFER_SIZE        (0x400)
+#define UART_BAUDRATE_CYCLE_PER_BYTE    (10)
+#define UART_EVENT_QUEUE_SIZE           (0x40)
+#define UART_PATTERN_QUEUE_SIZE         (0x20)
+#define UART_RECEIVE_TIMEOUT            pdMS_TO_TICKS(20)
+
+class NeoM9nGnss : public TaskObject{
 public:
     uart_port_t m_uart_port;
     gpio_num_t m_uart_tx_pin;
@@ -13,6 +20,7 @@ public:
     gpio_num_t m_uart_rts_pin;
     gpio_num_t m_uart_cts_pin;
     int m_uart_baudrate;
+   	QueueHandle_t m_uart_queue;
 
 public:
     NeoM9nGnss();
@@ -25,6 +33,5 @@ public:
 public:
     virtual esp_err_t init_device();
     virtual esp_err_t deinit_device();
-    virtual esp_err_t fetch_data(uint8_t *data, uint8_t size);
-    virtual esp_err_t process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message);
+    virtual void task_cpp_entry();
 };
