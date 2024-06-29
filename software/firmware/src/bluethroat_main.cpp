@@ -57,7 +57,7 @@ void app_main() {
     esp_log_level_set("BM8563_RTC", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_BARO", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_INFO);
-    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_DEBUG);
+    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_INFO);
 
     /* step 0: print motd */
     BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer version %s, powered by snailtrail.org", esp_app_get_description()->version);
@@ -93,7 +93,8 @@ void app_main() {
     lvgl_init();
 
     /* step 6: init bluethroat ui elements */
-    //bluethroat_ui_init();
+    g_p_BluethroatUi = new BluethroatUi();
+    g_p_BluethroatUi->Init();
 
     /* step 7: init bm5836 rtc */
     const I2cDevice_t *pid_bm8563_rtc = &(g_I2cDeviceMap[I2C_DEVICE_INDEX_BM8563_RTC]);

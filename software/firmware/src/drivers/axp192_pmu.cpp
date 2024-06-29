@@ -68,7 +68,7 @@ esp_err_t Axp192Pmu::init_device() {
     set_dcdc3_mode(AXP192_REG_VALUE_DCDC_MODE_PFM_PWM);
 
     set_dcdc1_voltage(3300);
-    set_dcdc3_voltage(700);
+    set_dcdc3_voltage(2900);
 
     enable_dcdc1(true);
     enable_dcdc2(false);
@@ -83,10 +83,10 @@ esp_err_t Axp192Pmu::init_device() {
     set_charge_voltage(AXP192_REG_VALUE_CHARGE_TARGET_4200MV);
     set_charge_current(calc_charging_current_index(I2C_DEVICE_AXP192_DEFAULT_CHARGING_CURRENT));
     set_charge_stop_current(AXP192_REG_VALUE_CHARGE_STOP_CUR_10PER);
-	set_pre_charge_timeout(AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_60MIN);
-	set_charge_timeout(AXP192_REG_VALUE_CHARGE_TIMEOUT_10H);
+    set_pre_charge_timeout(AXP192_REG_VALUE_PRE_CHARGE_TIMEOUT_60MIN);
+    set_charge_timeout(AXP192_REG_VALUE_CHARGE_TIMEOUT_10H);
 
-    set_gpio0_level(true);
+    set_gpio0_level(false);
     set_gpio0_mode(AXP192_REG_VALUE_GPIO012_OUTPUT_NMOS_OD);
 
 #if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED_PWM
@@ -108,10 +108,14 @@ esp_err_t Axp192Pmu::init_device() {
 	enable_battery_voltage_adc(true);
 	enable_battery_current_adc(true);
 
+	g_p_axp192_pmu = this;
+
     return ESP_OK;
 }
 
 esp_err_t Axp192Pmu::deinit_device() {
+	g_p_axp192_pmu = NULL;
+	
     return ESP_OK;
 }
 
@@ -565,7 +569,7 @@ esp_err_t Axp192Pmu::software_enable_vbus(bool enable) {
 		return result;
 	}
 
-	AXP192_PMU_LOGI("%s vbus connect to ipsout.", (enable) ? "Enable" : "Disable");
+	AXP192_PMU_LOGI("%s vbus supply ipsout.", (enable) ? "Enable" : "Disable");
 
 	return ESP_OK;
 }
@@ -1336,8 +1340,28 @@ esp_err_t VibrateMotor() {
 	}
 }
 
+esp_err_t EnableScreenBacklight(bool enable) {
+	if (g_p_axp192_pmu == NULL) {
+		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
+		return ESP_FAIL;
+	}
+
+	return g_p_axp192_pmu->enable_dcdc3(enable);
+}
+
+#define SCREEN_BRIGHTNESS_VOTLAGE_MIN		(2500)
+#define SCREEN_BRIGHTNESS_VOTLAGE_MAX		(3300)
+
 esp_err_t SetScreenBrightness(uint8_t percent) {
-	return ESP_OK;
+	if (g_p_axp192_pmu == NULL) {
+		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
+		return ESP_FAIL;
+	}
+
+	if (percent > 100)  percent = 100;
+	uint16_t voltage = (uint16_t)(SCREEN_BRIGHTNESS_VOTLAGE_MIN + percent * (SCREEN_BRIGHTNESS_VOTLAGE_MAX - SCREEN_BRIGHTNESS_VOTLAGE_MIN) / 100);
+
+	return g_p_axp192_pmu->set_dcdc3_voltage(voltage);
 }
 
 esp_err_t SystemPowerOff() {
@@ -1374,7 +1398,7 @@ esp_err_t ResetScreen() {
 	}
 
 	esp_err_t result = g_p_axp192_pmu->set_gpio4_level(0);
-	vTaskDelay(1);
+	vTaskDelay(pdMS_TO_TICKS(100));
 	result |= g_p_axp192_pmu->set_gpio4_level(1);
 
 	return result;

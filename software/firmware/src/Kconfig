@@ -45,8 +45,12 @@ menu "Bluethroat Paragliding Variometer Configurations"
             bool "Enable Antonio Regular 20"
         config ANTONIO_REGULAR_24
             bool "Enable Antonio Regular 24"
+        config ANTONIO_REGULAR_32
+            bool "Enable Antonio Regular 32"
         config ANTONIO_REGULAR_36
             bool "Enable Antonio Regular 36"
+        config ANTONIO_REGULAR_40
+            bool "Enable Antonio Regular 40"
         config ANTONIO_REGULAR_48
             bool "Enable Antonio Regular 48"
         config ANTONIO_REGULAR_60

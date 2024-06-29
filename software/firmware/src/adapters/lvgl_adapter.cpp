@@ -118,7 +118,7 @@ void lvgl_init(void) {
     /* If you want to use a task to create the graphic, you NEED to create a Pinned task
      * Otherwise there can be problem such as memory corruption and so on.
      * NOTE: When not using Wi-Fi nor Bluetooth you can pin the guiTask to core 0 */
-    xTaskCreatePinnedToCore(lvgl_work_task, "lvgl_work_task", 4096*2, NULL, 0, NULL, 1);
+    xTaskCreatePinnedToCore(lvgl_work_task, "lvgl_work_task", 8192*2, NULL, 0, NULL, 1);
 }
 
 static void lvgl_work_task(void *arg) {

@@ -22,7 +22,7 @@ static void bluethroat_clock_task(void *arg) {
         char clock_string[16];
 
         if (strftime(clock_string, sizeof(clock_string), "%H:%M", localtime(&now)) > 0) {
-            bluethroat_ui_set_clock(clock_string);
+//            bluethroat_ui_set_clock(clock_string);
         }
     }
 }

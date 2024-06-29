@@ -237,7 +237,7 @@ typedef union {
 } __attribute__ ((packed)) Axp192VoffCtrlReg_t;
 
 typedef enum {
-    AXP192_REG_VALUE_VOFF_VOLT_2600MV = 0x01,
+    AXP192_REG_VALUE_VOFF_VOLT_2600MV = 0x00,
     AXP192_REG_VALUE_VOFF_VOLT_2700MV,
     AXP192_REG_VALUE_VOFF_VOLT_2800MV,
     AXP192_REG_VALUE_VOFF_VOLT_2900MV,
@@ -743,6 +743,7 @@ extern Axp192Pmu *g_p_axp192_pmu;
 extern "C" {
 #endif
 esp_err_t VibrateMotor();
+esp_err_t EnableScreenBacklight(bool enable);
 esp_err_t SetScreenBrightness(uint8_t percent);
 esp_err_t SystemPowerOff();
 esp_err_t EnableBusPower(bool enable);
