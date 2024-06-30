@@ -21,7 +21,7 @@
 
 #define DEFAULT_COLOR_BG_SCREEN             LV_COLOR_MAKE(0x00, 0x00, 0x00)
 #define DEFAULT_COLOR_BG_PANEL              LV_COLOR_MAKE(0x30, 0x30, 0x00)
-#define DEFAULT_COLOR_BG_LABEL              LV_COLOR_MAKE(0x00, 0x30, 0x30)
+#define DEFAULT_COLOR_BG_LABEL              LV_COLOR_MAKE(0x00, 0x00, 0x00)
 #define DEFAULT_COLOR_PANEL_DESCRIPTION     LV_COLOR_MAKE(0x7F, 0x7F, 0x7F)
 #define DEFAULT_COLOR_PANEL_VALUE           LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
 
@@ -32,7 +32,7 @@
 #define DEFAULT_CORNER_RADIUS_PANEL         (2)
 
 #define DEFAULT_PADDING_LABEL               (0)
-#define DEFAULT_PADDING_PANEL               (2)
+#define DEFAULT_PADDING_PANEL               (4)
 
 #define DEFAULT_DISTANCE_PANEL_LABEL        (4)
 
@@ -41,7 +41,7 @@ public:
     lv_obj_t *m_label = NULL;
 
 public:
-    LvglLabel(lv_obj_t *parent, lv_obj_t *ref, lv_align_t ref_align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_text_align_t text_align, lv_color_t color, const lv_font_t *font, const char *text);
+    LvglLabel(lv_obj_t *parent, lv_obj_t *ref, lv_align_t align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_text_align_t text_align, lv_color_t color, const lv_font_t *font, const char *text);
     ~LvglLabel();
 
 public:

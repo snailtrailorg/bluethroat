@@ -5,25 +5,25 @@
 
 #include "bluethroat_ui.h"
 
-LvglLabel::LvglLabel(lv_obj_t * parent, lv_obj_t * ref, lv_align_t ref_align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_text_align_t text_align, lv_color_t color, const lv_font_t * font, const char * text) {
+LvglLabel::LvglLabel(lv_obj_t *parent, lv_obj_t *ref, lv_align_t align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_text_align_t text_align, lv_color_t color, const lv_font_t * font, const char * text) {
     lv_obj_t * label = lv_label_create(parent);
 
 	lv_obj_set_style_bg_color(label, DEFAULT_COLOR_BG_LABEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 	lv_obj_set_style_bg_opa(label, DEFAULT_OPACITY_BG_LABEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+	lv_obj_clear_flag(label, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_set_style_pad_all(label, DEFAULT_PADDING_LABEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
     lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
-	lv_obj_set_style_border_width(label, 1, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+	//lv_obj_set_style_border_width(label, 1, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 
     lv_label_set_text(label, text);
     lv_obj_set_style_text_font(label, font, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
     lv_obj_set_style_text_align(label, text_align, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
     lv_obj_set_style_text_color(label, color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 
-    lv_obj_set_width(label, (w == 0 ? lvgl_get_symbol_width(font, text) : w));
-	lv_obj_set_height(label, (h == 0 ? lvgl_get_symbol_height(font, text) : h));
-    lv_obj_align_to(label, ref, ref_align, x, y);
-	lv_obj_update_layout(label);
+    lv_obj_align_to(label, ref, align, x, y);
+    lv_obj_set_size(label, ((w == 0) ? lvgl_get_symbol_width(font, text) : w), ((h == 0) ? lvgl_get_symbol_height(font, text) : h));
+//	lv_obj_update_layout(label);
 
 	m_label = label;
 }
@@ -54,8 +54,10 @@ LvglPanel::LvglPanel(lv_obj_t *parent, lv_obj_t *ref, lv_align_t ref_align, lv_c
 	lv_obj_t * container = lv_obj_create(parent);
 	lv_obj_set_style_bg_color(container, DEFAULT_COLOR_BG_PANEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 	lv_obj_set_style_bg_opa(container, DEFAULT_OPACITY_BG_PANEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+	lv_obj_clear_flag(container, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_style_radius(container, DEFAULT_PADDING_PANEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 	lv_obj_set_style_border_width(container, 1, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+	lv_obj_set_style_pad_all(container, DEFAULT_PADDING_PANEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 	lv_obj_set_size(container, w, h);
 	lv_obj_align_to(container, ref, ref_align, x, y);
 
@@ -82,6 +84,8 @@ LvglPanel::LvglPanel(lv_obj_t *parent, lv_obj_t *ref, lv_align_t ref_align, lv_c
 	lv_obj_set_style_text_color(value_label, value_color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 	lv_obj_set_style_width(value_label, w, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 	lv_obj_align_to(value_label, container, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+
+	lv_obj_update_layout(container);
 
 	m_contianer = container;
 	m_description_label = description_label;
@@ -195,55 +199,58 @@ void LvglVarioMeter::SetValue(float value) {
 }
 
 void BluethroatUi::Init(void) {
-	m_flying_screen = lv_scr_act();
-	lv_obj_set_style_bg_color(m_flying_screen, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_style_bg_opa(m_flying_screen, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_clear_flag(m_flying_screen, LV_OBJ_FLAG_SCROLLABLE);
+	if (pdTRUE == lvgl_acquire_token()) {
+		m_flying_screen = lv_scr_act();
+		lv_obj_set_style_bg_color(m_flying_screen, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_style_bg_opa(m_flying_screen, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_clear_flag(m_flying_screen, LV_OBJ_FLAG_SCROLLABLE);
 
-    m_flying_tabview = lv_tabview_create(m_flying_screen, LV_DIR_TOP, 0);
-	lv_obj_set_style_bg_color(m_flying_tabview, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_style_bg_opa(m_flying_tabview, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_size(m_flying_tabview, 320, 240);
-	lv_obj_align_to(m_flying_tabview, m_flying_screen, LV_ALIGN_TOP_LEFT, 0, 0);
+		m_flying_tabview = lv_tabview_create(m_flying_screen, LV_DIR_TOP, 0);
+		lv_obj_set_style_bg_color(m_flying_tabview, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_style_bg_opa(m_flying_tabview, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_size(m_flying_tabview, 320, 240);
+		lv_obj_align_to(m_flying_tabview, m_flying_screen, LV_ALIGN_TOP_LEFT, 0, 0);
 
-	m_flying_dashboard_tab = lv_tabview_add_tab(m_flying_tabview, "dashboard");
-	lv_obj_set_style_bg_color(m_flying_dashboard_tab, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_style_bg_opa(m_flying_dashboard_tab, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_clear_flag(m_flying_dashboard_tab, LV_OBJ_FLAG_SCROLLABLE);
+		m_flying_dashboard_tab = lv_tabview_add_tab(m_flying_tabview, "dashboard");
+		lv_obj_set_style_bg_color(m_flying_dashboard_tab, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_style_bg_opa(m_flying_dashboard_tab, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_clear_flag(m_flying_dashboard_tab, LV_OBJ_FLAG_SCROLLABLE);
 
-	m_vario_meter = new LvglVarioMeter(m_flying_dashboard_tab, m_flying_dashboard_tab, LV_ALIGN_CENTER, 0, 20, 200, 200);
+		m_vario_meter = new LvglVarioMeter(m_flying_dashboard_tab, m_flying_dashboard_tab, LV_ALIGN_CENTER, 0, 20, 200, 200);
 
-	m_flying_map_tab = lv_tabview_add_tab(m_flying_tabview, "map");
-	lv_obj_set_style_bg_color(m_flying_map_tab, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_style_bg_opa(m_flying_map_tab, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_clear_flag(m_flying_map_tab, LV_OBJ_FLAG_SCROLLABLE);
+		m_flying_map_tab = lv_tabview_add_tab(m_flying_tabview, "map");
+		lv_obj_set_style_bg_color(m_flying_map_tab, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_style_bg_opa(m_flying_map_tab, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_clear_flag(m_flying_map_tab, LV_OBJ_FLAG_SCROLLABLE);
 
-	m_flying_chart_tab = lv_tabview_add_tab(m_flying_tabview, "chart");
-	lv_obj_set_style_bg_color(m_flying_chart_tab, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_style_bg_opa(m_flying_chart_tab, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_clear_flag(m_flying_chart_tab, LV_OBJ_FLAG_SCROLLABLE);
+		m_flying_chart_tab = lv_tabview_add_tab(m_flying_tabview, "chart");
+		lv_obj_set_style_bg_color(m_flying_chart_tab, DEFAULT_COLOR_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_style_bg_opa(m_flying_chart_tab, DEFAULT_OPACITY_BG_SCREEN, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_clear_flag(m_flying_chart_tab, LV_OBJ_FLAG_SCROLLABLE);
+	
+		lv_obj_t *status_bar = lv_obj_create(m_flying_screen);
+		lv_obj_set_style_bg_color(status_bar, DEFAULT_COLOR_BG_PANEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_style_bg_opa(status_bar, DEFAULT_OPACITY_BG_PANEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_clear_flag(status_bar, LV_OBJ_FLAG_SCROLLABLE);
+		lv_obj_set_size(status_bar, 320, 24);
+		lv_obj_set_style_pad_all(status_bar, 0, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_style_radius(status_bar, 0, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_set_style_border_width(status_bar, 0, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+		lv_obj_align_to(status_bar, m_flying_screen, LV_ALIGN_TOP_MID, 0, 0);
+	
+		m_clock_label		= new LvglLabel(status_bar, status_bar, LV_ALIGN_LEFT_MID, 4, 1, 40, 16, LV_TEXT_ALIGN_LEFT, lv_color_hex(0x3affe7), &antonio_regular_16, "23:59");
+		m_bettery_icon		= new LvglLabel(status_bar, status_bar, LV_ALIGN_RIGHT_MID, -4, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0x00ff00), &awesome6_16, LVGL_SYMBOL_BATTERY_THREE_QUARTERS);
+	    m_charge_icon		= new LvglLabel(status_bar, m_bettery_icon->m_label, LV_ALIGN_CENTER, 0, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0xffffff), &awesome6_16, LVGL_SYMBOL_BOLT);
+		m_bluetooth_icon	= new LvglLabel(status_bar, m_bettery_icon->m_label, LV_ALIGN_OUT_LEFT_MID, -8, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0x0000ff), &awesome6_16, LVGL_SYMBOL_BLUETOOTH);
+		m_gnss_icon			= new LvglLabel(status_bar, m_bluetooth_icon->m_label, LV_ALIGN_OUT_LEFT_MID, -8, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0xffffff), &awesome6_16, LVGL_SYMBOL_SATELLITE);
+		m_volumn_icon		= new LvglLabel(status_bar, m_gnss_icon->m_label, LV_ALIGN_OUT_LEFT_MID, -8, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0xffffff), &awesome6_16, LVGL_SYMBOL_VOLUME_HIGH);
+		m_sdcard_icon		= new LvglLabel(status_bar, m_volumn_icon->m_label, LV_ALIGN_OUT_LEFT_MID, -8, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0xffffff), &awesome6_16, LVGL_SYMBOL_SD_CARD);
+		m_lock_icon			= new LvglLabel(status_bar, m_sdcard_icon->m_label, LV_ALIGN_OUT_LEFT_MID, -8, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0xffffff), &awesome6_16, LVGL_SYMBOL_LOCK);
 
-	lv_obj_t *status_bar = lv_obj_create(m_flying_screen);
-	lv_obj_set_style_bg_color(status_bar, DEFAULT_COLOR_BG_PANEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_style_bg_opa(status_bar, DEFAULT_OPACITY_BG_PANEL, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_clear_flag(status_bar, LV_OBJ_FLAG_SCROLLABLE);
-	lv_obj_set_size(status_bar, 320, 20);
-	lv_obj_set_style_pad_all(status_bar, 0, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_style_radius(status_bar, 0, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_set_style_border_width(status_bar, 0, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
-	lv_obj_align_to(status_bar, m_flying_screen, LV_ALIGN_TOP_LEFT, 0, 0);
+		m_speed_panel		= new LvglPanel(m_flying_screen, m_flying_screen, LV_ALIGN_TOP_LEFT, 0, 36, 72, 60, LV_TEXT_ALIGN_LEFT, &antonio_regular_12, lv_color_hex(0x7f7f7f), "Speed(m/s)", LV_TEXT_ALIGN_LEFT, &antonio_regular_32, lv_color_hex(0x3affe7), "99.9");
 
-	m_clock_label		= new LvglLabel(status_bar, status_bar, LV_ALIGN_LEFT_MID, 0, 0, 60, 16, LV_TEXT_ALIGN_LEFT, lv_color_hex(0x3affe7), &antonio_regular_16, "23:59");
-    m_bettery_icon		= new LvglLabel(status_bar, status_bar, LV_ALIGN_RIGHT_MID, 0, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0x00ff00), &awesome6_16, LVGL_SYMBOL_BATTERY_THREE_QUARTERS);
-    m_charge_icon		= new LvglLabel(status_bar, status_bar, LV_ALIGN_RIGHT_MID, 0, 0, 18, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0xffffff), &awesome6_16, LVGL_SYMBOL_BOLT);
-    m_bluetooth_icon	= new LvglLabel(status_bar, m_bettery_icon->m_label, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, LV_TEXT_ALIGN_CENTER, lv_color_hex(0x0000ff), &awesome6_16, LVGL_SYMBOL_BLUETOOTH);
-
-    m_gnss_icon			= NULL;
-    m_volumn_icon		= NULL;
-    m_sdcard_icon		= NULL;
-    m_lock_icon			= NULL;
-
-	//m_speed_panel		= new LvglPanel(m_flying_screen, m_flying_screen, LV_ALIGN_TOP_LEFT, 0, 36, 64, 60, LV_TEXT_ALIGN_LEFT, &antonio_regular_12, lv_color_hex(0x7f7f7f), "Speed(m/s)", LV_TEXT_ALIGN_LEFT, &antonio_regular_32, lv_color_hex(0x3affe7), "99.9");
+		lvgl_release_token();
+	}
 
 	g_p_BluethroatUi = this;
 }

@@ -1,0 +1,2836 @@
+
+/home/michael/Projects/bluethroat/software/firmware/.pio/build/m5stack-core2aws/components/lvgl/src/core/lv_obj_style.o:     file format elf32-xtensa-le
+
+
+Disassembly of section .literal.trans_del:
+
+00000000 <.literal.trans_del>:
+   0:	00000000 	
+   4:	000f0000 	
+   8:	0000ffff 	
+   c:	00ffffff 	
+	...
+
+Disassembly of section .literal.refresh_children_style:
+
+00000000 <.literal.refresh_children_style>:
+	...
+
+Disassembly of section .literal.get_local_style:
+
+00000000 <.literal.get_local_style>:
+   0:	01000000 	
+   4:	00ffffff 	
+   8:	1fffffff 	
+   c:	03000000 	
+  10:	ff000000 	
+	...
+
+Disassembly of section .literal.get_trans_style:
+
+00000000 <.literal.get_trans_style>:
+   0:	02000000 	
+   4:	00ffffff 	
+   8:	1fffffff 	
+   c:	ff000000 	
+	...
+
+Disassembly of section .literal.fade_anim_cb:
+
+00000000 <.literal.fade_anim_cb>:
+   0:	00000000 	
+
+Disassembly of section .literal._lv_obj_style_init:
+
+00000000 <.literal._lv_obj_style_init>:
+	...
+
+Disassembly of section .literal.lv_obj_enable_style_refresh:
+
+00000000 <.literal.lv_obj_enable_style_refresh>:
+   0:	00000000 	
+
+Disassembly of section .literal.lv_obj_get_local_style_prop:
+
+00000000 <.literal.lv_obj_get_local_style_prop>:
+   0:	00ffffff 	
+   4:	00000000 	
+
+Disassembly of section .literal.lv_obj_fade_in:
+
+00000000 <.literal.lv_obj_fade_in>:
+	...
+
+Disassembly of section .literal._lv_obj_style_state_compare:
+
+00000000 <.literal._lv_obj_style_state_compare>:
+   0:	00ffffff 	
+	...
+
+Disassembly of section .literal.lv_obj_style_get_selector_part:
+
+00000000 <.literal.lv_obj_style_get_selector_part>:
+   0:	00ff0000 	
+
+Disassembly of section .literal.get_prop_core:
+
+00000000 <.literal.get_prop_core>:
+   0:	00ffffff 	
+	...
+
+Disassembly of section .literal.lv_obj_get_style_prop:
+
+00000000 <.literal.lv_obj_get_style_prop>:
+	...
+
+Disassembly of section .literal.calculate_layer_type:
+
+00000000 <.literal.calculate_layer_type>:
+	...
+
+Disassembly of section .literal._lv_obj_style_create_transition:
+
+00000000 <.literal._lv_obj_style_create_transition>:
+   0:	00007fff 	
+	...
+
+Disassembly of section .literal._lv_obj_style_apply_color_filter:
+
+00000000 <.literal._lv_obj_style_apply_color_filter>:
+   0:	ffff0000 	
+	...
+
+Disassembly of section .literal.lv_obj_fade_out:
+
+00000000 <.literal.lv_obj_fade_out>:
+	...
+
+Disassembly of section .literal.lv_obj_refresh_style:
+
+00000000 <.literal.lv_obj_refresh_style>:
+   0:	00000000 	
+   4:	fff10000 	
+   8:	000027d1 	
+   c:	ffff0001 	
+  10:	ff3fffff 	
+  14:	0000ffff 	
+  18:	00010000 	
+	...
+
+Disassembly of section .literal.lv_obj_add_style:
+
+00000000 <.literal.lv_obj_add_style>:
+   0:	0000ffff 	
+   4:	1fffffff 	
+   8:	00ffffff 	
+   c:	ff000000 	
+	...
+
+Disassembly of section .literal.report_style_change_core:
+
+00000000 <.literal.report_style_change_core>:
+   0:	0000ffff 	
+   4:	000f0000 	
+	...
+
+Disassembly of section .literal.lv_obj_report_style_change:
+
+00000000 <.literal.lv_obj_report_style_change>:
+	...
+
+Disassembly of section .literal.lv_obj_set_local_style_prop:
+
+00000000 <.literal.lv_obj_set_local_style_prop>:
+	...
+
+Disassembly of section .literal.lv_obj_set_local_style_prop_meta:
+
+00000000 <.literal.lv_obj_set_local_style_prop_meta>:
+	...
+
+Disassembly of section .literal.lv_obj_remove_local_style_prop:
+
+00000000 <.literal.lv_obj_remove_local_style_prop>:
+   0:	00ffffff 	
+	...
+
+Disassembly of section .literal.fade_in_anim_ready:
+
+00000000 <.literal.fade_in_anim_ready>:
+   0:	00000000 	
+
+Disassembly of section .literal.trans_anim_cb:
+
+00000000 <.literal.trans_anim_cb>:
+   0:	00ffffff 	
+   4:	00020009 	
+   8:	00410005 	
+   c:	00180000 	
+	...
+
+Disassembly of section .literal.lv_obj_remove_style:
+
+00000000 <.literal.lv_obj_remove_style>:
+   0:	0000ffff 	
+   4:	00ffffff 	
+   8:	ffff0001 	
+   c:	fff10000 	
+  10:	03000000 	
+	...
+
+Disassembly of section .literal.trans_anim_ready_cb:
+
+00000000 <.literal.trans_anim_ready_cb>:
+   0:	00000000 	
+   4:	00ffffff 	
+	...
+
+Disassembly of section .literal.trans_anim_start_cb:
+
+00000000 <.literal.trans_anim_start_cb>:
+	...
+
+Disassembly of section .literal.lv_obj_calculate_style_text_align:
+
+00000000 <.literal.lv_obj_calculate_style_text_align>:
+	...
+
+Disassembly of section .literal.lv_obj_get_style_opa_recursive:
+
+00000000 <.literal.lv_obj_get_style_opa_recursive>:
+	...
+
+Disassembly of section .text.lv_color_mix:
+
+00000000 <lv_color_mix>:
+ * @param c2 the second color to mix (usually the background)
+ * @param mix The ratio of the colors. 0: full `c2`, 255: full `c1`, 127: half `c1` and half`c2`
+ * @return the mixed color
+ */
+static inline lv_color_t LV_ATTRIBUTE_FAST_MEM lv_color_mix(lv_color_t c1, lv_color_t c2, uint8_t mix)
+{
+   0:	004136        	entry	a1, 32
+#if LV_COLOR_16_SWAP == 1
+    ret.full = ret.full << 8 | ret.full >> 8;
+#endif
+#elif LV_COLOR_DEPTH != 1
+    /*LV_COLOR_DEPTH == 8, 16 or 32*/
+    LV_COLOR_SET_R(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_R(c1) * mix + LV_COLOR_GET_R(c2) *
+   3:	449320        	extui	a9, a2, 3, 5
+   6:	829940        	mull	a9, a9, a4
+   9:	448330        	extui	a8, a3, 3, 5
+   c:	ffa0c2        	movi	a12, 255
+   f:	c0cc40        	sub	a12, a12, a4
+  12:	8288c0        	mull	a8, a8, a12
+  15:	998a      	add.n	a9, a9, a8
+  17:	80a0b2        	movi	a11, 128
+  1a:	99ba      	add.n	a9, a9, a11
+  1c:	118980        	slli	a8, a9, 8
+  1f:	889a      	add.n	a8, a8, a9
+  21:	118890        	slli	a8, a8, 7
+  24:	889a      	add.n	a8, a8, a9
+  26:	458780        	extui	a8, a8, 23, 5
+                                   (255 - mix) + LV_COLOR_MIX_ROUND_OFS));
+    LV_COLOR_SET_G(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_G(c1) * mix + LV_COLOR_GET_G(c2) *
+  29:	24a020        	extui	a10, a2, 0, 3
+  2c:	249d20        	extui	a9, a2, 13, 3
+  2f:	b0aa90        	addx8	a10, a10, a9
+  32:	82a4a0        	mull	a10, a4, a10
+  35:	249030        	extui	a9, a3, 0, 3
+  38:	24dd30        	extui	a13, a3, 13, 3
+  3b:	b099d0        	addx8	a9, a9, a13
+  3e:	829c90        	mull	a9, a12, a9
+  41:	aa9a      	add.n	a10, a10, a9
+  43:	aaba      	add.n	a10, a10, a11
+  45:	119a80        	slli	a9, a10, 8
+  48:	99aa      	add.n	a9, a9, a10
+  4a:	119990        	slli	a9, a9, 7
+  4d:	99aa      	add.n	a9, a9, a10
+  4f:	25aa90        	extui	a10, a9, 26, 3
+  52:	1188d0        	slli	a8, a8, 3
+  55:	259790        	extui	a9, a9, 23, 3
+  58:	119930        	slli	a9, a9, 13
+  5b:	2088a0        	or	a8, a8, a10
+                                   (255 - mix) + LV_COLOR_MIX_ROUND_OFS));
+    LV_COLOR_SET_B(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_B(c1) * mix + LV_COLOR_GET_B(c2) *
+  5e:	442820        	extui	a2, a2, 8, 5
+  61:	824420        	mull	a4, a4, a2
+  64:	443830        	extui	a3, a3, 8, 5
+  67:	82cc30        	mull	a12, a12, a3
+  6a:	44ca      	add.n	a4, a4, a12
+  6c:	44ba      	add.n	a4, a4, a11
+  6e:	112480        	slli	a2, a4, 8
+  71:	224a      	add.n	a2, a2, a4
+  73:	112290        	slli	a2, a2, 7
+  76:	424a      	add.n	a4, a2, a4
+  78:	454740        	extui	a4, a4, 23, 5
+  7b:	114480        	slli	a4, a4, 8
+  7e:	202890        	or	a2, a8, a9
+    /*LV_COLOR_DEPTH == 1*/
+    ret.full = mix > LV_OPA_50 ? c1.full : c2.full;
+#endif
+
+    return ret;
+}
+  81:	202240        	or	a2, a2, a4
+  84:	f01d      	retw.n
+
+Disassembly of section .text.trans_del:
+
+00000000 <trans_del>:
+ * @param part a part of object or 0xFF to remove from all parts
+ * @param prop a property or 0xFF to remove all properties
+ * @param tr_limit delete transitions only "older" than this. `NULL` if not used
+ */
+static bool trans_del(lv_obj_t * obj, lv_part_t part, lv_style_prop_t prop, trans_t * tr_limit)
+{
+   0:	006136        	entry	a1, 48
+   3:	0149      	s32i.n	a4, a1, 0
+    trans_t * tr;
+    trans_t * tr_prev;
+    bool removed = false;
+    tr = _lv_ll_get_tail(&LV_GC_ROOT(_lv_obj_style_trans_ll));
+   5:	0000a1        	l32r	a10, fffc0008 <trans_del+0xfffc0008>
+   8:	000081        	l32r	a8, fffc0008 <trans_del+0xfffc0008>
+   b:	0008e0        	callx8	a8
+   e:	0a4d      	mov.n	a4, a10
+    bool removed = false;
+  10:	070c      	movi.n	a7, 0
+    while(tr != NULL) {
+  12:	002386        	j	a4 <trans_del+0xa4>
+        if(tr == tr_limit) break;
+  15:	029457        	bne	a4, a5, 1b <trans_del+0x1b>
+  18:	0022c6        	j	a7 <trans_del+0xa7>
+
+        /*'tr' might be deleted, so get the next object while 'tr' is valid*/
+        tr_prev = _lv_ll_get_prev(&LV_GC_ROOT(_lv_obj_style_trans_ll), tr);
+  1b:	04bd      	mov.n	a11, a4
+  1d:	0000a1        	l32r	a10, fffc0020 <trans_del+0xfffc0020>
+  20:	000081        	l32r	a8, fffc0020 <trans_del+0xfffc0020>
+  23:	0008e0        	callx8	a8
+  26:	0a6d      	mov.n	a6, a10
+
+        if(tr->obj == obj && (part == tr->selector || part == LV_PART_ANY) && (prop == tr->prop || prop == LV_STYLE_PROP_ANY)) {
+  28:	0488      	l32i.n	a8, a4, 0
+  2a:	749827        	bne	a8, a2, a2 <trans_del+0xa2>
+  2d:	2488      	l32i.n	a8, a4, 8
+  2f:	051837        	beq	a8, a3, 38 <trans_del+0x38>
+  32:	000081        	l32r	a8, fffc0034 <trans_del+0xfffc0034>
+  35:	699387        	bne	a3, a8, a2 <trans_del+0xa2>
+  38:	1488      	l32i.n	a8, a4, 4
+  3a:	0198      	l32i.n	a9, a1, 0
+  3c:	341897        	beq	a8, a9, 74 <trans_del+0x74>
+  3f:	000081        	l32r	a8, fffc0040 <trans_del+0xfffc0040>
+  42:	5c9987        	bne	a9, a8, a2 <trans_del+0xa2>
+  45:	000c06        	j	79 <trans_del+0x79>
+  48:	00          	.byte 00
+            /*Remove any transitioned properties from the trans. style
+             *to allow changing it by normal styles*/
+            uint32_t i;
+            for(i = 0; i < obj->style_cnt; i++) {
+                if(obj->styles[i].is_trans && (part == LV_PART_ANY || obj->styles[i].selector == part)) {
+  49:	3288      	l32i.n	a8, a2, 12
+  4b:	b08780        	addx8	a8, a7, a8
+  4e:	1898      	l32i.n	a9, a8, 4
+  50:	1a7997        	bbci	a9, 25, 6e <trans_del+0x6e>
+  53:	000091        	l32r	a9, fffc0054 <trans_del+0xfffc0054>
+  56:	0a1397        	beq	a3, a9, 64 <trans_del+0x64>
+  59:	1898      	l32i.n	a9, a8, 4
+  5b:	0000a1        	l32r	a10, fffc005c <trans_del+0xfffc005c>
+  5e:	1099a0        	and	a9, a9, a10
+  61:	099937        	bne	a9, a3, 6e <trans_del+0x6e>
+                    lv_style_remove_prop(obj->styles[i].style, tr->prop);
+  64:	14b8      	l32i.n	a11, a4, 4
+  66:	08a8      	l32i.n	a10, a8, 0
+  68:	000081        	l32r	a8, fffc0068 <trans_del+0xfffc0068>
+  6b:	0008e0        	callx8	a8
+            for(i = 0; i < obj->style_cnt; i++) {
+  6e:	771b      	addi.n	a7, a7, 1
+  70:	0001c6        	j	7b <trans_del+0x7b>
+  73:	00          	.byte 00
+  74:	070c      	movi.n	a7, 0
+  76:	000046        	j	7b <trans_del+0x7b>
+  79:	070c      	movi.n	a7, 0
+  7b:	8288      	l32i.n	a8, a2, 32
+  7d:	558480        	extui	a8, a8, 20, 6
+  80:	c53787        	bltu	a7, a8, 49 <trans_del+0x49>
+                }
+            }
+
+            /*Free the transition descriptor too*/
+            lv_anim_del(tr, NULL);
+  83:	0b0c      	movi.n	a11, 0
+  85:	04ad      	mov.n	a10, a4
+  87:	000081        	l32r	a8, fffc0088 <trans_del+0xfffc0088>
+  8a:	0008e0        	callx8	a8
+            _lv_ll_remove(&LV_GC_ROOT(_lv_obj_style_trans_ll), tr);
+  8d:	04bd      	mov.n	a11, a4
+  8f:	0000a1        	l32r	a10, fffc0090 <trans_del+0xfffc0090>
+  92:	000081        	l32r	a8, fffc0094 <trans_del+0xfffc0094>
+  95:	0008e0        	callx8	a8
+            lv_mem_free(tr);
+  98:	04ad      	mov.n	a10, a4
+  9a:	000081        	l32r	a8, fffc009c <trans_del+0xfffc009c>
+  9d:	0008e0        	callx8	a8
+            removed = true;
+  a0:	170c      	movi.n	a7, 1
+  a2:	064d      	mov.n	a4, a6
+    while(tr != NULL) {
+  a4:	f6d456        	bnez	a4, 15 <trans_del+0x15>
+
+        }
+        tr = tr_prev;
+    }
+    return removed;
+}
+  a7:	072d      	mov.n	a2, a7
+  a9:	f01d      	retw.n
+
+Disassembly of section .text.refresh_children_style:
+
+00000000 <refresh_children_style>:
+{
+   0:	004136        	entry	a1, 32
+    uint32_t child_cnt = lv_obj_get_child_cnt(obj);
+   3:	20a220        	or	a10, a2, a2
+   6:	000081        	l32r	a8, fffc0008 <refresh_children_style+0xfffc0008>
+   9:	0008e0        	callx8	a8
+   c:	0a4d      	mov.n	a4, a10
+    for(i = 0; i < child_cnt; i++) {
+   e:	030c      	movi.n	a3, 0
+  10:	000b06        	j	40 <refresh_children_style+0x40>
+  13:	00          	.byte 00
+        lv_obj_t * child = obj->spec_attr->children[i];
+  14:	2258      	l32i.n	a5, a2, 8
+  16:	0558      	l32i.n	a5, a5, 0
+  18:	a05350        	addx4	a5, a3, a5
+  1b:	0558      	l32i.n	a5, a5, 0
+        lv_obj_invalidate(child);
+  1d:	05ad      	mov.n	a10, a5
+  1f:	000081        	l32r	a8, fffc0020 <refresh_children_style+0xfffc0020>
+  22:	0008e0        	callx8	a8
+        lv_event_send(child, LV_EVENT_STYLE_CHANGED, NULL);
+  25:	0c0c      	movi.n	a12, 0
+  27:	ab2c      	movi.n	a11, 42
+  29:	05ad      	mov.n	a10, a5
+  2b:	000081        	l32r	a8, fffc002c <refresh_children_style+0xfffc002c>
+  2e:	0008e0        	callx8	a8
+        lv_obj_invalidate(child);
+  31:	05ad      	mov.n	a10, a5
+  33:	000081        	l32r	a8, fffc0034 <refresh_children_style+0xfffc0034>
+  36:	0008e0        	callx8	a8
+        refresh_children_style(child); /*Check children too*/
+  39:	05ad      	mov.n	a10, a5
+  3b:	fffc65        	call8	0 <refresh_children_style>
+    for(i = 0; i < child_cnt; i++) {
+  3e:	331b      	addi.n	a3, a3, 1
+  40:	d03347        	bltu	a3, a4, 14 <refresh_children_style+0x14>
+}
+  43:	f01d      	retw.n
+
+Disassembly of section .text.get_local_style:
+
+00000000 <get_local_style>:
+{
+   0:	004136        	entry	a1, 32
+    for(i = 0; i < obj->style_cnt; i++) {
+   3:	090c      	movi.n	a9, 0
+   5:	000646        	j	22 <get_local_style+0x22>
+        if(obj->styles[i].is_local &&
+   8:	3288      	l32i.n	a8, a2, 12
+   a:	b08980        	addx8	a8, a9, a8
+   d:	18a8      	l32i.n	a10, a8, 4
+   f:	0d7a87        	bbci	a10, 24, 20 <get_local_style+0x20>
+           obj->styles[i].selector == selector) {
+  12:	0000b1        	l32r	a11, fffc0014 <get_local_style+0xfffc0014>
+  15:	10aab0        	and	a10, a10, a11
+        if(obj->styles[i].is_local &&
+  18:	049a37        	bne	a10, a3, 20 <get_local_style+0x20>
+            return obj->styles[i].style;
+  1b:	0828      	l32i.n	a2, a8, 0
+  1d:	002c86        	j	d3 <get_local_style+0xd3>
+    for(i = 0; i < obj->style_cnt; i++) {
+  20:	991b      	addi.n	a9, a9, 1
+  22:	8288      	l32i.n	a8, a2, 32
+  24:	558480        	extui	a8, a8, 20, 6
+  27:	dd3987        	bltu	a9, a8, 8 <get_local_style+0x8>
+    obj->style_cnt++;
+  2a:	881b      	addi.n	a8, a8, 1
+  2c:	54b080        	extui	a11, a8, 0, 6
+  2f:	118bc0        	slli	a8, a11, 4
+  32:	111292        	l16ui	a9, a2, 34
+  35:	0fac42        	movi	a4, 0xfffffc0f
+  38:	109940        	and	a9, a9, a4
+  3b:	208980        	or	a8, a9, a8
+  3e:	115282        	s16i	a8, a2, 34
+    obj->styles = lv_mem_realloc(obj->styles, obj->style_cnt * sizeof(_lv_obj_style_t));
+  41:	11bbd0        	slli	a11, a11, 3
+  44:	32a8      	l32i.n	a10, a2, 12
+  46:	000081        	l32r	a8, fffc0048 <get_local_style+0xfffc0048>
+  49:	0008e0        	callx8	a8
+  4c:	32a9      	s32i.n	a10, a2, 12
+    LV_ASSERT_MALLOC(obj->styles);
+  4e:	1acc      	bnez.n	a10, 53 <get_local_style+0x53>
+  50:	ffff06        	j	50 <get_local_style+0x50>
+    for(i = obj->style_cnt - 1; i > 0 ; i--) {
+  53:	82a8      	l32i.n	a10, a2, 32
+  55:	55a4a0        	extui	a10, a10, 20, 6
+  58:	aa0b      	addi.n	a10, a10, -1
+  5a:	000746        	j	7b <get_local_style+0x7b>
+  5d:	00          	.byte 00
+        if(obj->styles[i - 1].is_local || obj->styles[i - 1].is_trans) break;
+  5e:	3298      	l32i.n	a9, a2, 12
+  60:	000081        	l32r	a8, fffc0060 <get_local_style+0xfffc0060>
+  63:	8a8a      	add.n	a8, a10, a8
+  65:	b08890        	addx8	a8, a8, a9
+  68:	18c8      	l32i.n	a12, a8, 4
+  6a:	0000b1        	l32r	a11, fffc006c <get_local_style+0xfffc006c>
+  6d:	0d8cb7        	bany	a12, a11, 7e <get_local_style+0x7e>
+        obj->styles[i] = obj->styles[i - 1];
+  70:	b09a90        	addx8	a9, a10, a9
+  73:	08b8      	l32i.n	a11, a8, 0
+  75:	09b9      	s32i.n	a11, a9, 0
+  77:	19c9      	s32i.n	a12, a9, 4
+    for(i = obj->style_cnt - 1; i > 0 ; i--) {
+  79:	aa0b      	addi.n	a10, a10, -1
+  7b:	fdfa56        	bnez	a10, 5e <get_local_style+0x5e>
+    lv_memset_00(&obj->styles[i], sizeof(_lv_obj_style_t));
+  7e:	3258      	l32i.n	a5, a2, 12
+  80:	114ad0        	slli	a4, a10, 3
+  83:	8b0c      	movi.n	a11, 8
+  85:	b0aa50        	addx8	a10, a10, a5
+  88:	000081        	l32r	a8, fffc0088 <get_local_style+0xfffc0088>
+  8b:	0008e0        	callx8	a8
+    obj->styles[i].style = lv_mem_alloc(sizeof(lv_style_t));
+  8e:	3258      	l32i.n	a5, a2, 12
+  90:	554a      	add.n	a5, a5, a4
+  92:	8a0c      	movi.n	a10, 8
+  94:	000081        	l32r	a8, fffc0094 <get_local_style+0xfffc0094>
+  97:	0008e0        	callx8	a8
+  9a:	05a9      	s32i.n	a10, a5, 0
+    lv_style_init(obj->styles[i].style);
+  9c:	3288      	l32i.n	a8, a2, 12
+  9e:	884a      	add.n	a8, a8, a4
+  a0:	08a8      	l32i.n	a10, a8, 0
+  a2:	000081        	l32r	a8, fffc00a4 <get_local_style+0xfffc00a4>
+  a5:	0008e0        	callx8	a8
+    obj->styles[i].is_local = 1;
+  a8:	3288      	l32i.n	a8, a2, 12
+  aa:	884a      	add.n	a8, a8, a4
+  ac:	1898      	l32i.n	a9, a8, 4
+  ae:	000051        	l32r	a5, fffc00b0 <get_local_style+0xfffc00b0>
+  b1:	209950        	or	a9, a9, a5
+  b4:	1899      	s32i.n	a9, a8, 4
+    obj->styles[i].selector = selector;
+  b6:	3298      	l32i.n	a9, a2, 12
+  b8:	994a      	add.n	a9, a9, a4
+  ba:	000051        	l32r	a5, fffc00bc <get_local_style+0xfffc00bc>
+  bd:	103350        	and	a3, a3, a5
+  c0:	1988      	l32i.n	a8, a9, 4
+  c2:	000051        	l32r	a5, fffc00c4 <get_local_style+0xfffc00c4>
+  c5:	108850        	and	a8, a8, a5
+  c8:	203830        	or	a3, a8, a3
+  cb:	1939      	s32i.n	a3, a9, 4
+    return obj->styles[i].style;
+  cd:	3228      	l32i.n	a2, a2, 12
+  cf:	224a      	add.n	a2, a2, a4
+  d1:	0228      	l32i.n	a2, a2, 0
+}
+  d3:	f01d      	retw.n
+
+Disassembly of section .text.get_trans_style:
+
+00000000 <get_trans_style>:
+{
+   0:	004136        	entry	a1, 32
+    for(i = 0; i < obj->style_cnt; i++) {
+   3:	0a0c      	movi.n	a10, 0
+   5:	000586        	j	1f <get_trans_style+0x1f>
+        if(obj->styles[i].is_trans && obj->styles[i].selector == selector) break;
+   8:	3298      	l32i.n	a9, a2, 12
+   a:	b09a90        	addx8	a9, a10, a9
+   d:	19b8      	l32i.n	a11, a9, 4
+   f:	0a7b97        	bbci	a11, 25, 1d <get_trans_style+0x1d>
+  12:	0b9d      	mov.n	a9, a11
+  14:	0000b1        	l32r	a11, fffc0014 <get_trans_style+0xfffc0014>
+  17:	1099b0        	and	a9, a9, a11
+  1a:	0b1937        	beq	a9, a3, 29 <get_trans_style+0x29>
+    for(i = 0; i < obj->style_cnt; i++) {
+  1d:	aa1b      	addi.n	a10, a10, 1
+  1f:	8288      	l32i.n	a8, a2, 32
+  21:	558480        	extui	a8, a8, 20, 6
+  24:	08cd      	mov.n	a12, a8
+  26:	de3a87        	bltu	a10, a8, 8 <get_trans_style+0x8>
+    if(i != obj->style_cnt) return &obj->styles[i];
+  29:	071ca7        	beq	a12, a10, 34 <get_trans_style+0x34>
+  2c:	3228      	l32i.n	a2, a2, 12
+  2e:	b02a20        	addx8	a2, a10, a2
+  31:	002286        	j	bf <get_trans_style+0xbf>
+    obj->style_cnt++;
+  34:	881b      	addi.n	a8, a8, 1
+  36:	54b080        	extui	a11, a8, 0, 6
+  39:	118bc0        	slli	a8, a11, 4
+  3c:	111292        	l16ui	a9, a2, 34
+  3f:	0fac42        	movi	a4, 0xfffffc0f
+  42:	109940        	and	a9, a9, a4
+  45:	208980        	or	a8, a9, a8
+  48:	115282        	s16i	a8, a2, 34
+    obj->styles = lv_mem_realloc(obj->styles, obj->style_cnt * sizeof(_lv_obj_style_t));
+  4b:	11bbd0        	slli	a11, a11, 3
+  4e:	32a8      	l32i.n	a10, a2, 12
+  50:	000081        	l32r	a8, fffc0050 <get_trans_style+0xfffc0050>
+  53:	0008e0        	callx8	a8
+  56:	32a9      	s32i.n	a10, a2, 12
+    for(i = obj->style_cnt - 1; i > 0 ; i--) {
+  58:	82a8      	l32i.n	a10, a2, 32
+  5a:	55a4a0        	extui	a10, a10, 20, 6
+  5d:	aa0b      	addi.n	a10, a10, -1
+  5f:	000586        	j	79 <get_trans_style+0x79>
+        obj->styles[i] = obj->styles[i - 1];
+  62:	3298      	l32i.n	a9, a2, 12
+  64:	000081        	l32r	a8, fffc0064 <get_trans_style+0xfffc0064>
+  67:	8a8a      	add.n	a8, a10, a8
+  69:	b08890        	addx8	a8, a8, a9
+  6c:	b09a90        	addx8	a9, a10, a9
+  6f:	08b8      	l32i.n	a11, a8, 0
+  71:	1888      	l32i.n	a8, a8, 4
+  73:	09b9      	s32i.n	a11, a9, 0
+  75:	1989      	s32i.n	a8, a9, 4
+    for(i = obj->style_cnt - 1; i > 0 ; i--) {
+  77:	aa0b      	addi.n	a10, a10, -1
+  79:	fe5a56        	bnez	a10, 62 <get_trans_style+0x62>
+    lv_memset_00(&obj->styles[0], sizeof(_lv_obj_style_t));
+  7c:	8b0c      	movi.n	a11, 8
+  7e:	32a8      	l32i.n	a10, a2, 12
+  80:	000081        	l32r	a8, fffc0080 <get_trans_style+0xfffc0080>
+  83:	0008e0        	callx8	a8
+    obj->styles[0].style = lv_mem_alloc(sizeof(lv_style_t));
+  86:	3248      	l32i.n	a4, a2, 12
+  88:	8a0c      	movi.n	a10, 8
+  8a:	000081        	l32r	a8, fffc008c <get_trans_style+0xfffc008c>
+  8d:	0008e0        	callx8	a8
+  90:	04a9      	s32i.n	a10, a4, 0
+    lv_style_init(obj->styles[0].style);
+  92:	3288      	l32i.n	a8, a2, 12
+  94:	08a8      	l32i.n	a10, a8, 0
+  96:	000081        	l32r	a8, fffc0098 <get_trans_style+0xfffc0098>
+  99:	0008e0        	callx8	a8
+    obj->styles[0].is_trans = 1;
+  9c:	3298      	l32i.n	a9, a2, 12
+  9e:	1988      	l32i.n	a8, a9, 4
+  a0:	0000a1        	l32r	a10, fffc00a0 <get_trans_style+0xfffc00a0>
+  a3:	2088a0        	or	a8, a8, a10
+  a6:	1989      	s32i.n	a8, a9, 4
+    obj->styles[0].selector = selector;
+  a8:	3298      	l32i.n	a9, a2, 12
+  aa:	000081        	l32r	a8, fffc00ac <get_trans_style+0xfffc00ac>
+  ad:	103380        	and	a3, a3, a8
+  b0:	1988      	l32i.n	a8, a9, 4
+  b2:	0000a1        	l32r	a10, fffc00b4 <get_trans_style+0xfffc00b4>
+  b5:	1088a0        	and	a8, a8, a10
+  b8:	203830        	or	a3, a8, a3
+  bb:	1939      	s32i.n	a3, a9, 4
+    return &obj->styles[0];
+  bd:	3228      	l32i.n	a2, a2, 12
+}
+  bf:	f01d      	retw.n
+
+Disassembly of section .text.fade_anim_cb:
+
+00000000 <fade_anim_cb>:
+#endif
+    return LV_LAYER_TYPE_NONE;
+}
+
+static void fade_anim_cb(void * obj, int32_t v)
+{
+   0:	004136        	entry	a1, 32
+    lv_obj_set_style_opa(obj, v, 0);
+   3:	0c0c      	movi.n	a12, 0
+   5:	74b030        	extui	a11, a3, 0, 8
+   8:	02ad      	mov.n	a10, a2
+   a:	000081        	l32r	a8, fffc000c <fade_anim_cb+0xfffc000c>
+   d:	0008e0        	callx8	a8
+}
+  10:	f01d      	retw.n
+
+Disassembly of section .text._lv_obj_style_init:
+
+00000000 <_lv_obj_style_init>:
+{
+   0:	004136        	entry	a1, 32
+    _lv_ll_init(&LV_GC_ROOT(_lv_obj_style_trans_ll), sizeof(trans_t));
+   3:	4b1c      	movi.n	a11, 20
+   5:	0000a1        	l32r	a10, fffc0008 <_lv_obj_style_init+0xfffc0008>
+   8:	000081        	l32r	a8, fffc0008 <_lv_obj_style_init+0xfffc0008>
+   b:	0008e0        	callx8	a8
+}
+   e:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_enable_style_refresh:
+
+00000000 <lv_obj_enable_style_refresh>:
+{
+   0:	004136        	entry	a1, 32
+    style_refr = en;
+   3:	000081        	l32r	a8, fffc0004 <lv_obj_enable_style_refresh+0xfffc0004>
+   6:	004822        	s8i	a2, a8, 0
+}
+   9:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_get_local_style_prop:
+
+00000000 <lv_obj_get_local_style_prop>:
+{
+   0:	004136        	entry	a1, 32
+    for(i = 0; i < obj->style_cnt; i++) {
+   3:	090c      	movi.n	a9, 0
+   5:	000986        	j	2f <lv_obj_get_local_style_prop+0x2f>
+   8:	00          	.byte 00
+        if(obj->styles[i].is_local &&
+   9:	3288      	l32i.n	a8, a2, 12
+   b:	b08980        	addx8	a8, a9, a8
+   e:	18a8      	l32i.n	a10, a8, 4
+  10:	197a87        	bbci	a10, 24, 2d <lv_obj_get_local_style_prop+0x2d>
+           obj->styles[i].selector == selector) {
+  13:	0000d1        	l32r	a13, fffc0014 <lv_obj_get_local_style_prop+0xfffc0014>
+  16:	10aad0        	and	a10, a10, a13
+        if(obj->styles[i].is_local &&
+  19:	109a57        	bne	a10, a5, 2d <lv_obj_get_local_style_prop+0x2d>
+            return lv_style_get_prop(obj->styles[i].style, prop, value);
+  1c:	04cd      	mov.n	a12, a4
+  1e:	03bd      	mov.n	a11, a3
+  20:	08a8      	l32i.n	a10, a8, 0
+  22:	000081        	l32r	a8, fffc0024 <lv_obj_get_local_style_prop+0xfffc0024>
+  25:	0008e0        	callx8	a8
+  28:	0a2d      	mov.n	a2, a10
+  2a:	0002c6        	j	39 <lv_obj_get_local_style_prop+0x39>
+    for(i = 0; i < obj->style_cnt; i++) {
+  2d:	991b      	addi.n	a9, a9, 1
+  2f:	8288      	l32i.n	a8, a2, 32
+  31:	558480        	extui	a8, a8, 20, 6
+  34:	d13987        	bltu	a9, a8, 9 <lv_obj_get_local_style_prop+0x9>
+    return LV_STYLE_RES_NOT_FOUND;
+  37:	020c      	movi.n	a2, 0
+}
+  39:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_fade_in:
+
+00000000 <lv_obj_fade_in>:
+{
+   0:	00e136        	entry	a1, 112
+    lv_anim_init(&a);
+   3:	20a110        	or	a10, a1, a1
+   6:	000081        	l32r	a8, fffc0008 <lv_obj_fade_in+0xfffc0008>
+   9:	0008e0        	callx8	a8
+ * @param a     pointer to an initialized `lv_anim_t` variable
+ * @param var   pointer to a variable to animate
+ */
+static inline void lv_anim_set_var(lv_anim_t * a, void * var)
+{
+    a->var = var;
+   c:	0129      	s32i.n	a2, a1, 0
+ * @param start     the start value
+ * @param end       the end value
+ */
+static inline void lv_anim_set_values(lv_anim_t * a, int32_t start, int32_t end)
+{
+    a->start_value = start;
+   e:	080c      	movi.n	a8, 0
+  10:	8189      	s32i.n	a8, a1, 32
+    a->current_value = start;
+  12:	9189      	s32i.n	a8, a1, 36
+    a->end_value = end;
+  14:	ffa082        	movi	a8, 255
+  17:	a189      	s32i.n	a8, a1, 40
+    a->exec_cb = exec_cb;
+  19:	000081        	l32r	a8, fffc001c <lv_obj_fade_in+0xfffc001c>
+  1c:	1189      	s32i.n	a8, a1, 4
+ * @param a         pointer to an initialized `lv_anim_t` variable
+ * @param ready_cb  a function call when the animation is ready
+ */
+static inline void lv_anim_set_ready_cb(lv_anim_t * a, lv_anim_ready_cb_t ready_cb)
+{
+    a->ready_cb = ready_cb;
+  1e:	000081        	l32r	a8, fffc0020 <lv_obj_fade_in+0xfffc0020>
+  21:	3189      	s32i.n	a8, a1, 12
+    a->time = duration;
+  23:	b139      	s32i.n	a3, a1, 44
+    a->act_time = -(int32_t)(delay);
+  25:	604040        	neg	a4, a4
+  28:	c149      	s32i.n	a4, a1, 48
+    lv_anim_start(&a);
+  2a:	01ad      	mov.n	a10, a1
+  2c:	000081        	l32r	a8, fffc002c <lv_obj_fade_in+0xfffc002c>
+  2f:	0008e0        	callx8	a8
+}
+  32:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_style_get_selector_state:
+
+00000000 <lv_obj_style_get_selector_state>:
+{
+   0:	004136        	entry	a1, 32
+}
+   3:	f42020        	extui	a2, a2, 0, 16
+   6:	f01d      	retw.n
+
+Disassembly of section .text._lv_obj_style_state_compare:
+
+00000000 <_lv_obj_style_state_compare>:
+{
+   0:	006136        	entry	a1, 48
+   3:	f43030        	extui	a3, a3, 0, 16
+   6:	f44040        	extui	a4, a4, 0, 16
+    for(i = 0; i < obj->style_cnt; i++) {
+   9:	060c      	movi.n	a6, 0
+    _lv_style_state_cmp_t res = _LV_STYLE_STATE_CMP_SAME;
+   b:	067d      	mov.n	a7, a6
+    for(i = 0; i < obj->style_cnt; i++) {
+   d:	00a246        	j	29a <_lv_obj_style_state_compare+0x29a>
+  10:	00          	.byte 00
+        if(obj->styles[i].is_trans) continue;
+  11:	3258      	l32i.n	a5, a2, 12
+  13:	b05650        	addx8	a5, a6, a5
+  16:	1588      	l32i.n	a8, a5, 4
+  18:	027897        	bbci	a8, 25, 1e <_lv_obj_style_state_compare+0x1e>
+  1b:	009e46        	j	298 <_lv_obj_style_state_compare+0x298>
+        lv_state_t state_act = lv_obj_style_get_selector_state(obj->styles[i].selector);
+  1e:	08ad      	mov.n	a10, a8
+  20:	000081        	l32r	a8, fffc0020 <_lv_obj_style_state_compare+0xfffc0020>
+  23:	10aa80        	and	a10, a10, a8
+  26:	000081        	l32r	a8, fffc0028 <_lv_obj_style_state_compare+0xfffc0028>
+  29:	0008e0        	callx8	a8
+        bool valid1 = state_act & (~state1) ? false : true;
+  2c:	f97c      	movi.n	a9, -1
+  2e:	30c930        	xor	a12, a9, a3
+  31:	10cac0        	and	a12, a10, a12
+  34:	180c      	movi.n	a8, 1
+  36:	0d0c      	movi.n	a13, 0
+  38:	0dbd      	mov.n	a11, a13
+  3a:	83b8c0        	moveqz	a11, a8, a12
+  3d:	74b0b0        	extui	a11, a11, 0, 8
+        bool valid2 = state_act & (~state2) ? false : true;
+  40:	309940        	xor	a9, a9, a4
+  43:	10aa90        	and	a10, a10, a9
+  46:	938da0        	movnez	a8, a13, a10
+  49:	748080        	extui	a8, a8, 0, 8
+        if(valid1 != valid2) {
+  4c:	029b87        	bne	a11, a8, 52 <_lv_obj_style_state_compare+0x52>
+  4f:	009146        	j	298 <_lv_obj_style_state_compare+0x298>
+            lv_style_t * style = obj->styles[i].style;
+  52:	0558      	l32i.n	a5, a5, 0
+            if(lv_style_get_prop(style, LV_STYLE_PAD_TOP, &v))layout_diff = true;
+  54:	01cd      	mov.n	a12, a1
+  56:	0b1c      	movi.n	a11, 16
+  58:	20a550        	or	a10, a5, a5
+  5b:	000081        	l32r	a8, fffc005c <_lv_obj_style_state_compare+0xfffc005c>
+  5e:	0008e0        	callx8	a8
+  61:	121a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_PAD_BOTTOM, &v)) layout_diff = true;
+  64:	01cd      	mov.n	a12, a1
+  66:	1b1c      	movi.n	a11, 17
+  68:	20a550        	or	a10, a5, a5
+  6b:	000081        	l32r	a8, fffc006c <_lv_obj_style_state_compare+0xfffc006c>
+  6e:	0008e0        	callx8	a8
+  71:	111a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_PAD_LEFT, &v)) layout_diff = true;
+  74:	01cd      	mov.n	a12, a1
+  76:	2b1c      	movi.n	a11, 18
+  78:	20a550        	or	a10, a5, a5
+  7b:	000081        	l32r	a8, fffc007c <_lv_obj_style_state_compare+0xfffc007c>
+  7e:	0008e0        	callx8	a8
+  81:	101a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_PAD_RIGHT, &v)) layout_diff = true;
+  84:	01cd      	mov.n	a12, a1
+  86:	3b1c      	movi.n	a11, 19
+  88:	20a550        	or	a10, a5, a5
+  8b:	000081        	l32r	a8, fffc008c <_lv_obj_style_state_compare+0xfffc008c>
+  8e:	0008e0        	callx8	a8
+  91:	0f1a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_PAD_COLUMN, &v)) layout_diff = true;
+  94:	01cd      	mov.n	a12, a1
+  96:	5b1c      	movi.n	a11, 21
+  98:	20a550        	or	a10, a5, a5
+  9b:	000081        	l32r	a8, fffc009c <_lv_obj_style_state_compare+0xfffc009c>
+  9e:	0008e0        	callx8	a8
+  a1:	0e1a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_PAD_ROW, &v)) layout_diff = true;
+  a4:	01cd      	mov.n	a12, a1
+  a6:	4b1c      	movi.n	a11, 20
+  a8:	20a550        	or	a10, a5, a5
+  ab:	000081        	l32r	a8, fffc00ac <_lv_obj_style_state_compare+0xfffc00ac>
+  ae:	0008e0        	callx8	a8
+  b1:	0d1a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_LAYOUT, &v)) layout_diff = true;
+  b4:	01cd      	mov.n	a12, a1
+  b6:	ab0c      	movi.n	a11, 10
+  b8:	20a550        	or	a10, a5, a5
+  bb:	000081        	l32r	a8, fffc00bc <_lv_obj_style_state_compare+0xfffc00bc>
+  be:	0008e0        	callx8	a8
+  c1:	0c1a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSLATE_X, &v)) layout_diff = true;
+  c4:	01cd      	mov.n	a12, a1
+  c6:	6ba0b2        	movi	a11, 107
+  c9:	05ad      	mov.n	a10, a5
+  cb:	000081        	l32r	a8, fffc00cc <_lv_obj_style_state_compare+0xfffc00cc>
+  ce:	0008e0        	callx8	a8
+  d1:	0b1a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSLATE_Y, &v)) layout_diff = true;
+  d4:	01cd      	mov.n	a12, a1
+  d6:	6ca0b2        	movi	a11, 108
+  d9:	05ad      	mov.n	a10, a5
+  db:	000081        	l32r	a8, fffc00dc <_lv_obj_style_state_compare+0xfffc00dc>
+  de:	0008e0        	callx8	a8
+  e1:	0a1a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_WIDTH, &v)) layout_diff = true;
+  e4:	01cd      	mov.n	a12, a1
+  e6:	1b0c      	movi.n	a11, 1
+  e8:	20a550        	or	a10, a5, a5
+  eb:	000081        	l32r	a8, fffc00ec <_lv_obj_style_state_compare+0xfffc00ec>
+  ee:	0008e0        	callx8	a8
+  f1:	091a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_HEIGHT, &v)) layout_diff = true;
+  f4:	01cd      	mov.n	a12, a1
+  f6:	4b0c      	movi.n	a11, 4
+  f8:	20a550        	or	a10, a5, a5
+  fb:	000081        	l32r	a8, fffc00fc <_lv_obj_style_state_compare+0xfffc00fc>
+  fe:	0008e0        	callx8	a8
+ 101:	081a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_MIN_WIDTH, &v)) layout_diff = true;
+ 104:	01cd      	mov.n	a12, a1
+ 106:	2b0c      	movi.n	a11, 2
+ 108:	20a550        	or	a10, a5, a5
+ 10b:	000081        	l32r	a8, fffc010c <_lv_obj_style_state_compare+0xfffc010c>
+ 10e:	0008e0        	callx8	a8
+ 111:	071a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_MAX_WIDTH, &v)) layout_diff = true;
+ 114:	01cd      	mov.n	a12, a1
+ 116:	3b0c      	movi.n	a11, 3
+ 118:	20a550        	or	a10, a5, a5
+ 11b:	000081        	l32r	a8, fffc011c <_lv_obj_style_state_compare+0xfffc011c>
+ 11e:	0008e0        	callx8	a8
+ 121:	061a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_MIN_HEIGHT, &v)) layout_diff = true;
+ 124:	01cd      	mov.n	a12, a1
+ 126:	5b0c      	movi.n	a11, 5
+ 128:	20a550        	or	a10, a5, a5
+ 12b:	000081        	l32r	a8, fffc012c <_lv_obj_style_state_compare+0xfffc012c>
+ 12e:	0008e0        	callx8	a8
+ 131:	051a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_MAX_HEIGHT, &v)) layout_diff = true;
+ 134:	01cd      	mov.n	a12, a1
+ 136:	06a0b2        	movi	a11, 6
+ 139:	20a550        	or	a10, a5, a5
+ 13c:	000081        	l32r	a8, fffc013c <_lv_obj_style_state_compare+0xfffc013c>
+ 13f:	0008e0        	callx8	a8
+ 142:	040a56        	bnez	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_BORDER_WIDTH, &v)) layout_diff = true;
+ 145:	01cd      	mov.n	a12, a1
+ 147:	2b3c      	movi.n	a11, 50
+ 149:	20a550        	or	a10, a5, a5
+ 14c:	000081        	l32r	a8, fffc014c <_lv_obj_style_state_compare+0xfffc014c>
+ 14f:	0008e0        	callx8	a8
+ 152:	0afc      	bnez.n	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_ANGLE, &v)) layout_diff = true;
+ 154:	01cd      	mov.n	a12, a1
+ 156:	6ea0b2        	movi	a11, 110
+ 159:	20a550        	or	a10, a5, a5
+ 15c:	000081        	l32r	a8, fffc015c <_lv_obj_style_state_compare+0xfffc015c>
+ 15f:	0008e0        	callx8	a8
+ 162:	0aec      	bnez.n	a10, 186 <_lv_obj_style_state_compare+0x186>
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_ZOOM, &v)) layout_diff = true;
+ 164:	01cd      	mov.n	a12, a1
+ 166:	6da0b2        	movi	a11, 109
+ 169:	05ad      	mov.n	a10, a5
+ 16b:	000081        	l32r	a8, fffc016c <_lv_obj_style_state_compare+0xfffc016c>
+ 16e:	0008e0        	callx8	a8
+ 171:	1adc      	bnez.n	a10, 186 <_lv_obj_style_state_compare+0x186>
+            if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_WIDTH, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 173:	01cd      	mov.n	a12, a1
+ 175:	69a0b2        	movi	a11, 105
+ 178:	05ad      	mov.n	a10, a5
+ 17a:	000081        	l32r	a8, fffc017c <_lv_obj_style_state_compare+0xfffc017c>
+ 17d:	0008e0        	callx8	a8
+ 180:	0cda56        	bnez	a10, 251 <_lv_obj_style_state_compare+0x251>
+ 183:	000146        	j	18c <_lv_obj_style_state_compare+0x18c>
+                return _LV_STYLE_STATE_CMP_DIFF_LAYOUT;
+ 186:	370c      	movi.n	a7, 3
+ 188:	004646        	j	2a5 <_lv_obj_style_state_compare+0x2a5>
+ 18b:	00          	.byte 00
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_HEIGHT, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 18c:	01cd      	mov.n	a12, a1
+ 18e:	6aa0b2        	movi	a11, 106
+ 191:	05ad      	mov.n	a10, a5
+ 193:	000081        	l32r	a8, fffc0194 <_lv_obj_style_state_compare+0xfffc0194>
+ 196:	0008e0        	callx8	a8
+ 199:	0b9a56        	bnez	a10, 256 <_lv_obj_style_state_compare+0x256>
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_ANGLE, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 19c:	01cd      	mov.n	a12, a1
+ 19e:	6ea0b2        	movi	a11, 110
+ 1a1:	05ad      	mov.n	a10, a5
+ 1a3:	000081        	l32r	a8, fffc01a4 <_lv_obj_style_state_compare+0xfffc01a4>
+ 1a6:	0008e0        	callx8	a8
+ 1a9:	0afa56        	bnez	a10, 25c <_lv_obj_style_state_compare+0x25c>
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_ZOOM, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 1ac:	01cd      	mov.n	a12, a1
+ 1ae:	6da0b2        	movi	a11, 109
+ 1b1:	05ad      	mov.n	a10, a5
+ 1b3:	000081        	l32r	a8, fffc01b4 <_lv_obj_style_state_compare+0xfffc01b4>
+ 1b6:	0008e0        	callx8	a8
+ 1b9:	0a4a56        	bnez	a10, 261 <_lv_obj_style_state_compare+0x261>
+            else if(lv_style_get_prop(style, LV_STYLE_OUTLINE_OPA, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 1bc:	01cd      	mov.n	a12, a1
+ 1be:	7b3c      	movi.n	a11, 55
+ 1c0:	20a550        	or	a10, a5, a5
+ 1c3:	000081        	l32r	a8, fffc01c4 <_lv_obj_style_state_compare+0xfffc01c4>
+ 1c6:	0008e0        	callx8	a8
+ 1c9:	099a56        	bnez	a10, 266 <_lv_obj_style_state_compare+0x266>
+            else if(lv_style_get_prop(style, LV_STYLE_OUTLINE_PAD, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 1cc:	01cd      	mov.n	a12, a1
+ 1ce:	8b3c      	movi.n	a11, 56
+ 1d0:	20a550        	or	a10, a5, a5
+ 1d3:	000081        	l32r	a8, fffc01d4 <_lv_obj_style_state_compare+0xfffc01d4>
+ 1d6:	0008e0        	callx8	a8
+ 1d9:	08fa56        	bnez	a10, 26c <_lv_obj_style_state_compare+0x26c>
+            else if(lv_style_get_prop(style, LV_STYLE_OUTLINE_WIDTH, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 1dc:	01cd      	mov.n	a12, a1
+ 1de:	5b3c      	movi.n	a11, 53
+ 1e0:	20a550        	or	a10, a5, a5
+ 1e3:	000081        	l32r	a8, fffc01e4 <_lv_obj_style_state_compare+0xfffc01e4>
+ 1e6:	0008e0        	callx8	a8
+ 1e9:	084a56        	bnez	a10, 271 <_lv_obj_style_state_compare+0x271>
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_WIDTH, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 1ec:	01cd      	mov.n	a12, a1
+ 1ee:	0b4c      	movi.n	a11, 64
+ 1f0:	20a550        	or	a10, a5, a5
+ 1f3:	000081        	l32r	a8, fffc01f4 <_lv_obj_style_state_compare+0xfffc01f4>
+ 1f6:	0008e0        	callx8	a8
+ 1f9:	079a56        	bnez	a10, 276 <_lv_obj_style_state_compare+0x276>
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_OPA, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 1fc:	01cd      	mov.n	a12, a1
+ 1fe:	5b4c      	movi.n	a11, 69
+ 200:	20a550        	or	a10, a5, a5
+ 203:	000081        	l32r	a8, fffc0204 <_lv_obj_style_state_compare+0xfffc0204>
+ 206:	0008e0        	callx8	a8
+ 209:	06fa56        	bnez	a10, 27c <_lv_obj_style_state_compare+0x27c>
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_OFS_X, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 20c:	01cd      	mov.n	a12, a1
+ 20e:	1b4c      	movi.n	a11, 65
+ 210:	20a550        	or	a10, a5, a5
+ 213:	000081        	l32r	a8, fffc0214 <_lv_obj_style_state_compare+0xfffc0214>
+ 216:	0008e0        	callx8	a8
+ 219:	064a56        	bnez	a10, 281 <_lv_obj_style_state_compare+0x281>
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_OFS_Y, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 21c:	01cd      	mov.n	a12, a1
+ 21e:	2b4c      	movi.n	a11, 66
+ 220:	20a550        	or	a10, a5, a5
+ 223:	000081        	l32r	a8, fffc0224 <_lv_obj_style_state_compare+0xfffc0224>
+ 226:	0008e0        	callx8	a8
+ 229:	059a56        	bnez	a10, 286 <_lv_obj_style_state_compare+0x286>
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_SPREAD, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 22c:	01cd      	mov.n	a12, a1
+ 22e:	3b4c      	movi.n	a11, 67
+ 230:	20a550        	or	a10, a5, a5
+ 233:	000081        	l32r	a8, fffc0234 <_lv_obj_style_state_compare+0xfffc0234>
+ 236:	0008e0        	callx8	a8
+ 239:	04fa56        	bnez	a10, 28c <_lv_obj_style_state_compare+0x28c>
+            else if(lv_style_get_prop(style, LV_STYLE_LINE_WIDTH, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 23c:	01cd      	mov.n	a12, a1
+ 23e:	9b4c      	movi.n	a11, 73
+ 240:	05ad      	mov.n	a10, a5
+ 242:	000081        	l32r	a8, fffc0244 <_lv_obj_style_state_compare+0xfffc0244>
+ 245:	0008e0        	callx8	a8
+ 248:	045a56        	bnez	a10, 291 <_lv_obj_style_state_compare+0x291>
+            else if(res == _LV_STYLE_STATE_CMP_SAME) res = _LV_STYLE_STATE_CMP_DIFF_REDRAW;
+ 24b:	047716        	beqz	a7, 296 <_lv_obj_style_state_compare+0x296>
+ 24e:	001186        	j	298 <_lv_obj_style_state_compare+0x298>
+            if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_WIDTH, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 251:	270c      	movi.n	a7, 2
+ 253:	001046        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_HEIGHT, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 256:	270c      	movi.n	a7, 2
+ 258:	000f06        	j	298 <_lv_obj_style_state_compare+0x298>
+ 25b:	00          	.byte 00
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_ANGLE, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 25c:	270c      	movi.n	a7, 2
+ 25e:	000d86        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_ZOOM, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 261:	270c      	movi.n	a7, 2
+ 263:	000c46        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(lv_style_get_prop(style, LV_STYLE_OUTLINE_OPA, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 266:	270c      	movi.n	a7, 2
+ 268:	000b06        	j	298 <_lv_obj_style_state_compare+0x298>
+ 26b:	00          	.byte 00
+            else if(lv_style_get_prop(style, LV_STYLE_OUTLINE_PAD, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 26c:	270c      	movi.n	a7, 2
+ 26e:	000986        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(lv_style_get_prop(style, LV_STYLE_OUTLINE_WIDTH, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 271:	270c      	movi.n	a7, 2
+ 273:	000846        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_WIDTH, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 276:	270c      	movi.n	a7, 2
+ 278:	000706        	j	298 <_lv_obj_style_state_compare+0x298>
+ 27b:	00          	.byte 00
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_OPA, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 27c:	270c      	movi.n	a7, 2
+ 27e:	000586        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_OFS_X, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 281:	270c      	movi.n	a7, 2
+ 283:	000446        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_OFS_Y, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 286:	270c      	movi.n	a7, 2
+ 288:	000306        	j	298 <_lv_obj_style_state_compare+0x298>
+ 28b:	00          	.byte 00
+            else if(lv_style_get_prop(style, LV_STYLE_SHADOW_SPREAD, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 28c:	270c      	movi.n	a7, 2
+ 28e:	000186        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(lv_style_get_prop(style, LV_STYLE_LINE_WIDTH, &v)) res = _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD;
+ 291:	270c      	movi.n	a7, 2
+ 293:	000046        	j	298 <_lv_obj_style_state_compare+0x298>
+            else if(res == _LV_STYLE_STATE_CMP_SAME) res = _LV_STYLE_STATE_CMP_DIFF_REDRAW;
+ 296:	170c      	movi.n	a7, 1
+    for(i = 0; i < obj->style_cnt; i++) {
+ 298:	661b      	addi.n	a6, a6, 1
+ 29a:	8258      	l32i.n	a5, a2, 32
+ 29c:	555450        	extui	a5, a5, 20, 6
+ 29f:	02b657        	bgeu	a6, a5, 2a5 <_lv_obj_style_state_compare+0x2a5>
+ 2a2:	ff5ac6        	j	11 <_lv_obj_style_state_compare+0x11>
+}
+ 2a5:	072d      	mov.n	a2, a7
+ 2a7:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_style_get_selector_part:
+
+00000000 <lv_obj_style_get_selector_part>:
+{
+   0:	004136        	entry	a1, 32
+}
+   3:	000081        	l32r	a8, fffc0004 <lv_obj_style_get_selector_part+0xfffc0004>
+   6:	102280        	and	a2, a2, a8
+   9:	f01d      	retw.n
+
+Disassembly of section .text.get_prop_core:
+
+00000000 <get_prop_core>:
+{
+   0:	00a136        	entry	a1, 80
+   3:	4139      	s32i.n	a3, a1, 16
+   5:	7149      	s32i.n	a4, a1, 28
+   7:	9159      	s32i.n	a5, a1, 36
+    uint8_t group = 1 << _lv_style_get_prop_group(prop);
+   9:	04ad      	mov.n	a10, a4
+   b:	000081        	l32r	a8, fffc000c <get_prop_core+0xfffc000c>
+   e:	0008e0        	callx8	a8
+  11:	160c      	movi.n	a6, 1
+  13:	401a00        	ssl	a10
+  16:	a16600        	sll	a6, a6
+  19:	746060        	extui	a6, a6, 0, 8
+    lv_state_t state = obj->state;
+  1c:	101232        	l16ui	a3, a2, 32
+  1f:	8139      	s32i.n	a3, a1, 32
+    lv_state_t state_inv = ~state;
+  21:	f37c      	movi.n	a3, -1
+  23:	8148      	l32i.n	a4, a1, 32
+  25:	303340        	xor	a3, a3, a4
+  28:	f43030        	extui	a3, a3, 0, 16
+  2b:	5139      	s32i.n	a3, a1, 20
+    bool skip_trans = obj->skip_trans;
+  2d:	8258      	l32i.n	a5, a2, 32
+  2f:	055350        	extui	a5, a5, 19, 1
+    for(i = 0; i < obj->style_cnt; i++) {
+  32:	030c      	movi.n	a3, 0
+  34:	001206        	j	80 <get_prop_core+0x80>
+  37:	00          	.byte 00
+        _lv_obj_style_t * obj_style = &obj->styles[i];
+  38:	3248      	l32i.n	a4, a2, 12
+  3a:	b04340        	addx8	a4, a3, a4
+        if(obj_style->is_trans == false) break;
+  3d:	1478      	l32i.n	a7, a4, 4
+  3f:	02f797        	bbsi	a7, 25, 45 <get_prop_core+0x45>
+  42:	002cc6        	j	f9 <get_prop_core+0xf9>
+        if(skip_trans) continue;
+  45:	55fc      	bnez.n	a5, 7e <get_prop_core+0x7e>
+        lv_part_t part_act = lv_obj_style_get_selector_part(obj->styles[i].selector);
+  47:	07ad      	mov.n	a10, a7
+  49:	000071        	l32r	a7, fffc004c <get_prop_core+0xfffc004c>
+  4c:	10aa70        	and	a10, a10, a7
+  4f:	000081        	l32r	a8, fffc0050 <get_prop_core+0xfffc0050>
+  52:	0008e0        	callx8	a8
+        if(part_act != part) continue;
+  55:	4188      	l32i.n	a8, a1, 16
+  57:	239a87        	bne	a10, a8, 7e <get_prop_core+0x7e>
+        if((obj_style->style->has_group & group) == 0) continue;
+  5a:	04a8      	l32i.n	a10, a4, 0
+  5c:	060a42        	l8ui	a4, a10, 6
+  5f:	1b0467        	bnone	a4, a6, 7e <get_prop_core+0x7e>
+        found = lv_style_get_prop(obj_style->style, prop, &value_tmp);
+  62:	01cd      	mov.n	a12, a1
+  64:	71b8      	l32i.n	a11, a1, 28
+  66:	000081        	l32r	a8, fffc0068 <get_prop_core+0xfffc0068>
+  69:	0008e0        	callx8	a8
+        if(found == LV_STYLE_RES_FOUND) {
+  6c:	081a66        	bnei	a10, 1, 78 <get_prop_core+0x78>
+            *v = value_tmp;
+  6f:	0128      	l32i.n	a2, a1, 0
+  71:	9138      	l32i.n	a3, a1, 36
+  73:	0329      	s32i.n	a2, a3, 0
+            return LV_STYLE_RES_FOUND;
+  75:	0027c6        	j	118 <get_prop_core+0x118>
+        else if(found == LV_STYLE_RES_INHERIT) {
+  78:	022a66        	bnei	a10, 2, 7e <get_prop_core+0x7e>
+  7b:	002646        	j	118 <get_prop_core+0x118>
+    for(i = 0; i < obj->style_cnt; i++) {
+  7e:	331b      	addi.n	a3, a3, 1
+  80:	8248      	l32i.n	a4, a2, 32
+  82:	554440        	extui	a4, a4, 20, 6
+  85:	af3347        	bltu	a3, a4, 38 <get_prop_core+0x38>
+  88:	f47c      	movi.n	a4, -1
+  8a:	6149      	s32i.n	a4, a1, 24
+  8c:	001b46        	j	fd <get_prop_core+0xfd>
+  8f:	00          	.byte 00
+  90:	00          	.byte 00
+        if((obj->styles[i].style->has_group & group) == 0) continue;
+  91:	3248      	l32i.n	a4, a2, 12
+  93:	b04340        	addx8	a4, a3, a4
+  96:	0458      	l32i.n	a5, a4, 0
+  98:	060572        	l8ui	a7, a5, 6
+  9b:	550767        	bnone	a7, a6, f4 <get_prop_core+0xf4>
+        lv_part_t part_act = lv_obj_style_get_selector_part(obj->styles[i].selector);
+  9e:	1448      	l32i.n	a4, a4, 4
+  a0:	000071        	l32r	a7, fffc00a0 <get_prop_core+0xfffc00a0>
+  a3:	104470        	and	a4, a4, a7
+  a6:	04ad      	mov.n	a10, a4
+  a8:	000081        	l32r	a8, fffc00a8 <get_prop_core+0xfffc00a8>
+  ab:	0008e0        	callx8	a8
+  ae:	0a7d      	mov.n	a7, a10
+        lv_state_t state_act = lv_obj_style_get_selector_state(obj->styles[i].selector);
+  b0:	04ad      	mov.n	a10, a4
+  b2:	000081        	l32r	a8, fffc00b4 <get_prop_core+0xfffc00b4>
+  b5:	0008e0        	callx8	a8
+  b8:	0a4d      	mov.n	a4, a10
+        if(part_act != part) continue;
+  ba:	4188      	l32i.n	a8, a1, 16
+  bc:	349877        	bne	a8, a7, f4 <get_prop_core+0xf4>
+        if((state_act & state_inv)) continue;
+  bf:	5188      	l32i.n	a8, a1, 20
+  c1:	2f88a7        	bany	a8, a10, f4 <get_prop_core+0xf4>
+        if(state_act <= weight) continue;
+  c4:	6188      	l32i.n	a8, a1, 24
+  c6:	2aa8a7        	bge	a8, a10, f4 <get_prop_core+0xf4>
+        found = lv_style_get_prop(obj_style->style, prop, &value_tmp);
+  c9:	01cd      	mov.n	a12, a1
+  cb:	71b8      	l32i.n	a11, a1, 28
+  cd:	05ad      	mov.n	a10, a5
+  cf:	000081        	l32r	a8, fffc00d0 <get_prop_core+0xfffc00d0>
+  d2:	0008e0        	callx8	a8
+        if(found == LV_STYLE_RES_FOUND) {
+  d5:	181a66        	bnei	a10, 1, f1 <get_prop_core+0xf1>
+            if(state_act == state) {
+  d8:	8158      	l32i.n	a5, a1, 32
+  da:	089547        	bne	a5, a4, e6 <get_prop_core+0xe6>
+                *v = value_tmp;
+  dd:	0128      	l32i.n	a2, a1, 0
+  df:	9138      	l32i.n	a3, a1, 36
+  e1:	0329      	s32i.n	a2, a3, 0
+                return LV_STYLE_RES_FOUND;
+  e3:	000c46        	j	118 <get_prop_core+0x118>
+                *v = value_tmp;
+  e6:	0158      	l32i.n	a5, a1, 0
+  e8:	9188      	l32i.n	a8, a1, 36
+  ea:	0859      	s32i.n	a5, a8, 0
+                weight = state_act;
+  ec:	6149      	s32i.n	a4, a1, 24
+  ee:	000086        	j	f4 <get_prop_core+0xf4>
+        else if(found == LV_STYLE_RES_INHERIT) {
+  f1:	232a26        	beqi	a10, 2, 118 <get_prop_core+0x118>
+    for(; i < obj->style_cnt; i++) {
+  f4:	331b      	addi.n	a3, a3, 1
+  f6:	0000c6        	j	fd <get_prop_core+0xfd>
+  f9:	f47c      	movi.n	a4, -1
+  fb:	6149      	s32i.n	a4, a1, 24
+  fd:	8248      	l32i.n	a4, a2, 32
+  ff:	554440        	extui	a4, a4, 20, 6
+ 102:	8b3347        	bltu	a3, a4, 91 <get_prop_core+0x91>
+    if(weight >= 0) {
+ 105:	6158      	l32i.n	a5, a1, 24
+ 107:	00b596        	bltz	a5, 116 <get_prop_core+0x116>
+        *v = value_tmp;
+ 10a:	0128      	l32i.n	a2, a1, 0
+ 10c:	9138      	l32i.n	a3, a1, 36
+ 10e:	0329      	s32i.n	a2, a3, 0
+        return LV_STYLE_RES_FOUND;
+ 110:	1a0c      	movi.n	a10, 1
+ 112:	000086        	j	118 <get_prop_core+0x118>
+ 115:	00          	.byte 00
+    else return LV_STYLE_RES_NOT_FOUND;
+ 116:	0a0c      	movi.n	a10, 0
+}
+ 118:	0a2d      	mov.n	a2, a10
+ 11a:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_get_style_prop:
+
+00000000 <lv_obj_get_style_prop>:
+{
+   0:	006136        	entry	a1, 48
+ * @param flag Flag
+ * @return true if the flag is set for this property
+ */
+static inline bool lv_style_prop_has_flag(lv_style_prop_t prop, uint8_t flag)
+{
+    return _lv_style_prop_lookup_flags(prop) & flag;
+   3:	20a440        	or	a10, a4, a4
+   6:	000081        	l32r	a8, fffc0008 <lv_obj_get_style_prop+0xfffc0008>
+   9:	0008e0        	callx8	a8
+   c:	0460a0        	extui	a6, a10, 0, 1
+    lv_style_res_t found = LV_STYLE_RES_NOT_FOUND;
+   f:	050c      	movi.n	a5, 0
+    while(obj) {
+  11:	000d86        	j	4b <lv_obj_get_style_prop+0x4b>
+        found = get_prop_core(obj, part, prop, &value_act);
+  14:	01dd      	mov.n	a13, a1
+  16:	04cd      	mov.n	a12, a4
+  18:	03bd      	mov.n	a11, a3
+  1a:	02ad      	mov.n	a10, a2
+  1c:	000081        	l32r	a8, fffc001c <lv_obj_get_style_prop+0xfffc001c>
+  1f:	0008e0        	callx8	a8
+  22:	0a5d      	mov.n	a5, a10
+        if(found == LV_STYLE_RES_FOUND) break;
+  24:	261a26        	beqi	a10, 1, 4e <lv_obj_get_style_prop+0x4e>
+        if(!inheritable) break;
+  27:	36ac      	beqz.n	a6, 4e <lv_obj_get_style_prop+0x4e>
+        if(found != LV_STYLE_RES_INHERIT && part != LV_PART_MAIN) {
+  29:	fecab2        	addi	a11, a10, -2
+  2c:	180c      	movi.n	a8, 1
+  2e:	090c      	movi.n	a9, 0
+  30:	09ad      	mov.n	a10, a9
+  32:	93a8b0        	movnez	a10, a8, a11
+  35:	838930        	moveqz	a8, a9, a3
+  38:	0d88a7        	bany	a8, a10, 49 <lv_obj_get_style_prop+0x49>
+        obj = lv_obj_get_parent(obj);
+  3b:	20a220        	or	a10, a2, a2
+  3e:	000081        	l32r	a8, fffc0040 <lv_obj_get_style_prop+0xfffc0040>
+  41:	0008e0        	callx8	a8
+  44:	0a2d      	mov.n	a2, a10
+  46:	000046        	j	4b <lv_obj_get_style_prop+0x4b>
+            part = LV_PART_MAIN;
+  49:	030c      	movi.n	a3, 0
+    while(obj) {
+  4b:	fc5256        	bnez	a2, 14 <lv_obj_get_style_prop+0x14>
+    if(found != LV_STYLE_RES_FOUND) {
+  4e:	581526        	beqi	a5, 1, aa <lv_obj_get_style_prop+0xaa>
+        if(part == LV_PART_MAIN && (prop == LV_STYLE_WIDTH || prop == LV_STYLE_HEIGHT)) {
+  51:	04b356        	bnez	a3, a0 <lv_obj_get_style_prop+0xa0>
+  54:	840b      	addi.n	a8, a4, -1
+  56:	130c      	movi.n	a3, 1
+  58:	050c      	movi.n	a5, 0
+  5a:	056d      	mov.n	a6, a5
+  5c:	836380        	moveqz	a6, a3, a8
+  5f:	fcc482        	addi	a8, a4, -4
+  62:	933580        	movnez	a3, a5, a8
+  65:	203360        	or	a3, a3, a6
+  68:	341357        	beq	a3, a5, a0 <lv_obj_get_style_prop+0xa0>
+            const lv_obj_class_t * cls = obj->class_p;
+  6b:	0228      	l32i.n	a2, a2, 0
+            while(cls) {
+  6d:	000486        	j	83 <lv_obj_get_style_prop+0x83>
+                if(prop == LV_STYLE_WIDTH) {
+  70:	081466        	bnei	a4, 1, 7c <lv_obj_get_style_prop+0x7c>
+                    if(cls->width_def != 0) break;
+  73:	0a9232        	l16si	a3, a2, 20
+  76:	738c      	beqz.n	a3, 81 <lv_obj_get_style_prop+0x81>
+  78:	000286        	j	86 <lv_obj_get_style_prop+0x86>
+  7b:	00          	.byte 00
+                    if(cls->height_def != 0) break;
+  7c:	0b9232        	l16si	a3, a2, 22
+  7f:	33cc      	bnez.n	a3, 86 <lv_obj_get_style_prop+0x86>
+                cls = cls->base_class;
+  81:	0228      	l32i.n	a2, a2, 0
+            while(cls) {
+  83:	fe9256        	bnez	a2, 70 <lv_obj_get_style_prop+0x70>
+            if(cls) {
+  86:	f28c      	beqz.n	a2, 99 <lv_obj_get_style_prop+0x99>
+                value_act.num = prop == LV_STYLE_WIDTH ? cls->width_def : cls->height_def;
+  88:	051466        	bnei	a4, 1, 91 <lv_obj_get_style_prop+0x91>
+  8b:	0a9222        	l16si	a2, a2, 20
+  8e:	000086        	j	94 <lv_obj_get_style_prop+0x94>
+  91:	0b9222        	l16si	a2, a2, 22
+  94:	0129      	s32i.n	a2, a1, 0
+  96:	000406        	j	aa <lv_obj_get_style_prop+0xaa>
+                value_act.num = 0;
+  99:	020c      	movi.n	a2, 0
+  9b:	0129      	s32i.n	a2, a1, 0
+  9d:	000246        	j	aa <lv_obj_get_style_prop+0xaa>
+            value_act = lv_style_prop_get_default(prop);
+  a0:	04ad      	mov.n	a10, a4
+  a2:	000081        	l32r	a8, fffc00a4 <lv_obj_get_style_prop+0xfffc00a4>
+  a5:	0008e0        	callx8	a8
+  a8:	01a9      	s32i.n	a10, a1, 0
+}
+  aa:	0128      	l32i.n	a2, a1, 0
+  ac:	f01d      	retw.n
+
+Disassembly of section .text.calculate_layer_type:
+
+00000000 <calculate_layer_type>:
+{
+   0:	004136        	entry	a1, 32
+    return (lv_coord_t)v.num;
+}
+
+static inline lv_coord_t lv_obj_get_style_transform_angle(const struct _lv_obj_t * obj, uint32_t part)
+{
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_TRANSFORM_ANGLE);
+   3:	6ea0c2        	movi	a12, 110
+   6:	0b0c      	movi.n	a11, 0
+   8:	20a220        	or	a10, a2, a2
+   b:	000081        	l32r	a8, fffc000c <calculate_layer_type+0xfffc000c>
+   e:	0008e0        	callx8	a8
+    return (lv_coord_t)v.num;
+  11:	23aa80        	sext	a10, a10, 15
+    if(lv_obj_get_style_transform_angle(obj, 0) != 0) return LV_LAYER_TYPE_TRANSFORM;
+  14:	042a56        	bnez	a10, 5a <calculate_layer_type+0x5a>
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_TRANSFORM_ZOOM);
+  17:	6da0c2        	movi	a12, 109
+  1a:	0b0c      	movi.n	a11, 0
+  1c:	20a220        	or	a10, a2, a2
+  1f:	000081        	l32r	a8, fffc0020 <calculate_layer_type+0xfffc0020>
+  22:	0008e0        	callx8	a8
+    return (lv_coord_t)v.num;
+  25:	23aa80        	sext	a10, a10, 15
+    if(lv_obj_get_style_transform_zoom(obj, 0) != 256) return LV_LAYER_TYPE_TRANSFORM;
+  28:	34fa66        	bnei	a10, 0x100, 60 <calculate_layer_type+0x60>
+    return (lv_opa_t)v.num;
+}
+
+static inline lv_opa_t lv_obj_get_style_opa_layered(const struct _lv_obj_t * obj, uint32_t part)
+{
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_OPA_LAYERED);
+  2b:	61a0c2        	movi	a12, 97
+  2e:	0b0c      	movi.n	a11, 0
+  30:	02ad      	mov.n	a10, a2
+  32:	000081        	l32r	a8, fffc0034 <calculate_layer_type+0xfffc0034>
+  35:	0008e0        	callx8	a8
+    return (lv_opa_t)v.num;
+  38:	74a0a0        	extui	a10, a10, 0, 8
+    if(lv_obj_get_style_opa_layered(obj, 0) != LV_OPA_COVER) return LV_LAYER_TYPE_SIMPLE;
+  3b:	ffa082        	movi	a8, 255
+  3e:	239a87        	bne	a10, a8, 65 <calculate_layer_type+0x65>
+    return (const lv_style_transition_dsc_t *)v.ptr;
+}
+
+static inline lv_blend_mode_t lv_obj_get_style_blend_mode(const struct _lv_obj_t * obj, uint32_t part)
+{
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_BLEND_MODE);
+  41:	68a0c2        	movi	a12, 104
+  44:	00a0b2        	movi	a11, 0
+  47:	20a220        	or	a10, a2, a2
+  4a:	000081        	l32r	a8, fffc004c <calculate_layer_type+0xfffc004c>
+  4d:	0008e0        	callx8	a8
+    return (lv_blend_mode_t)v.num;
+  50:	74a0a0        	extui	a10, a10, 0, 8
+    if(lv_obj_get_style_blend_mode(obj, 0) != LV_BLEND_MODE_NORMAL) return LV_LAYER_TYPE_SIMPLE;
+  53:	3adc      	bnez.n	a10, 6a <calculate_layer_type+0x6a>
+    return LV_LAYER_TYPE_NONE;
+  55:	020c      	movi.n	a2, 0
+  57:	000446        	j	6c <calculate_layer_type+0x6c>
+    if(lv_obj_get_style_transform_angle(obj, 0) != 0) return LV_LAYER_TYPE_TRANSFORM;
+  5a:	220c      	movi.n	a2, 2
+  5c:	000306        	j	6c <calculate_layer_type+0x6c>
+  5f:	00          	.byte 00
+    if(lv_obj_get_style_transform_zoom(obj, 0) != 256) return LV_LAYER_TYPE_TRANSFORM;
+  60:	220c      	movi.n	a2, 2
+  62:	000186        	j	6c <calculate_layer_type+0x6c>
+    if(lv_obj_get_style_opa_layered(obj, 0) != LV_OPA_COVER) return LV_LAYER_TYPE_SIMPLE;
+  65:	120c      	movi.n	a2, 1
+  67:	000046        	j	6c <calculate_layer_type+0x6c>
+    if(lv_obj_get_style_blend_mode(obj, 0) != LV_BLEND_MODE_NORMAL) return LV_LAYER_TYPE_SIMPLE;
+  6a:	120c      	movi.n	a2, 1
+}
+  6c:	f01d      	retw.n
+
+Disassembly of section .text._lv_obj_style_create_transition:
+
+00000000 <_lv_obj_style_create_transition>:
+{
+   0:	010136        	entry	a1, 128
+   3:	f44040        	extui	a4, a4, 0, 16
+   6:	f45050        	extui	a5, a5, 0, 16
+   9:	146152        	s32i	a5, a1, 80
+    obj->skip_trans = 1;
+   c:	111252        	l16ui	a5, a2, 34
+   f:	870c      	movi.n	a7, 8
+  11:	205570        	or	a5, a5, a7
+  14:	115252        	s16i	a5, a2, 34
+    obj->state = prev_state;
+  17:	105242        	s16i	a4, a2, 32
+    lv_style_value_t v1 = lv_obj_get_style_prop(obj, part, tr_dsc->prop);
+  1a:	26c8      	l32i.n	a12, a6, 8
+  1c:	03bd      	mov.n	a11, a3
+  1e:	02ad      	mov.n	a10, a2
+  20:	000081        	l32r	a8, fffc0020 <_lv_obj_style_create_transition+0xfffc0020>
+  23:	0008e0        	callx8	a8
+  26:	0a5d      	mov.n	a5, a10
+    obj->state = new_state;
+  28:	142182        	l32i	a8, a1, 80
+  2b:	105282        	s16i	a8, a2, 32
+    lv_style_value_t v2 = lv_obj_get_style_prop(obj, part, tr_dsc->prop);
+  2e:	26c8      	l32i.n	a12, a6, 8
+  30:	20b330        	or	a11, a3, a3
+  33:	20a220        	or	a10, a2, a2
+  36:	000081        	l32r	a8, fffc0038 <_lv_obj_style_create_transition+0xfffc0038>
+  39:	0008e0        	callx8	a8
+  3c:	0a7d      	mov.n	a7, a10
+    obj->skip_trans = 0;
+  3e:	111282        	l16ui	a8, a2, 34
+  41:	797c      	movi.n	a9, -9
+  43:	108890        	and	a8, a8, a9
+  46:	115282        	s16i	a8, a2, 34
+    if(v1.ptr == v2.ptr && v1.num == v2.num && v1.color.full == v2.color.full)  return;
+  49:	1561a2        	s32i	a10, a1, 84
+  4c:	0595a7        	bne	a5, a10, 55 <_lv_obj_style_create_transition+0x55>
+  4f:	0295a7        	bne	a5, a10, 55 <_lv_obj_style_create_transition+0x55>
+  52:	004006        	j	156 <_lv_obj_style_create_transition+0x156>
+    obj->state = prev_state;
+  55:	105242        	s16i	a4, a2, 32
+    v1 = lv_obj_get_style_prop(obj, part, tr_dsc->prop);
+  58:	26c8      	l32i.n	a12, a6, 8
+  5a:	03bd      	mov.n	a11, a3
+  5c:	02ad      	mov.n	a10, a2
+  5e:	000081        	l32r	a8, fffc0060 <_lv_obj_style_create_transition+0xfffc0060>
+  61:	0008e0        	callx8	a8
+  64:	0a5d      	mov.n	a5, a10
+    obj->state = new_state;
+  66:	142142        	l32i	a4, a1, 80
+  69:	105242        	s16i	a4, a2, 32
+    _lv_obj_style_t * style_trans = get_trans_style(obj, part);
+  6c:	03bd      	mov.n	a11, a3
+  6e:	02ad      	mov.n	a10, a2
+  70:	000081        	l32r	a8, fffc0070 <_lv_obj_style_create_transition+0xfffc0070>
+  73:	0008e0        	callx8	a8
+    lv_style_set_prop(style_trans->style, tr_dsc->prop, v1);   /*Be sure `trans_style` has a valid value*/
+  76:	05cd      	mov.n	a12, a5
+  78:	26b8      	l32i.n	a11, a6, 8
+  7a:	0aa8      	l32i.n	a10, a10, 0
+  7c:	000081        	l32r	a8, fffc007c <_lv_obj_style_create_transition+0xfffc007c>
+  7f:	0008e0        	callx8	a8
+    if(tr_dsc->prop == LV_STYLE_RADIUS) {
+  82:	2688      	l32i.n	a8, a6, 8
+  84:	b40c      	movi.n	a4, 11
+  86:	649847        	bne	a8, a4, ee <_lv_obj_style_create_transition+0xee>
+        if(v1.num == LV_RADIUS_CIRCLE || v2.num == LV_RADIUS_CIRCLE) {
+  89:	204550        	or	a4, a5, a5
+  8c:	000081        	l32r	a8, fffc008c <_lv_obj_style_create_transition+0xfffc008c>
+  8f:	051587        	beq	a5, a8, 98 <_lv_obj_style_create_transition+0x98>
+  92:	152192        	l32i	a9, a1, 84
+  95:	559987        	bne	a9, a8, ee <_lv_obj_style_create_transition+0xee>
+            lv_coord_t whalf = lv_obj_get_width(obj) / 2;
+  98:	02ad      	mov.n	a10, a2
+  9a:	000081        	l32r	a8, fffc009c <_lv_obj_style_create_transition+0xfffc009c>
+  9d:	0008e0        	callx8	a8
+  a0:	058fa0        	extui	a8, a10, 31, 1
+  a3:	8088a0        	add	a8, a8, a10
+  a6:	218180        	srai	a8, a8, 1
+  a9:	238880        	sext	a8, a8, 15
+  ac:	146182        	s32i	a8, a1, 80
+            lv_coord_t hhalf = lv_obj_get_height(obj) / 2;
+  af:	20a220        	or	a10, a2, a2
+  b2:	000081        	l32r	a8, fffc00b4 <_lv_obj_style_create_transition+0xfffc00b4>
+  b5:	0008e0        	callx8	a8
+  b8:	058fa0        	extui	a8, a10, 31, 1
+  bb:	88aa      	add.n	a8, a8, a10
+  bd:	218180        	srai	a8, a8, 1
+  c0:	238880        	sext	a8, a8, 15
+            if(v1.num == LV_RADIUS_CIRCLE) v1.num = LV_MIN(whalf + 1, hhalf + 1);
+  c3:	000091        	l32r	a9, fffc00c4 <_lv_obj_style_create_transition+0xfffc00c4>
+  c6:	0c9497        	bne	a4, a9, d6 <_lv_obj_style_create_transition+0xd6>
+  c9:	142142        	l32i	a4, a1, 80
+  cc:	04a487        	bge	a4, a8, d4 <_lv_obj_style_create_transition+0xd4>
+  cf:	541b      	addi.n	a5, a4, 1
+  d1:	000046        	j	d6 <_lv_obj_style_create_transition+0xd6>
+  d4:	581b      	addi.n	a5, a8, 1
+            if(v2.num == LV_RADIUS_CIRCLE) v2.num = LV_MIN(whalf + 1, hhalf + 1);
+  d6:	000041        	l32r	a4, fffc00d8 <_lv_obj_style_create_transition+0xfffc00d8>
+  d9:	152192        	l32i	a9, a1, 84
+  dc:	0e9947        	bne	a9, a4, ee <_lv_obj_style_create_transition+0xee>
+  df:	142142        	l32i	a4, a1, 80
+  e2:	04a487        	bge	a4, a8, ea <_lv_obj_style_create_transition+0xea>
+  e5:	841b      	addi.n	a8, a4, 1
+  e7:	000046        	j	ec <_lv_obj_style_create_transition+0xec>
+  ea:	881b      	addi.n	a8, a8, 1
+  ec:	087d      	mov.n	a7, a8
+    tr = _lv_ll_ins_head(&LV_GC_ROOT(_lv_obj_style_trans_ll));
+  ee:	0000a1        	l32r	a10, fffc00f0 <_lv_obj_style_create_transition+0xfffc00f0>
+  f1:	000081        	l32r	a8, fffc00f4 <_lv_obj_style_create_transition+0xfffc00f4>
+  f4:	0008e0        	callx8	a8
+  f7:	0a4d      	mov.n	a4, a10
+    LV_ASSERT_MALLOC(tr);
+  f9:	1acc      	bnez.n	a10, fe <_lv_obj_style_create_transition+0xfe>
+  fb:	ffff06        	j	fb <_lv_obj_style_create_transition+0xfb>
+    tr->start_value = v1;
+  fe:	3a59      	s32i.n	a5, a10, 12
+    tr->end_value = v2;
+ 100:	4a79      	s32i.n	a7, a10, 16
+    tr->obj = obj;
+ 102:	0a29      	s32i.n	a2, a10, 0
+    tr->prop = tr_dsc->prop;
+ 104:	2628      	l32i.n	a2, a6, 8
+ 106:	1a29      	s32i.n	a2, a10, 4
+    tr->selector = part;
+ 108:	2a39      	s32i.n	a3, a10, 8
+    lv_anim_init(&a);
+ 10a:	01ad      	mov.n	a10, a1
+ 10c:	000081        	l32r	a8, fffc010c <_lv_obj_style_create_transition+0xfffc010c>
+ 10f:	0008e0        	callx8	a8
+    a->var = var;
+ 112:	0149      	s32i.n	a4, a1, 0
+    a->exec_cb = exec_cb;
+ 114:	000021        	l32r	a2, fffc0114 <_lv_obj_style_create_transition+0xfffc0114>
+ 117:	1129      	s32i.n	a2, a1, 4
+    a->start_cb = start_cb;
+ 119:	000021        	l32r	a2, fffc011c <_lv_obj_style_create_transition+0xfffc011c>
+ 11c:	2129      	s32i.n	a2, a1, 8
+    a->ready_cb = ready_cb;
+ 11e:	000021        	l32r	a2, fffc0120 <_lv_obj_style_create_transition+0xfffc0120>
+ 121:	3129      	s32i.n	a2, a1, 12
+    a->start_value = start;
+ 123:	020c      	movi.n	a2, 0
+ 125:	8129      	s32i.n	a2, a1, 32
+    a->current_value = start;
+ 127:	9129      	s32i.n	a2, a1, 36
+    a->end_value = end;
+ 129:	ffa022        	movi	a2, 255
+ 12c:	a129      	s32i.n	a2, a1, 40
+    lv_anim_set_time(&a, tr_dsc->time);
+ 12e:	001622        	l16ui	a2, a6, 0
+    a->time = duration;
+ 131:	b129      	s32i.n	a2, a1, 44
+    lv_anim_set_delay(&a, tr_dsc->delay);
+ 133:	011622        	l16ui	a2, a6, 2
+    a->act_time = -(int32_t)(delay);
+ 136:	602020        	neg	a2, a2
+ 139:	c129      	s32i.n	a2, a1, 48
+    lv_anim_set_path_cb(&a, tr_dsc->path_cb);
+ 13b:	3628      	l32i.n	a2, a6, 12
+    a->path_cb = path_cb;
+ 13d:	7129      	s32i.n	a2, a1, 28
+ * @param en        true: apply the start value immediately in `lv_anim_start`;
+ *                  false: apply the start value only when `delay` ms is elapsed and the animations really starts
+ */
+static inline void lv_anim_set_early_apply(lv_anim_t * a, bool en)
+{
+    a->early_apply = en;
+ 13f:	420122        	l8ui	a2, a1, 66
+ 142:	e37c      	movi.n	a3, -2
+ 144:	102230        	and	a2, a2, a3
+ 147:	424122        	s8i	a2, a1, 66
+    a.user_data = tr_dsc->user_data;
+ 14a:	4628      	l32i.n	a2, a6, 16
+ 14c:	6129      	s32i.n	a2, a1, 24
+    lv_anim_start(&a);
+ 14e:	01ad      	mov.n	a10, a1
+ 150:	000081        	l32r	a8, fffc0150 <_lv_obj_style_create_transition+0xfffc0150>
+ 153:	0008e0        	callx8	a8
+}
+ 156:	f01d      	retw.n
+
+Disassembly of section .text._lv_obj_style_apply_color_filter:
+
+00000000 <_lv_obj_style_apply_color_filter>:
+{
+   0:	004136        	entry	a1, 32
+    if(obj == NULL) return v;
+   3:	52cc      	bnez.n	a2, c <_lv_obj_style_apply_color_filter+0xc>
+   5:	042d      	mov.n	a2, a4
+   7:	001106        	j	4f <_lv_obj_style_apply_color_filter+0x4f>
+   a:	00          	.byte 00
+   b:	00          	.byte 00
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_COLOR_FILTER_DSC);
+   c:	62a0c2        	movi	a12, 98
+   f:	03bd      	mov.n	a11, a3
+  11:	02ad      	mov.n	a10, a2
+  13:	000081        	l32r	a8, fffc0014 <_lv_obj_style_apply_color_filter+0xfffc0014>
+  16:	0008e0        	callx8	a8
+  19:	0a5d      	mov.n	a5, a10
+    if(f && f->filter_cb) {
+  1b:	eaac      	beqz.n	a10, 4d <_lv_obj_style_apply_color_filter+0x4d>
+  1d:	0a88      	l32i.n	a8, a10, 0
+  1f:	02a816        	beqz	a8, 4d <_lv_obj_style_apply_color_filter+0x4d>
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_COLOR_FILTER_OPA);
+  22:	63a0c2        	movi	a12, 99
+  25:	03bd      	mov.n	a11, a3
+  27:	20a220        	or	a10, a2, a2
+  2a:	000081        	l32r	a8, fffc002c <_lv_obj_style_apply_color_filter+0xfffc002c>
+  2d:	0008e0        	callx8	a8
+    return (lv_opa_t)v.num;
+  30:	7420a0        	extui	a2, a10, 0, 8
+        if(f_opa != 0) v.color = f->filter_cb(f, v.color, f_opa);
+  33:	629c      	beqz.n	a2, 4d <_lv_obj_style_apply_color_filter+0x4d>
+  35:	0528      	l32i.n	a2, a5, 0
+  37:	74c0a0        	extui	a12, a10, 0, 8
+  3a:	04bd      	mov.n	a11, a4
+  3c:	05ad      	mov.n	a10, a5
+  3e:	0002e0        	callx8	a2
+  41:	f4a0a0        	extui	a10, a10, 0, 16
+  44:	000021        	l32r	a2, fffc0044 <_lv_obj_style_apply_color_filter+0xfffc0044>
+  47:	102420        	and	a2, a4, a2
+  4a:	2042a0        	or	a4, a2, a10
+    return v;
+  4d:	042d      	mov.n	a2, a4
+}
+  4f:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_fade_out:
+
+00000000 <lv_obj_fade_out>:
+{
+   0:	00e136        	entry	a1, 112
+    lv_anim_init(&a);
+   3:	20a110        	or	a10, a1, a1
+   6:	000081        	l32r	a8, fffc0008 <lv_obj_fade_out+0xfffc0008>
+   9:	0008e0        	callx8	a8
+    a->var = var;
+   c:	0129      	s32i.n	a2, a1, 0
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_OPA);
+   e:	60a0c2        	movi	a12, 96
+  11:	0b0c      	movi.n	a11, 0
+  13:	20a220        	or	a10, a2, a2
+  16:	000081        	l32r	a8, fffc0018 <lv_obj_fade_out+0xfffc0018>
+  19:	0008e0        	callx8	a8
+    return (lv_opa_t)v.num;
+  1c:	74a0a0        	extui	a10, a10, 0, 8
+    a->start_value = start;
+  1f:	81a9      	s32i.n	a10, a1, 32
+    a->current_value = start;
+  21:	91a9      	s32i.n	a10, a1, 36
+    a->end_value = end;
+  23:	020c      	movi.n	a2, 0
+  25:	a129      	s32i.n	a2, a1, 40
+    a->exec_cb = exec_cb;
+  27:	000021        	l32r	a2, fffc0028 <lv_obj_fade_out+0xfffc0028>
+  2a:	1129      	s32i.n	a2, a1, 4
+    a->time = duration;
+  2c:	b139      	s32i.n	a3, a1, 44
+    a->act_time = -(int32_t)(delay);
+  2e:	604040        	neg	a4, a4
+  31:	c149      	s32i.n	a4, a1, 48
+    lv_anim_start(&a);
+  33:	20a110        	or	a10, a1, a1
+  36:	000081        	l32r	a8, fffc0038 <lv_obj_fade_out+0xfffc0038>
+  39:	0008e0        	callx8	a8
+}
+  3c:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_refresh_style:
+
+00000000 <lv_obj_refresh_style>:
+{
+   0:	006136        	entry	a1, 48
+    if(!style_refr) return;
+   3:	000051        	l32r	a5, fffc0004 <lv_obj_refresh_style+0xfffc0004>
+   6:	000552        	l8ui	a5, a5, 0
+   9:	18d516        	beqz	a5, 19a <lv_obj_refresh_style+0x19a>
+    lv_obj_invalidate(obj);
+   c:	02ad      	mov.n	a10, a2
+   e:	000081        	l32r	a8, fffc0010 <lv_obj_refresh_style+0xfffc0010>
+  11:	0008e0        	callx8	a8
+    lv_part_t part = lv_obj_style_get_selector_part(selector);
+  14:	03ad      	mov.n	a10, a3
+  16:	000081        	l32r	a8, fffc0018 <lv_obj_refresh_style+0xfffc0018>
+  19:	0008e0        	callx8	a8
+  1c:	0a6d      	mov.n	a6, a10
+  1e:	04ad      	mov.n	a10, a4
+  20:	000081        	l32r	a8, fffc0020 <lv_obj_refresh_style+0xfffc0020>
+  23:	0008e0        	callx8	a8
+  26:	430c      	movi.n	a3, 4
+  28:	103a30        	and	a3, a10, a3
+  2b:	743030        	extui	a3, a3, 0, 8
+  2e:	150c      	movi.n	a5, 1
+  30:	070c      	movi.n	a7, 0
+  32:	078d      	mov.n	a8, a7
+  34:	938530        	movnez	a8, a5, a3
+  37:	748080        	extui	a8, a8, 0, 8
+  3a:	3189      	s32i.n	a8, a1, 12
+  3c:	04ad      	mov.n	a10, a4
+  3e:	000081        	l32r	a8, fffc0040 <lv_obj_refresh_style+0xfffc0040>
+  41:	0008e0        	callx8	a8
+  44:	280c      	movi.n	a8, 2
+  46:	10aa80        	and	a10, a10, a8
+  49:	74a0a0        	extui	a10, a10, 0, 8
+  4c:	01a9      	s32i.n	a10, a1, 0
+  4e:	8357a0        	moveqz	a5, a7, a10
+  51:	747050        	extui	a7, a5, 0, 8
+  54:	04ad      	mov.n	a10, a4
+  56:	000081        	l32r	a8, fffc0058 <lv_obj_refresh_style+0xfffc0058>
+  59:	0008e0        	callx8	a8
+  5c:	04a0a0        	extui	a10, a10, 0, 1
+  5f:	11a9      	s32i.n	a10, a1, 4
+  61:	04ad      	mov.n	a10, a4
+  63:	000081        	l32r	a8, fffc0064 <lv_obj_refresh_style+0xfffc0064>
+  66:	0008e0        	callx8	a8
+  69:	051c      	movi.n	a5, 16
+  6b:	10aa50        	and	a10, a10, a5
+  6e:	74a0a0        	extui	a10, a10, 0, 8
+  71:	21a9      	s32i.n	a10, a1, 8
+    if(is_layout_refr) {
+  73:	05a316        	beqz	a3, d1 <lv_obj_refresh_style+0xd1>
+        if(part == LV_PART_ANY ||
+  76:	000081        	l32r	a8, fffc0078 <lv_obj_refresh_style+0xfffc0078>
+  79:	868a      	add.n	a8, a6, a8
+  7b:	150c      	movi.n	a5, 1
+  7d:	090c      	movi.n	a9, 0
+  7f:	09ad      	mov.n	a10, a9
+  81:	83a580        	moveqz	a10, a5, a8
+           part == LV_PART_MAIN ||
+  84:	935960        	movnez	a5, a9, a6
+        if(part == LV_PART_ANY ||
+  87:	2055a0        	or	a5, a5, a10
+  8a:	2f9597        	bne	a5, a9, bd <lv_obj_refresh_style+0xbd>
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_HEIGHT);
+  8d:	4c0c      	movi.n	a12, 4
+  8f:	09bd      	mov.n	a11, a9
+  91:	02ad      	mov.n	a10, a2
+  93:	000081        	l32r	a8, fffc0094 <lv_obj_refresh_style+0xfffc0094>
+  96:	0008e0        	callx8	a8
+    return (lv_coord_t)v.num;
+  99:	23aa80        	sext	a10, a10, 15
+           part == LV_PART_MAIN ||
+  9c:	000051        	l32r	a5, fffc009c <lv_obj_refresh_style+0xfffc009c>
+  9f:	235580        	sext	a5, a5, 15
+  a2:	171a57        	beq	a10, a5, bd <lv_obj_refresh_style+0xbd>
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_WIDTH);
+  a5:	1c0c      	movi.n	a12, 1
+  a7:	0b0c      	movi.n	a11, 0
+  a9:	02ad      	mov.n	a10, a2
+  ab:	000081        	l32r	a8, fffc00ac <lv_obj_refresh_style+0xfffc00ac>
+  ae:	0008e0        	callx8	a8
+    return (lv_coord_t)v.num;
+  b1:	23aa80        	sext	a10, a10, 15
+           lv_obj_get_style_height(obj, 0) == LV_SIZE_CONTENT ||
+  b4:	000051        	l32r	a5, fffc00b4 <lv_obj_refresh_style+0xfffc00b4>
+  b7:	235580        	sext	a5, a5, 15
+  ba:	139a57        	bne	a10, a5, d1 <lv_obj_refresh_style+0xd1>
+            lv_event_send(obj, LV_EVENT_STYLE_CHANGED, NULL);
+  bd:	0c0c      	movi.n	a12, 0
+  bf:	ab2c      	movi.n	a11, 42
+  c1:	02ad      	mov.n	a10, a2
+  c3:	000081        	l32r	a8, fffc00c4 <lv_obj_refresh_style+0xfffc00c4>
+  c6:	0008e0        	callx8	a8
+            lv_obj_mark_layout_as_dirty(obj);
+  c9:	02ad      	mov.n	a10, a2
+  cb:	000081        	l32r	a8, fffc00cc <lv_obj_refresh_style+0xfffc00cc>
+  ce:	0008e0        	callx8	a8
+    if((part == LV_PART_ANY || part == LV_PART_MAIN) && (prop == LV_STYLE_PROP_ANY || is_layout_refr)) {
+  d1:	000081        	l32r	a8, fffc00d4 <lv_obj_refresh_style+0xfffc00d4>
+  d4:	868a      	add.n	a8, a6, a8
+  d6:	150c      	movi.n	a5, 1
+  d8:	090c      	movi.n	a9, 0
+  da:	09ad      	mov.n	a10, a9
+  dc:	83a580        	moveqz	a10, a5, a8
+  df:	935960        	movnez	a5, a9, a6
+  e2:	2055a0        	or	a5, a5, a10
+  e5:	231597        	beq	a5, a9, 10c <lv_obj_refresh_style+0x10c>
+  e8:	000091        	l32r	a9, fffc00e8 <lv_obj_refresh_style+0xfffc00e8>
+  eb:	949a      	add.n	a9, a4, a9
+  ed:	180c      	movi.n	a8, 1
+  ef:	0a0c      	movi.n	a10, 0
+  f1:	938a90        	movnez	a8, a10, a9
+  f4:	3198      	l32i.n	a9, a1, 12
+  f6:	208890        	or	a8, a8, a9
+  f9:	0f18a7        	beq	a8, a10, 10c <lv_obj_refresh_style+0x10c>
+        lv_obj_t * parent = lv_obj_get_parent(obj);
+  fc:	02ad      	mov.n	a10, a2
+  fe:	000081        	l32r	a8, fffc0100 <lv_obj_refresh_style+0xfffc0100>
+ 101:	0008e0        	callx8	a8
+        if(parent) lv_obj_mark_layout_as_dirty(parent);
+ 104:	4a8c      	beqz.n	a10, 10c <lv_obj_refresh_style+0x10c>
+ 106:	000081        	l32r	a8, fffc0108 <lv_obj_refresh_style+0xfffc0108>
+ 109:	0008e0        	callx8	a8
+    if((part == LV_PART_ANY || part == LV_PART_MAIN) && is_layer_refr) {
+ 10c:	048516        	beqz	a5, 158 <lv_obj_refresh_style+0x158>
+ 10f:	2158      	l32i.n	a5, a1, 8
+ 111:	043516        	beqz	a5, 158 <lv_obj_refresh_style+0x158>
+        lv_layer_type_t layer_type = calculate_layer_type(obj);
+ 114:	02ad      	mov.n	a10, a2
+ 116:	000081        	l32r	a8, fffc0118 <lv_obj_refresh_style+0xfffc0118>
+ 119:	0008e0        	callx8	a8
+ 11c:	0a5d      	mov.n	a5, a10
+        if(obj->spec_attr) obj->spec_attr->layer_type = layer_type;
+ 11e:	2288      	l32i.n	a8, a2, 8
+ 120:	489c      	beqz.n	a8, 138 <lv_obj_refresh_style+0x138>
+ 122:	1450a0        	extui	a5, a10, 0, 2
+ 125:	0195a0        	slli	a9, a5, 22
+ 128:	6858      	l32i.n	a5, a8, 24
+ 12a:	0000a1        	l32r	a10, fffc012c <lv_obj_refresh_style+0xfffc012c>
+ 12d:	1055a0        	and	a5, a5, a10
+ 130:	205590        	or	a5, a5, a9
+ 133:	6859      	s32i.n	a5, a8, 24
+ 135:	0007c6        	j	158 <lv_obj_refresh_style+0x158>
+        else if(layer_type != LV_LAYER_TYPE_NONE) {
+ 138:	ca9c      	beqz.n	a10, 158 <lv_obj_refresh_style+0x158>
+            lv_obj_allocate_spec_attr(obj);
+ 13a:	02ad      	mov.n	a10, a2
+ 13c:	000081        	l32r	a8, fffc013c <lv_obj_refresh_style+0xfffc013c>
+ 13f:	0008e0        	callx8	a8
+            obj->spec_attr->layer_type = layer_type;
+ 142:	2298      	l32i.n	a9, a2, 8
+ 144:	145050        	extui	a5, a5, 0, 2
+ 147:	0155a0        	slli	a5, a5, 22
+ 14a:	062982        	l32i	a8, a9, 24
+ 14d:	0000a1        	l32r	a10, fffc0150 <lv_obj_refresh_style+0xfffc0150>
+ 150:	1088a0        	and	a8, a8, a10
+ 153:	205850        	or	a5, a8, a5
+ 156:	6959      	s32i.n	a5, a9, 24
+    if(prop == LV_STYLE_PROP_ANY || is_ext_draw) {
+ 158:	000081        	l32r	a8, fffc0158 <lv_obj_refresh_style+0xfffc0158>
+ 15b:	848a      	add.n	a8, a4, a8
+ 15d:	150c      	movi.n	a5, 1
+ 15f:	090c      	movi.n	a9, 0
+ 161:	935980        	movnez	a5, a9, a8
+ 164:	205570        	or	a5, a5, a7
+ 167:	071597        	beq	a5, a9, 172 <lv_obj_refresh_style+0x172>
+        lv_obj_refresh_ext_draw_size(obj);
+ 16a:	02ad      	mov.n	a10, a2
+ 16c:	000081        	l32r	a8, fffc016c <lv_obj_refresh_style+0xfffc016c>
+ 16f:	0008e0        	callx8	a8
+    lv_obj_invalidate(obj);
+ 172:	02ad      	mov.n	a10, a2
+ 174:	000081        	l32r	a8, fffc0174 <lv_obj_refresh_style+0xfffc0174>
+ 177:	0008e0        	callx8	a8
+    if(prop == LV_STYLE_PROP_ANY || (is_inheritable && (is_ext_draw || is_layout_refr))) {
+ 17a:	000051        	l32r	a5, fffc017c <lv_obj_refresh_style+0xfffc017c>
+ 17d:	0b1457        	beq	a4, a5, 18c <lv_obj_refresh_style+0x18c>
+ 180:	1148      	l32i.n	a4, a1, 4
+ 182:	449c      	beqz.n	a4, 19a <lv_obj_refresh_style+0x19a>
+ 184:	002152        	l32i	a5, a1, 0
+ 187:	203530        	or	a3, a5, a3
+ 18a:	c38c      	beqz.n	a3, 19a <lv_obj_refresh_style+0x19a>
+        if(part != LV_PART_SCROLLBAR) {
+ 18c:	000031        	l32r	a3, fffc018c <lv_obj_refresh_style+0xfffc018c>
+ 18f:	071637        	beq	a6, a3, 19a <lv_obj_refresh_style+0x19a>
+            refresh_children_style(obj);
+ 192:	02ad      	mov.n	a10, a2
+ 194:	000081        	l32r	a8, fffc0194 <lv_obj_refresh_style+0xfffc0194>
+ 197:	0008e0        	callx8	a8
+}
+ 19a:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_add_style:
+
+00000000 <lv_obj_add_style>:
+{
+   0:	004136        	entry	a1, 32
+    trans_del(obj, selector, LV_STYLE_PROP_ANY, NULL);
+   3:	0d0c      	movi.n	a13, 0
+   5:	0000c1        	l32r	a12, fffc0008 <lv_obj_add_style+0xfffc0008>
+   8:	04bd      	mov.n	a11, a4
+   a:	02ad      	mov.n	a10, a2
+   c:	000081        	l32r	a8, fffc000c <lv_obj_add_style+0xfffc000c>
+   f:	0008e0        	callx8	a8
+    for(i = 0; i < obj->style_cnt; i++) {
+  12:	050c      	movi.n	a5, 0
+  14:	000406        	j	28 <lv_obj_add_style+0x28>
+  17:	00          	.byte 00
+  18:	00          	.byte 00
+        if(obj->styles[i].is_trans) continue;
+  19:	3298      	l32i.n	a9, a2, 12
+  1b:	b09590        	addx8	a9, a5, a9
+  1e:	1998      	l32i.n	a9, a9, 4
+  20:	02f997        	bbsi	a9, 25, 26 <lv_obj_add_style+0x26>
+        if(obj->styles[i].is_local) continue;
+  23:	097987        	bbci	a9, 24, 30 <lv_obj_add_style+0x30>
+    for(i = 0; i < obj->style_cnt; i++) {
+  26:	551b      	addi.n	a5, a5, 1
+  28:	8288      	l32i.n	a8, a2, 32
+  2a:	558480        	extui	a8, a8, 20, 6
+  2d:	e83587        	bltu	a5, a8, 19 <lv_obj_add_style+0x19>
+    obj->style_cnt++;
+  30:	881b      	addi.n	a8, a8, 1
+  32:	54b080        	extui	a11, a8, 0, 6
+  35:	118bc0        	slli	a8, a11, 4
+  38:	111292        	l16ui	a9, a2, 34
+  3b:	0fac62        	movi	a6, 0xfffffc0f
+  3e:	109960        	and	a9, a9, a6
+  41:	208980        	or	a8, a9, a8
+  44:	115282        	s16i	a8, a2, 34
+    obj->styles = lv_mem_realloc(obj->styles, obj->style_cnt * sizeof(_lv_obj_style_t));
+  47:	11bbd0        	slli	a11, a11, 3
+  4a:	32a8      	l32i.n	a10, a2, 12
+  4c:	000081        	l32r	a8, fffc004c <lv_obj_add_style+0xfffc004c>
+  4f:	0008e0        	callx8	a8
+  52:	32a9      	s32i.n	a10, a2, 12
+    for(j = obj->style_cnt - 1; j > i ; j--) {
+  54:	82a8      	l32i.n	a10, a2, 32
+  56:	55a4a0        	extui	a10, a10, 20, 6
+  59:	aa0b      	addi.n	a10, a10, -1
+  5b:	000586        	j	75 <lv_obj_add_style+0x75>
+        obj->styles[j] = obj->styles[j - 1];
+  5e:	3298      	l32i.n	a9, a2, 12
+  60:	000081        	l32r	a8, fffc0060 <lv_obj_add_style+0xfffc0060>
+  63:	8a8a      	add.n	a8, a10, a8
+  65:	b08890        	addx8	a8, a8, a9
+  68:	b09a90        	addx8	a9, a10, a9
+  6b:	08b8      	l32i.n	a11, a8, 0
+  6d:	1888      	l32i.n	a8, a8, 4
+  6f:	09b9      	s32i.n	a11, a9, 0
+  71:	1989      	s32i.n	a8, a9, 4
+    for(j = obj->style_cnt - 1; j > i ; j--) {
+  73:	aa0b      	addi.n	a10, a10, -1
+  75:	e535a7        	bltu	a5, a10, 5e <lv_obj_add_style+0x5e>
+    lv_memset_00(&obj->styles[i], sizeof(_lv_obj_style_t));
+  78:	32a8      	l32i.n	a10, a2, 12
+  7a:	1165d0        	slli	a6, a5, 3
+  7d:	8b0c      	movi.n	a11, 8
+  7f:	b0a5a0        	addx8	a10, a5, a10
+  82:	000081        	l32r	a8, fffc0084 <lv_obj_add_style+0xfffc0084>
+  85:	0008e0        	callx8	a8
+    obj->styles[i].style = style;
+  88:	3258      	l32i.n	a5, a2, 12
+  8a:	556a      	add.n	a5, a5, a6
+  8c:	0539      	s32i.n	a3, a5, 0
+    obj->styles[i].selector = selector;
+  8e:	3258      	l32i.n	a5, a2, 12
+  90:	556a      	add.n	a5, a5, a6
+  92:	000081        	l32r	a8, fffc0094 <lv_obj_add_style+0xfffc0094>
+  95:	108480        	and	a8, a4, a8
+  98:	1538      	l32i.n	a3, a5, 4
+  9a:	000061        	l32r	a6, fffc009c <lv_obj_add_style+0xfffc009c>
+  9d:	103360        	and	a3, a3, a6
+  a0:	203380        	or	a3, a3, a8
+  a3:	1539      	s32i.n	a3, a5, 4
+    lv_obj_refresh_style(obj, selector, LV_STYLE_PROP_ANY);
+  a5:	0000c1        	l32r	a12, fffc00a8 <lv_obj_add_style+0xfffc00a8>
+  a8:	04bd      	mov.n	a11, a4
+  aa:	02ad      	mov.n	a10, a2
+  ac:	000081        	l32r	a8, fffc00ac <lv_obj_add_style+0xfffc00ac>
+  af:	0008e0        	callx8	a8
+}
+  b2:	f01d      	retw.n
+
+Disassembly of section .text.report_style_change_core:
+
+00000000 <report_style_change_core>:
+{
+   0:	004136        	entry	a1, 32
+    for(i = 0; i < obj->style_cnt; i++) {
+   3:	090c      	movi.n	a9, 0
+   5:	0007c6        	j	28 <report_style_change_core+0x28>
+        if(style == NULL || obj->styles[i].style == style) {
+   8:	828c      	beqz.n	a2, 14 <report_style_change_core+0x14>
+   a:	3388      	l32i.n	a8, a3, 12
+   c:	b08980        	addx8	a8, a9, a8
+   f:	0888      	l32i.n	a8, a8, 0
+  11:	119827        	bne	a8, a2, 26 <report_style_change_core+0x26>
+            lv_obj_refresh_style(obj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+  14:	0000c1        	l32r	a12, fffc0014 <report_style_change_core+0xfffc0014>
+  17:	0000b1        	l32r	a11, fffc0018 <report_style_change_core+0xfffc0018>
+  1a:	03ad      	mov.n	a10, a3
+  1c:	000081        	l32r	a8, fffc001c <report_style_change_core+0xfffc001c>
+  1f:	0008e0        	callx8	a8
+            break;
+  22:	000286        	j	30 <report_style_change_core+0x30>
+  25:	00          	.byte 00
+    for(i = 0; i < obj->style_cnt; i++) {
+  26:	991b      	addi.n	a9, a9, 1
+  28:	8388      	l32i.n	a8, a3, 32
+  2a:	558480        	extui	a8, a8, 20, 6
+  2d:	d73987        	bltu	a9, a8, 8 <report_style_change_core+0x8>
+    uint32_t child_cnt = lv_obj_get_child_cnt(obj);
+  30:	03ad      	mov.n	a10, a3
+  32:	000081        	l32r	a8, fffc0034 <report_style_change_core+0xfffc0034>
+  35:	0008e0        	callx8	a8
+  38:	0a5d      	mov.n	a5, a10
+    for(i = 0; i < child_cnt; i++) {
+  3a:	040c      	movi.n	a4, 0
+  3c:	000406        	j	50 <report_style_change_core+0x50>
+  3f:	00          	.byte 00
+        report_style_change_core(style, obj->spec_attr->children[i]);
+  40:	2388      	l32i.n	a8, a3, 8
+  42:	0888      	l32i.n	a8, a8, 0
+  44:	a08480        	addx4	a8, a4, a8
+  47:	08b8      	l32i.n	a11, a8, 0
+  49:	02ad      	mov.n	a10, a2
+  4b:	fffb65        	call8	0 <report_style_change_core>
+    for(i = 0; i < child_cnt; i++) {
+  4e:	441b      	addi.n	a4, a4, 1
+  50:	ec3457        	bltu	a4, a5, 40 <report_style_change_core+0x40>
+}
+  53:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_report_style_change:
+
+00000000 <lv_obj_report_style_change>:
+{
+   0:	004136        	entry	a1, 32
+    if(!style_refr) return;
+   3:	000031        	l32r	a3, fffc0004 <lv_obj_report_style_change+0xfffc0004>
+   6:	000332        	l8ui	a3, a3, 0
+   9:	43bc      	beqz.n	a3, 41 <lv_obj_report_style_change+0x41>
+    lv_disp_t * d = lv_disp_get_next(NULL);
+   b:	00a0a2        	movi	a10, 0
+   e:	000081        	l32r	a8, fffc0010 <lv_obj_report_style_change+0xfffc0010>
+  11:	0008e0        	callx8	a8
+  14:	0a4d      	mov.n	a4, a10
+    while(d) {
+  16:	000906        	j	3e <lv_obj_report_style_change+0x3e>
+            report_style_change_core(style, d->screens[i]);
+  19:	3488      	l32i.n	a8, a4, 12
+  1b:	a08380        	addx4	a8, a3, a8
+  1e:	08b8      	l32i.n	a11, a8, 0
+  20:	02ad      	mov.n	a10, a2
+  22:	000081        	l32r	a8, fffc0024 <lv_obj_report_style_change+0xfffc0024>
+  25:	0008e0        	callx8	a8
+        for(i = 0; i < d->screen_cnt; i++) {
+  28:	331b      	addi.n	a3, a3, 1
+  2a:	000046        	j	2f <lv_obj_report_style_change+0x2f>
+  2d:	030c      	movi.n	a3, 0
+  2f:	9488      	l32i.n	a8, a4, 36
+  31:	e43387        	bltu	a3, a8, 19 <lv_obj_report_style_change+0x19>
+        d = lv_disp_get_next(d);
+  34:	04ad      	mov.n	a10, a4
+  36:	000081        	l32r	a8, fffc0038 <lv_obj_report_style_change+0xfffc0038>
+  39:	0008e0        	callx8	a8
+  3c:	0a4d      	mov.n	a4, a10
+    while(d) {
+  3e:	feb456        	bnez	a4, 2d <lv_obj_report_style_change+0x2d>
+}
+  41:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_set_local_style_prop:
+
+00000000 <lv_obj_set_local_style_prop>:
+{
+   0:	004136        	entry	a1, 32
+    lv_style_t * style = get_local_style(obj, selector);
+   3:	05bd      	mov.n	a11, a5
+   5:	20a220        	or	a10, a2, a2
+   8:	000081        	l32r	a8, fffc0008 <lv_obj_set_local_style_prop+0xfffc0008>
+   b:	0008e0        	callx8	a8
+    lv_style_set_prop(style, prop, value);
+   e:	04cd      	mov.n	a12, a4
+  10:	03bd      	mov.n	a11, a3
+  12:	000081        	l32r	a8, fffc0014 <lv_obj_set_local_style_prop+0xfffc0014>
+  15:	0008e0        	callx8	a8
+    lv_obj_refresh_style(obj, selector, prop);
+  18:	03cd      	mov.n	a12, a3
+  1a:	05bd      	mov.n	a11, a5
+  1c:	02ad      	mov.n	a10, a2
+  1e:	000081        	l32r	a8, fffc0020 <lv_obj_set_local_style_prop+0xfffc0020>
+  21:	0008e0        	callx8	a8
+}
+  24:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_set_local_style_prop_meta:
+
+00000000 <lv_obj_set_local_style_prop_meta>:
+{
+   0:	004136        	entry	a1, 32
+   3:	f44040        	extui	a4, a4, 0, 16
+    lv_style_t * style = get_local_style(obj, selector);
+   6:	05bd      	mov.n	a11, a5
+   8:	02ad      	mov.n	a10, a2
+   a:	000081        	l32r	a8, fffc000c <lv_obj_set_local_style_prop_meta+0xfffc000c>
+   d:	0008e0        	callx8	a8
+    lv_style_set_prop_meta(style, prop, meta);
+  10:	04cd      	mov.n	a12, a4
+  12:	03bd      	mov.n	a11, a3
+  14:	000081        	l32r	a8, fffc0014 <lv_obj_set_local_style_prop_meta+0xfffc0014>
+  17:	0008e0        	callx8	a8
+    lv_obj_refresh_style(obj, selector, prop);
+  1a:	03cd      	mov.n	a12, a3
+  1c:	05bd      	mov.n	a11, a5
+  1e:	02ad      	mov.n	a10, a2
+  20:	000081        	l32r	a8, fffc0020 <lv_obj_set_local_style_prop_meta+0xfffc0020>
+  23:	0008e0        	callx8	a8
+}
+  26:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_remove_local_style_prop:
+
+00000000 <lv_obj_remove_local_style_prop>:
+{
+   0:	004136        	entry	a1, 32
+    for(i = 0; i < obj->style_cnt; i++) {
+   3:	090c      	movi.n	a9, 0
+   5:	0005c6        	j	20 <lv_obj_remove_local_style_prop+0x20>
+   8:	00          	.byte 00
+        if(obj->styles[i].is_local &&
+   9:	3288      	l32i.n	a8, a2, 12
+   b:	b08980        	addx8	a8, a9, a8
+   e:	18b8      	l32i.n	a11, a8, 4
+  10:	0a7b87        	bbci	a11, 24, 1e <lv_obj_remove_local_style_prop+0x1e>
+           obj->styles[i].selector == selector) {
+  13:	0b8d      	mov.n	a8, a11
+  15:	0000b1        	l32r	a11, fffc0018 <lv_obj_remove_local_style_prop+0xfffc0018>
+  18:	1088b0        	and	a8, a8, a11
+        if(obj->styles[i].is_local &&
+  1b:	091847        	beq	a8, a4, 28 <lv_obj_remove_local_style_prop+0x28>
+    for(i = 0; i < obj->style_cnt; i++) {
+  1e:	991b      	addi.n	a9, a9, 1
+  20:	82a8      	l32i.n	a10, a2, 32
+  22:	55a4a0        	extui	a10, a10, 20, 6
+  25:	e039a7        	bltu	a9, a10, 9 <lv_obj_remove_local_style_prop+0x9>
+    if(i == obj->style_cnt) return false;
+  28:	231a97        	beq	a10, a9, 4f <lv_obj_remove_local_style_prop+0x4f>
+    lv_res_t res = lv_style_remove_prop(obj->styles[i].style, prop);
+  2b:	3258      	l32i.n	a5, a2, 12
+  2d:	b09950        	addx8	a9, a9, a5
+  30:	03bd      	mov.n	a11, a3
+  32:	09a8      	l32i.n	a10, a9, 0
+  34:	000081        	l32r	a8, fffc0034 <lv_obj_remove_local_style_prop+0xfffc0034>
+  37:	0008e0        	callx8	a8
+  3a:	0a5d      	mov.n	a5, a10
+    if(res == LV_RES_OK) {
+  3c:	1a9c      	beqz.n	a10, 51 <lv_obj_remove_local_style_prop+0x51>
+        lv_obj_refresh_style(obj, selector, prop);
+  3e:	03cd      	mov.n	a12, a3
+  40:	20b440        	or	a11, a4, a4
+  43:	20a220        	or	a10, a2, a2
+  46:	000081        	l32r	a8, fffc0048 <lv_obj_remove_local_style_prop+0xfffc0048>
+  49:	0008e0        	callx8	a8
+  4c:	000046        	j	51 <lv_obj_remove_local_style_prop+0x51>
+    if(i == obj->style_cnt) return false;
+  4f:	050c      	movi.n	a5, 0
+}
+  51:	052d      	mov.n	a2, a5
+  53:	f01d      	retw.n
+
+Disassembly of section .text.fade_in_anim_ready:
+
+00000000 <fade_in_anim_ready>:
+
+static void fade_in_anim_ready(lv_anim_t * a)
+{
+   0:	004136        	entry	a1, 32
+    lv_obj_remove_local_style_prop(a->var, LV_STYLE_OPA, 0);
+   3:	0c0c      	movi.n	a12, 0
+   5:	60a0b2        	movi	a11, 96
+   8:	02a8      	l32i.n	a10, a2, 0
+   a:	000081        	l32r	a8, fffc000c <fade_in_anim_ready+0xfffc000c>
+   d:	0008e0        	callx8	a8
+}
+  10:	f01d      	retw.n
+
+Disassembly of section .text.trans_anim_cb:
+
+00000000 <trans_anim_cb>:
+{
+   0:	006136        	entry	a1, 48
+    lv_obj_t * obj = tr->obj;
+   3:	0268      	l32i.n	a6, a2, 0
+    for(i = 0; i < obj->style_cnt; i++) {
+   5:	080c      	movi.n	a8, 0
+   7:	005906        	j	16f <trans_anim_cb+0x16f>
+        if(obj->styles[i].is_trans == 0 || obj->styles[i].selector != tr->selector) continue;
+   a:	3648      	l32i.n	a4, a6, 12
+   c:	1178d0        	slli	a7, a8, 3
+   f:	b04840        	addx8	a4, a8, a4
+  12:	1458      	l32i.n	a5, a4, 4
+  14:	0a7597        	bbci	a5, 25, 22 <trans_anim_cb+0x22>
+  17:	000091        	l32r	a9, fffc0018 <trans_anim_cb+0xfffc0018>
+  1a:	105590        	and	a5, a5, a9
+  1d:	2298      	l32i.n	a9, a2, 8
+  1f:	051597        	beq	a5, a9, 28 <trans_anim_cb+0x28>
+    for(i = 0; i < obj->style_cnt; i++) {
+  22:	881b      	addi.n	a8, a8, 1
+  24:	0051c6        	j	16f <trans_anim_cb+0x16f>
+  27:	00          	.byte 00
+        switch(tr->prop) {
+  28:	1258      	l32i.n	a5, a2, 4
+  2a:	62a082        	movi	a8, 98
+  2d:	029587        	bne	a5, a8, 33 <trans_anim_cb+0x33>
+  30:	001f46        	j	b1 <trans_anim_cb+0xb1>
+  33:	4e3857        	bltu	a8, a5, 85 <trans_anim_cb+0x85>
+  36:	683c      	movi.n	a8, 54
+  38:	313857        	bltu	a8, a5, 6d <trans_anim_cb+0x6d>
+  3b:	02c5f6        	bgeui	a5, 32, 41 <trans_anim_cb+0x41>
+  3e:	003006        	j	102 <trans_anim_cb+0x102>
+  41:	000386        	j	53 <trans_anim_cb+0x53>
+  44:	bcc582        	addi	a8, a5, -68
+  47:	000091        	l32r	a9, fffc0048 <trans_anim_cb+0xfffc0048>
+  4a:	02d987        	bbs	a9, a8, 50 <trans_anim_cb+0x50>
+  4d:	002c46        	j	102 <trans_anim_cb+0x102>
+  50:	002046        	j	d5 <trans_anim_cb+0xd5>
+  53:	180c      	movi.n	a8, 1
+  55:	401500        	ssl	a5
+  58:	a18800        	sll	a8, a8
+  5b:	000091        	l32r	a9, fffc005c <trans_anim_cb+0xfffc005c>
+  5e:	738897        	bany	a8, a9, d5 <trans_anim_cb+0xd5>
+  61:	000091        	l32r	a9, fffc0064 <trans_anim_cb+0xfffc0064>
+  64:	028897        	bany	a8, a9, 6a <trans_anim_cb+0x6a>
+  67:	0025c6        	j	102 <trans_anim_cb+0x102>
+  6a:	0008c6        	j	91 <trans_anim_cb+0x91>
+  6d:	585c      	movi.n	a8, 85
+  6f:	0a3857        	bltu	a8, a5, 7d <trans_anim_cb+0x7d>
+  72:	484c      	movi.n	a8, 68
+  74:	02b587        	bgeu	a5, a8, 7a <trans_anim_cb+0x7a>
+  77:	0021c6        	j	102 <trans_anim_cb+0x102>
+  7a:	fff186        	j	44 <trans_anim_cb+0x44>
+  7d:	785c      	movi.n	a8, 87
+  7f:	1e1587        	beq	a5, a8, a1 <trans_anim_cb+0xa1>
+  82:	001f06        	j	102 <trans_anim_cb+0x102>
+  85:	67a082        	movi	a8, 103
+  88:	151587        	beq	a5, a8, a1 <trans_anim_cb+0xa1>
+  8b:	68a082        	movi	a8, 104
+  8e:	709587        	bne	a5, a8, 102 <trans_anim_cb+0x102>
+                if(v < 255) value_final.num = tr->start_value.num;
+  91:	fea082        	movi	a8, 254
+  94:	042837        	blt	a8, a3, 9c <trans_anim_cb+0x9c>
+  97:	3238      	l32i.n	a3, a2, 12
+  99:	002186        	j	123 <trans_anim_cb+0x123>
+                else value_final.num = tr->end_value.num;
+  9c:	4238      	l32i.n	a3, a2, 16
+  9e:	002046        	j	123 <trans_anim_cb+0x123>
+                if(v < 255) value_final.ptr = tr->start_value.ptr;
+  a1:	fea082        	movi	a8, 254
+  a4:	042837        	blt	a8, a3, ac <trans_anim_cb+0xac>
+  a7:	3238      	l32i.n	a3, a2, 12
+  a9:	001d86        	j	123 <trans_anim_cb+0x123>
+                else value_final.ptr = tr->end_value.ptr;
+  ac:	4238      	l32i.n	a3, a2, 16
+  ae:	001c46        	j	123 <trans_anim_cb+0x123>
+                if(tr->start_value.ptr == NULL) value_final.ptr = tr->end_value.ptr;
+  b1:	3288      	l32i.n	a8, a2, 12
+  b3:	38cc      	bnez.n	a8, ba <trans_anim_cb+0xba>
+  b5:	4238      	l32i.n	a3, a2, 16
+  b7:	001a06        	j	123 <trans_anim_cb+0x123>
+                else if(tr->end_value.ptr == NULL) value_final.ptr = tr->start_value.ptr;
+  ba:	4298      	l32i.n	a9, a2, 16
+  bc:	49cc      	bnez.n	a9, c4 <trans_anim_cb+0xc4>
+  be:	083d      	mov.n	a3, a8
+  c0:	0017c6        	j	123 <trans_anim_cb+0x123>
+  c3:	00          	.byte 00
+                else if(v < 128) value_final.ptr = tr->start_value.ptr;
+  c4:	7fa0a2        	movi	a10, 127
+  c7:	052a37        	blt	a10, a3, d0 <trans_anim_cb+0xd0>
+  ca:	083d      	mov.n	a3, a8
+  cc:	0014c6        	j	123 <trans_anim_cb+0x123>
+  cf:	00          	.byte 00
+                else value_final.ptr = tr->end_value.ptr;
+  d0:	093d      	mov.n	a3, a9
+  d2:	001346        	j	123 <trans_anim_cb+0x123>
+                if(v <= 0) value_final.color = tr->start_value.color;
+  d5:	0713e6        	bgei	a3, 1, e0 <trans_anim_cb+0xe0>
+  d8:	061232        	l16ui	a3, a2, 12
+  db:	001106        	j	123 <trans_anim_cb+0x123>
+  de:	00          	.byte 00
+  df:	00          	.byte 00
+                else if(v >= 255) value_final.color = tr->end_value.color;
+  e0:	fea082        	movi	a8, 254
+  e3:	06a837        	bge	a8, a3, ed <trans_anim_cb+0xed>
+  e6:	081232        	l16ui	a3, a2, 16
+  e9:	000d86        	j	123 <trans_anim_cb+0x123>
+  ec:	00          	.byte 00
+                else value_final.color = lv_color_mix(tr->end_value.color, tr->start_value.color, v);
+  ed:	74c030        	extui	a12, a3, 0, 8
+  f0:	0612b2        	l16ui	a11, a2, 12
+  f3:	0812a2        	l16ui	a10, a2, 16
+  f6:	000081        	l32r	a8, fffc00f8 <trans_anim_cb+0xfffc00f8>
+  f9:	0008e0        	callx8	a8
+  fc:	f430a0        	extui	a3, a10, 0, 16
+  ff:	000806        	j	123 <trans_anim_cb+0x123>
+                if(v == 0) value_final.num = tr->start_value.num;
+ 102:	33cc      	bnez.n	a3, 109 <trans_anim_cb+0x109>
+ 104:	3238      	l32i.n	a3, a2, 12
+ 106:	000646        	j	123 <trans_anim_cb+0x123>
+                else if(v == 255) value_final.num = tr->end_value.num;
+ 109:	ffa082        	movi	a8, 255
+ 10c:	049387        	bne	a3, a8, 114 <trans_anim_cb+0x114>
+ 10f:	4238      	l32i.n	a3, a2, 16
+ 111:	000386        	j	123 <trans_anim_cb+0x123>
+                else value_final.num = tr->start_value.num + ((int32_t)((int32_t)(tr->end_value.num - tr->start_value.num) * v) >> 8);
+ 114:	3298      	l32i.n	a9, a2, 12
+ 116:	4288      	l32i.n	a8, a2, 16
+ 118:	c08890        	sub	a8, a8, a9
+ 11b:	828830        	mull	a8, a8, a3
+ 11e:	218880        	srai	a8, a8, 8
+ 121:	398a      	add.n	a3, a9, a8
+        if(lv_style_get_prop(obj->styles[i].style, tr->prop, &old_value)) {
+ 123:	01cd      	mov.n	a12, a1
+ 125:	05bd      	mov.n	a11, a5
+ 127:	0024a2        	l32i	a10, a4, 0
+ 12a:	000081        	l32r	a8, fffc012c <trans_anim_cb+0xfffc012c>
+ 12d:	0008e0        	callx8	a8
+ 130:	ca8c      	beqz.n	a10, 140 <trans_anim_cb+0x140>
+            if(value_final.ptr == old_value.ptr && value_final.color.full == old_value.color.full &&
+ 132:	0148      	l32i.n	a4, a1, 0
+ 134:	0d9347        	bne	a3, a4, 145 <trans_anim_cb+0x145>
+ 137:	0f1347        	beq	a3, a4, 14a <trans_anim_cb+0x14a>
+        bool refr = true;
+ 13a:	150c      	movi.n	a5, 1
+ 13c:	000306        	j	14c <trans_anim_cb+0x14c>
+ 13f:	00          	.byte 00
+ 140:	150c      	movi.n	a5, 1
+ 142:	000186        	j	14c <trans_anim_cb+0x14c>
+ 145:	150c      	movi.n	a5, 1
+ 147:	000046        	j	14c <trans_anim_cb+0x14c>
+                refr = false;
+ 14a:	050c      	movi.n	a5, 0
+        lv_style_set_prop(obj->styles[i].style, tr->prop, value_final);
+ 14c:	3648      	l32i.n	a4, a6, 12
+ 14e:	447a      	add.n	a4, a4, a7
+ 150:	03cd      	mov.n	a12, a3
+ 152:	0122b2        	l32i	a11, a2, 4
+ 155:	0024a2        	l32i	a10, a4, 0
+ 158:	000081        	l32r	a8, fffc0158 <trans_anim_cb+0xfffc0158>
+ 15b:	0008e0        	callx8	a8
+        if(refr) lv_obj_refresh_style(tr->obj, tr->selector, tr->prop);
+ 15e:	859c      	beqz.n	a5, 17a <trans_anim_cb+0x17a>
+ 160:	12c8      	l32i.n	a12, a2, 4
+ 162:	22b8      	l32i.n	a11, a2, 8
+ 164:	02a8      	l32i.n	a10, a2, 0
+ 166:	000081        	l32r	a8, fffc0168 <trans_anim_cb+0xfffc0168>
+ 169:	0008e0        	callx8	a8
+        break;
+ 16c:	000286        	j	17a <trans_anim_cb+0x17a>
+    for(i = 0; i < obj->style_cnt; i++) {
+ 16f:	8648      	l32i.n	a4, a6, 32
+ 171:	554440        	extui	a4, a4, 20, 6
+ 174:	02b847        	bgeu	a8, a4, 17a <trans_anim_cb+0x17a>
+ 177:	ffa3c6        	j	a <trans_anim_cb+0xa>
+}
+ 17a:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_remove_style:
+
+00000000 <lv_obj_remove_style>:
+{
+   0:	008136        	entry	a1, 64
+   3:	2139      	s32i.n	a3, a1, 8
+    lv_state_t state = lv_obj_style_get_selector_state(selector);
+   5:	20a440        	or	a10, a4, a4
+   8:	000081        	l32r	a8, fffc0008 <lv_obj_remove_style+0xfffc0008>
+   b:	0008e0        	callx8	a8
+   e:	01a9      	s32i.n	a10, a1, 0
+    lv_part_t part = lv_obj_style_get_selector_part(selector);
+  10:	04ad      	mov.n	a10, a4
+  12:	000081        	l32r	a8, fffc0014 <lv_obj_remove_style+0xfffc0014>
+  15:	0008e0        	callx8	a8
+  18:	11a9      	s32i.n	a10, a1, 4
+    if(style && style->prop_cnt == 0) prop = LV_STYLE_PROP_INV;
+  1a:	b38c      	beqz.n	a3, 29 <lv_obj_remove_style+0x29>
+  1c:	070332        	l8ui	a3, a3, 7
+  1f:	e38c      	beqz.n	a3, 31 <lv_obj_remove_style+0x31>
+    lv_style_prop_t prop = LV_STYLE_PROP_ANY;
+  21:	000031        	l32r	a3, fffc0024 <lv_obj_remove_style+0xfffc0024>
+  24:	4139      	s32i.n	a3, a1, 16
+  26:	0002c6        	j	35 <lv_obj_remove_style+0x35>
+  29:	000041        	l32r	a4, fffc002c <lv_obj_remove_style+0xfffc002c>
+  2c:	4149      	s32i.n	a4, a1, 16
+  2e:	0000c6        	j	35 <lv_obj_remove_style+0x35>
+    if(style && style->prop_cnt == 0) prop = LV_STYLE_PROP_INV;
+  31:	050c      	movi.n	a5, 0
+  33:	4159      	s32i.n	a5, a1, 16
+    bool deleted = false;
+  35:	060c      	movi.n	a6, 0
+  37:	3169      	s32i.n	a6, a1, 12
+    uint32_t i = 0;
+  39:	063d      	mov.n	a3, a6
+    while(i <  obj->style_cnt) {
+  3b:	003b46        	j	12c <lv_obj_remove_style+0x12c>
+        lv_state_t state_act = lv_obj_style_get_selector_state(obj->styles[i].selector);
+  3e:	3258      	l32i.n	a5, a2, 12
+  40:	1173d0        	slli	a7, a3, 3
+  43:	b05350        	addx8	a5, a3, a5
+  46:	1548      	l32i.n	a4, a5, 4
+  48:	000061        	l32r	a6, fffc0048 <lv_obj_remove_style+0xfffc0048>
+  4b:	104460        	and	a4, a4, a6
+  4e:	04ad      	mov.n	a10, a4
+  50:	000081        	l32r	a8, fffc0050 <lv_obj_remove_style+0xfffc0050>
+  53:	0008e0        	callx8	a8
+  56:	0a6d      	mov.n	a6, a10
+        lv_part_t part_act = lv_obj_style_get_selector_part(obj->styles[i].selector);
+  58:	04ad      	mov.n	a10, a4
+  5a:	000081        	l32r	a8, fffc005c <lv_obj_remove_style+0xfffc005c>
+  5d:	0008e0        	callx8	a8
+        if((state != LV_STATE_ANY && state_act != state) ||
+  60:	000081        	l32r	a8, fffc0060 <lv_obj_remove_style+0xfffc0060>
+  63:	0148      	l32i.n	a4, a1, 0
+  65:	848a      	add.n	a8, a4, a8
+  67:	140c      	movi.n	a4, 1
+  69:	090c      	movi.n	a9, 0
+  6b:	09bd      	mov.n	a11, a9
+  6d:	93b480        	movnez	a11, a4, a8
+  70:	0188      	l32i.n	a8, a1, 0
+  72:	c06860        	sub	a6, a8, a6
+  75:	834960        	moveqz	a4, a9, a6
+  78:	2284b7        	bany	a4, a11, 9e <lv_obj_remove_style+0x9e>
+           (part != LV_PART_ANY && part_act != part) ||
+  7b:	000061        	l32r	a6, fffc007c <lv_obj_remove_style+0xfffc007c>
+  7e:	1148      	l32i.n	a4, a1, 4
+  80:	646a      	add.n	a6, a4, a6
+  82:	140c      	movi.n	a4, 1
+  84:	098d      	mov.n	a8, a9
+  86:	939460        	movnez	a9, a4, a6
+  89:	1168      	l32i.n	a6, a1, 4
+  8b:	c0a6a0        	sub	a10, a6, a10
+  8e:	8348a0        	moveqz	a4, a8, a10
+        if((state != LV_STATE_ANY && state_act != state) ||
+  91:	098497        	bany	a4, a9, 9e <lv_obj_remove_style+0x9e>
+           (part != LV_PART_ANY && part_act != part) ||
+  94:	2168      	l32i.n	a6, a1, 8
+  96:	0a1687        	beq	a6, a8, a4 <lv_obj_remove_style+0xa4>
+           (style != NULL && style != obj->styles[i].style)) {
+  99:	0548      	l32i.n	a4, a5, 0
+  9b:	051467        	beq	a4, a6, a4 <lv_obj_remove_style+0xa4>
+            i++;
+  9e:	331b      	addi.n	a3, a3, 1
+            continue;
+  a0:	002206        	j	12c <lv_obj_remove_style+0x12c>
+  a3:	00          	.byte 00
+        if(obj->styles[i].is_trans) {
+  a4:	1548      	l32i.n	a4, a5, 4
+  a6:	0e7497        	bbci	a4, 25, b8 <lv_obj_remove_style+0xb8>
+            trans_del(obj, part, LV_STYLE_PROP_ANY, NULL);
+  a9:	0d0c      	movi.n	a13, 0
+  ab:	0000c1        	l32r	a12, fffc00ac <lv_obj_remove_style+0xfffc00ac>
+  ae:	11b8      	l32i.n	a11, a1, 4
+  b0:	02ad      	mov.n	a10, a2
+  b2:	000081        	l32r	a8, fffc00b4 <lv_obj_remove_style+0xfffc00b4>
+  b5:	0008e0        	callx8	a8
+        if(obj->styles[i].is_local || obj->styles[i].is_trans) {
+  b8:	3248      	l32i.n	a4, a2, 12
+  ba:	447a      	add.n	a4, a4, a7
+  bc:	1468      	l32i.n	a6, a4, 4
+  be:	000051        	l32r	a5, fffc00c0 <lv_obj_remove_style+0xfffc00c0>
+  c1:	1b0657        	bnone	a6, a5, e0 <lv_obj_remove_style+0xe0>
+            lv_style_reset(obj->styles[i].style);
+  c4:	04a8      	l32i.n	a10, a4, 0
+  c6:	000081        	l32r	a8, fffc00c8 <lv_obj_remove_style+0xfffc00c8>
+  c9:	0008e0        	callx8	a8
+            lv_mem_free(obj->styles[i].style);
+  cc:	3248      	l32i.n	a4, a2, 12
+  ce:	447a      	add.n	a4, a4, a7
+  d0:	04a8      	l32i.n	a10, a4, 0
+  d2:	000081        	l32r	a8, fffc00d4 <lv_obj_remove_style+0xfffc00d4>
+  d5:	0008e0        	callx8	a8
+            obj->styles[i].style = NULL;
+  d8:	3248      	l32i.n	a4, a2, 12
+  da:	447a      	add.n	a4, a4, a7
+  dc:	050c      	movi.n	a5, 0
+  de:	0459      	s32i.n	a5, a4, 0
+    if(style && style->prop_cnt == 0) prop = LV_STYLE_PROP_INV;
+  e0:	034d      	mov.n	a4, a3
+  e2:	0004c6        	j	f9 <lv_obj_remove_style+0xf9>
+            obj->styles[j] = obj->styles[j + 1];
+  e5:	3278      	l32i.n	a7, a2, 12
+  e7:	541b      	addi.n	a5, a4, 1
+  e9:	b06570        	addx8	a6, a5, a7
+  ec:	b04470        	addx8	a4, a4, a7
+  ef:	0678      	l32i.n	a7, a6, 0
+  f1:	1668      	l32i.n	a6, a6, 4
+  f3:	0479      	s32i.n	a7, a4, 0
+  f5:	1469      	s32i.n	a6, a4, 4
+        for(j = i; j < (uint32_t)obj->style_cnt - 1 ; j++) {
+  f7:	054d      	mov.n	a4, a5
+  f9:	8258      	l32i.n	a5, a2, 32
+  fb:	555450        	extui	a5, a5, 20, 6
+  fe:	650b      	addi.n	a6, a5, -1
+ 100:	e13467        	bltu	a4, a6, e5 <lv_obj_remove_style+0xe5>
+        obj->style_cnt--;
+ 103:	3fc552        	addi	a5, a5, 63
+ 106:	54b050        	extui	a11, a5, 0, 6
+ 109:	115bc0        	slli	a5, a11, 4
+ 10c:	111242        	l16ui	a4, a2, 34
+ 10f:	0fac62        	movi	a6, 0xfffffc0f
+ 112:	104460        	and	a4, a4, a6
+ 115:	204450        	or	a4, a4, a5
+ 118:	115242        	s16i	a4, a2, 34
+        obj->styles = lv_mem_realloc(obj->styles, obj->style_cnt * sizeof(_lv_obj_style_t));
+ 11b:	11bbd0        	slli	a11, a11, 3
+ 11e:	32a8      	l32i.n	a10, a2, 12
+ 120:	000081        	l32r	a8, fffc0120 <lv_obj_remove_style+0xfffc0120>
+ 123:	0008e0        	callx8	a8
+ 126:	32a9      	s32i.n	a10, a2, 12
+        deleted = true;
+ 128:	140c      	movi.n	a4, 1
+ 12a:	3149      	s32i.n	a4, a1, 12
+    while(i <  obj->style_cnt) {
+ 12c:	8248      	l32i.n	a4, a2, 32
+ 12e:	554440        	extui	a4, a4, 20, 6
+ 131:	02b347        	bgeu	a3, a4, 137 <lv_obj_remove_style+0x137>
+ 134:	ffc186        	j	3e <lv_obj_remove_style+0x3e>
+    if(deleted && prop != LV_STYLE_PROP_INV) {
+ 137:	130c      	movi.n	a3, 1
+ 139:	040c      	movi.n	a4, 0
+ 13b:	4158      	l32i.n	a5, a1, 16
+ 13d:	833450        	moveqz	a3, a4, a5
+ 140:	3168      	l32i.n	a6, a1, 12
+ 142:	0b0367        	bnone	a3, a6, 151 <lv_obj_remove_style+0x151>
+        lv_obj_refresh_style(obj, part, prop);
+ 145:	05cd      	mov.n	a12, a5
+ 147:	11b8      	l32i.n	a11, a1, 4
+ 149:	02ad      	mov.n	a10, a2
+ 14b:	000081        	l32r	a8, fffc014c <lv_obj_remove_style+0xfffc014c>
+ 14e:	0008e0        	callx8	a8
+}
+ 151:	f01d      	retw.n
+
+Disassembly of section .text.trans_anim_ready_cb:
+
+00000000 <trans_anim_ready_cb>:
+{
+   0:	004136        	entry	a1, 32
+    trans_t * tr = a->var;
+   3:	0228      	l32i.n	a2, a2, 0
+    lv_obj_t * obj = tr->obj;
+   5:	002232        	l32i	a3, a2, 0
+    lv_style_prop_t prop = tr->prop;
+   8:	012242        	l32i	a4, a2, 4
+    _LV_LL_READ(&LV_GC_ROOT(_lv_obj_style_trans_ll), tr_i) {
+   b:	0000a1        	l32r	a10, fffc000c <trans_anim_ready_cb+0xfffc000c>
+   e:	000081        	l32r	a8, fffc0010 <trans_anim_ready_cb+0xfffc0010>
+  11:	0008e0        	callx8	a8
+  14:	000906        	j	3c <trans_anim_ready_cb+0x3c>
+  17:	00          	.byte 00
+        if(tr_i != tr && tr_i->obj == tr->obj && tr_i->selector == tr->selector && tr_i->prop == tr->prop) {
+  18:	151a27        	beq	a10, a2, 31 <trans_anim_ready_cb+0x31>
+  1b:	0a98      	l32i.n	a9, a10, 0
+  1d:	0288      	l32i.n	a8, a2, 0
+  1f:	0e9987        	bne	a9, a8, 31 <trans_anim_ready_cb+0x31>
+  22:	2a88      	l32i.n	a8, a10, 8
+  24:	2258      	l32i.n	a5, a2, 8
+  26:	079857        	bne	a8, a5, 31 <trans_anim_ready_cb+0x31>
+  29:	1a88      	l32i.n	a8, a10, 4
+  2b:	012252        	l32i	a5, a2, 4
+  2e:	121857        	beq	a8, a5, 44 <trans_anim_ready_cb+0x44>
+    _LV_LL_READ(&LV_GC_ROOT(_lv_obj_style_trans_ll), tr_i) {
+  31:	0abd      	mov.n	a11, a10
+  33:	0000a1        	l32r	a10, fffc0034 <trans_anim_ready_cb+0xfffc0034>
+  36:	000081        	l32r	a8, fffc0038 <trans_anim_ready_cb+0xfffc0038>
+  39:	0008e0        	callx8	a8
+  3c:	fd8a56        	bnez	a10, 18 <trans_anim_ready_cb+0x18>
+    bool running = false;
+  3f:	050c      	movi.n	a5, 0
+  41:	000046        	j	46 <trans_anim_ready_cb+0x46>
+            running = true;
+  44:	150c      	movi.n	a5, 1
+    if(!running) {
+  46:	070556        	bnez	a5, ba <trans_anim_ready_cb+0xba>
+        for(i = 0; i < obj->style_cnt; i++) {
+  49:	080c      	movi.n	a8, 0
+  4b:	0018c6        	j	b2 <trans_anim_ready_cb+0xb2>
+            if(obj->styles[i].is_trans && obj->styles[i].selector == tr->selector) {
+  4e:	3398      	l32i.n	a9, a3, 12
+  50:	1158d0        	slli	a5, a8, 3
+  53:	b09890        	addx8	a9, a8, a9
+  56:	19a8      	l32i.n	a10, a9, 4
+  58:	547a97        	bbci	a10, 25, b0 <trans_anim_ready_cb+0xb0>
+  5b:	0a9d      	mov.n	a9, a10
+  5d:	0000a1        	l32r	a10, fffc0060 <trans_anim_ready_cb+0xfffc0060>
+  60:	1099a0        	and	a9, a9, a10
+  63:	0222a2        	l32i	a10, a2, 8
+  66:	4699a7        	bne	a9, a10, b0 <trans_anim_ready_cb+0xb0>
+                _lv_ll_remove(&LV_GC_ROOT(_lv_obj_style_trans_ll), tr);
+  69:	02bd      	mov.n	a11, a2
+  6b:	0000a1        	l32r	a10, fffc006c <trans_anim_ready_cb+0xfffc006c>
+  6e:	000081        	l32r	a8, fffc0070 <trans_anim_ready_cb+0xfffc0070>
+  71:	0008e0        	callx8	a8
+                lv_mem_free(tr);
+  74:	02ad      	mov.n	a10, a2
+  76:	000081        	l32r	a8, fffc0078 <trans_anim_ready_cb+0xfffc0078>
+  79:	0008e0        	callx8	a8
+                _lv_obj_style_t * obj_style = &obj->styles[i];
+  7c:	3328      	l32i.n	a2, a3, 12
+  7e:	225a      	add.n	a2, a2, a5
+                lv_style_remove_prop(obj_style->style, prop);
+  80:	04bd      	mov.n	a11, a4
+  82:	02a8      	l32i.n	a10, a2, 0
+  84:	000081        	l32r	a8, fffc0084 <trans_anim_ready_cb+0xfffc0084>
+  87:	0008e0        	callx8	a8
+                if(lv_style_is_empty(obj->styles[i].style)) {
+  8a:	3348      	l32i.n	a4, a3, 12
+  8c:	445a      	add.n	a4, a4, a5
+  8e:	04a8      	l32i.n	a10, a4, 0
+  90:	000081        	l32r	a8, fffc0090 <trans_anim_ready_cb+0xfffc0090>
+  93:	0008e0        	callx8	a8
+  96:	0aac      	beqz.n	a10, ba <trans_anim_ready_cb+0xba>
+                    lv_obj_remove_style(obj, obj_style->style, obj_style->selector);
+  98:	12c8      	l32i.n	a12, a2, 4
+  9a:	000041        	l32r	a4, fffc009c <trans_anim_ready_cb+0xfffc009c>
+  9d:	10cc40        	and	a12, a12, a4
+  a0:	0022b2        	l32i	a11, a2, 0
+  a3:	20a330        	or	a10, a3, a3
+  a6:	000081        	l32r	a8, fffc00a8 <trans_anim_ready_cb+0xfffc00a8>
+  a9:	0008e0        	callx8	a8
+  ac:	000286        	j	ba <trans_anim_ready_cb+0xba>
+  af:	00          	.byte 00
+        for(i = 0; i < obj->style_cnt; i++) {
+  b0:	881b      	addi.n	a8, a8, 1
+  b2:	8358      	l32i.n	a5, a3, 32
+  b4:	555450        	extui	a5, a5, 20, 6
+  b7:	933857        	bltu	a8, a5, 4e <trans_anim_ready_cb+0x4e>
+}
+  ba:	f01d      	retw.n
+
+Disassembly of section .text.trans_anim_start_cb:
+
+00000000 <trans_anim_start_cb>:
+{
+   0:	004136        	entry	a1, 32
+    trans_t * tr = a->var;
+   3:	0228      	l32i.n	a2, a2, 0
+    lv_part_t part = lv_obj_style_get_selector_part(tr->selector);
+   5:	0222a2        	l32i	a10, a2, 8
+   8:	000081        	l32r	a8, fffc0008 <trans_anim_start_cb+0xfffc0008>
+   b:	0008e0        	callx8	a8
+   e:	0a4d      	mov.n	a4, a10
+    tr->start_value = lv_obj_get_style_prop(tr->obj, part, tr->prop);
+  10:	12c8      	l32i.n	a12, a2, 4
+  12:	0abd      	mov.n	a11, a10
+  14:	02a8      	l32i.n	a10, a2, 0
+  16:	000081        	l32r	a8, fffc0018 <trans_anim_start_cb+0xfffc0018>
+  19:	0008e0        	callx8	a8
+  1c:	32a9      	s32i.n	a10, a2, 12
+    lv_style_prop_t prop_tmp = tr->prop;
+  1e:	1238      	l32i.n	a3, a2, 4
+    tr->prop = LV_STYLE_PROP_INV;
+  20:	080c      	movi.n	a8, 0
+  22:	1289      	s32i.n	a8, a2, 4
+    trans_del(tr->obj, part, prop_tmp, tr);
+  24:	02dd      	mov.n	a13, a2
+  26:	03cd      	mov.n	a12, a3
+  28:	04bd      	mov.n	a11, a4
+  2a:	02a8      	l32i.n	a10, a2, 0
+  2c:	000081        	l32r	a8, fffc002c <trans_anim_start_cb+0xfffc002c>
+  2f:	0008e0        	callx8	a8
+    tr->prop = prop_tmp;
+  32:	1239      	s32i.n	a3, a2, 4
+    _lv_obj_style_t * style_trans = get_trans_style(tr->obj, tr->selector);
+  34:	22b8      	l32i.n	a11, a2, 8
+  36:	02a8      	l32i.n	a10, a2, 0
+  38:	000081        	l32r	a8, fffc0038 <trans_anim_start_cb+0xfffc0038>
+  3b:	0008e0        	callx8	a8
+    lv_style_set_prop(style_trans->style, tr->prop, tr->start_value);   /*Be sure `trans_style` has a valid value*/
+  3e:	32c8      	l32i.n	a12, a2, 12
+  40:	12b8      	l32i.n	a11, a2, 4
+  42:	0aa8      	l32i.n	a10, a10, 0
+  44:	000081        	l32r	a8, fffc0044 <trans_anim_start_cb+0xfffc0044>
+  47:	0008e0        	callx8	a8
+}
+  4a:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_calculate_style_text_align:
+
+00000000 <lv_obj_calculate_style_text_align>:
+{
+   0:	004136        	entry	a1, 32
+   3:	024d      	mov.n	a4, a2
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_TEXT_ALIGN);
+   5:	bc5c      	movi.n	a12, 91
+   7:	03bd      	mov.n	a11, a3
+   9:	02ad      	mov.n	a10, a2
+   b:	000081        	l32r	a8, fffc000c <lv_obj_calculate_style_text_align+0xfffc000c>
+   e:	0008e0        	callx8	a8
+    return (lv_text_align_t)v.num;
+  11:	7420a0        	extui	a2, a10, 0, 8
+    return (uint16_t)v.num;
+}
+
+static inline lv_base_dir_t lv_obj_get_style_base_dir(const struct _lv_obj_t * obj, uint32_t part)
+{
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_BASE_DIR);
+  14:	6c1c      	movi.n	a12, 22
+  16:	03bd      	mov.n	a11, a3
+  18:	04ad      	mov.n	a10, a4
+  1a:	000081        	l32r	a8, fffc001c <lv_obj_calculate_style_text_align+0xfffc001c>
+  1d:	0008e0        	callx8	a8
+ */
+static inline void lv_bidi_calculate_align(lv_text_align_t * align, lv_base_dir_t * base_dir, const char * txt)
+{
+    LV_UNUSED(txt);
+    LV_UNUSED(base_dir);
+    if(*align == LV_TEXT_ALIGN_AUTO) * align = LV_TEXT_ALIGN_LEFT;
+  20:	02cc      	bnez.n	a2, 24 <lv_obj_calculate_style_text_align+0x24>
+  22:	120c      	movi.n	a2, 1
+}
+  24:	f01d      	retw.n
+
+Disassembly of section .text.lv_obj_get_style_opa_recursive:
+
+00000000 <lv_obj_get_style_opa_recursive>:
+{
+   0:	004136        	entry	a1, 32
+   3:	024d      	mov.n	a4, a2
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_OPA);
+   5:	60a0c2        	movi	a12, 96
+   8:	20b330        	or	a11, a3, a3
+   b:	20a220        	or	a10, a2, a2
+   e:	000081        	l32r	a8, fffc0010 <lv_obj_get_style_opa_recursive+0xfffc0010>
+  11:	0008e0        	callx8	a8
+    return (lv_opa_t)v.num;
+  14:	7420a0        	extui	a2, a10, 0, 8
+    if(opa_obj <= LV_OPA_MIN) return LV_OPA_TRANSP;
+  17:	6a32b6        	bltui	a2, 3, 85 <lv_obj_get_style_opa_recursive+0x85>
+    if(opa_obj < LV_OPA_MAX) {
+  1a:	fca082        	movi	a8, 252
+  1d:	0f3827        	bltu	a8, a2, 30 <lv_obj_get_style_opa_recursive+0x30>
+        opa_final = ((uint32_t)opa_final * opa_obj) >> 8;
+  20:	74a0a0        	extui	a10, a10, 0, 8
+  23:	112a80        	slli	a2, a10, 8
+  26:	c022a0        	sub	a2, a2, a10
+  29:	742820        	extui	a2, a2, 8, 8
+  2c:	0000c6        	j	33 <lv_obj_get_style_opa_recursive+0x33>
+  2f:	00          	.byte 00
+    lv_opa_t opa_final = LV_OPA_COVER;
+  30:	ffa022        	movi	a2, 255
+    if(part != LV_PART_MAIN) {
+  33:	d3fc      	bnez.n	a3, 74 <lv_obj_get_style_opa_recursive+0x74>
+        obj = lv_obj_get_parent(obj);
+  35:	04ad      	mov.n	a10, a4
+  37:	000081        	l32r	a8, fffc0038 <lv_obj_get_style_opa_recursive+0xfffc0038>
+  3a:	0008e0        	callx8	a8
+  3d:	0a4d      	mov.n	a4, a10
+  3f:	000cc6        	j	76 <lv_obj_get_style_opa_recursive+0x76>
+  42:	00          	.byte 00
+  43:	00          	.byte 00
+    lv_style_value_t v = lv_obj_get_style_prop(obj, part, LV_STYLE_OPA);
+  44:	60a0c2        	movi	a12, 96
+  47:	03bd      	mov.n	a11, a3
+  49:	04ad      	mov.n	a10, a4
+  4b:	000081        	l32r	a8, fffc004c <lv_obj_get_style_opa_recursive+0xfffc004c>
+  4e:	0008e0        	callx8	a8
+    return (lv_opa_t)v.num;
+  51:	7480a0        	extui	a8, a10, 0, 8
+        if(opa_obj <= LV_OPA_MIN) return LV_OPA_TRANSP;
+  54:	3238b6        	bltui	a8, 3, 8a <lv_obj_get_style_opa_recursive+0x8a>
+        if(opa_obj < LV_OPA_MAX) {
+  57:	fca092        	movi	a9, 252
+  5a:	083987        	bltu	a9, a8, 66 <lv_obj_get_style_opa_recursive+0x66>
+            opa_final = ((uint32_t)opa_final * opa_obj) >> 8;
+  5d:	74a0a0        	extui	a10, a10, 0, 8
+  60:	82aa20        	mull	a10, a10, a2
+  63:	7428a0        	extui	a2, a10, 8, 8
+        obj = lv_obj_get_parent(obj);
+  66:	04ad      	mov.n	a10, a4
+  68:	000081        	l32r	a8, fffc0068 <lv_obj_get_style_opa_recursive+0xfffc0068>
+  6b:	0008e0        	callx8	a8
+  6e:	0a4d      	mov.n	a4, a10
+  70:	000086        	j	76 <lv_obj_get_style_opa_recursive+0x76>
+  73:	00          	.byte 00
+        part = LV_PART_MAIN;
+  74:	030c      	movi.n	a3, 0
+    while(obj) {
+  76:	fca456        	bnez	a4, 44 <lv_obj_get_style_opa_recursive+0x44>
+    if(opa_final <= LV_OPA_MIN) return LV_OPA_TRANSP;
+  79:	1332b6        	bltui	a2, 3, 90 <lv_obj_get_style_opa_recursive+0x90>
+    if(opa_final >= LV_OPA_MAX) return LV_OPA_COVER;
+  7c:	fca032        	movi	a3, 252
+  7f:	15b327        	bgeu	a3, a2, 98 <lv_obj_get_style_opa_recursive+0x98>
+  82:	0003c6        	j	95 <lv_obj_get_style_opa_recursive+0x95>
+    if(opa_obj <= LV_OPA_MIN) return LV_OPA_TRANSP;
+  85:	020c      	movi.n	a2, 0
+  87:	000346        	j	98 <lv_obj_get_style_opa_recursive+0x98>
+        if(opa_obj <= LV_OPA_MIN) return LV_OPA_TRANSP;
+  8a:	020c      	movi.n	a2, 0
+  8c:	000206        	j	98 <lv_obj_get_style_opa_recursive+0x98>
+  8f:	00          	.byte 00
+    if(opa_final <= LV_OPA_MIN) return LV_OPA_TRANSP;
+  90:	020c      	movi.n	a2, 0
+  92:	000086        	j	98 <lv_obj_get_style_opa_recursive+0x98>
+    if(opa_final >= LV_OPA_MAX) return LV_OPA_COVER;
+  95:	ffa022        	movi	a2, 255
+}
+  98:	f01d      	retw.n
