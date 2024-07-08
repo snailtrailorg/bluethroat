@@ -21,8 +21,8 @@ static void bluethroat_clock_task(void *arg) {
         time_t now = time(NULL);
         char clock_string[16];
 
-        if (strftime(clock_string, sizeof(clock_string), "%H:%M", localtime(&now)) > 0) {
-//            bluethroat_ui_set_clock(clock_string);
+        if (strftime(clock_string, sizeof(clock_string), "%T", localtime(&now)) > 0) {
+            UiSetClock(clock_string);
         }
     }
 }

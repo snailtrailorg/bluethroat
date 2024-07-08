@@ -1,6 +1,14 @@
 #include <esp_log.h>
 #include <esp_err.h>
 #include <driver/gpio.h>
+#include <time.h>
+#include <string.h>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+
+#include "utilities/sme_float.h"
+#include "bluethroat_bluetooth.h"
 
 #include "drivers/neo_m9n_gnss.h"
 
@@ -85,7 +93,7 @@ esp_err_t NeoM9nGnss::deinit_device() {
 void NeoM9nGnss::task_cpp_entry() {
     uart_event_t event;
     size_t buffered_size;
-    uint8_t sentence[MNEA_SENTENCE_MAX_SIZE];
+    char sentence[MNEA_SENTENCE_MAX_SIZE];
 	int position;
     uint32_t read_length;
     
@@ -111,6 +119,125 @@ void NeoM9nGnss::task_cpp_entry() {
                     uart_read_bytes(m_uart_port, sentence, read_length, UART_RECEIVE_TIMEOUT);
 					sentence[read_length-2] = '\0';
 					NEO_M9N_GNSS_LOGD("Uart[%d] receive data: %s", m_uart_port, sentence);
+                    BluetoothSendGnssNmea(sentence);
+
+                    {
+                        BluethroatMsg_t message;
+
+                        if (strncmp(sentence, "$GNRMC", strlen("$GNRMC")) == 0) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+                            struct tm time = {0};
+#pragma GCC diagnostic pop
+                            char status;
+                            uint32_t latitude[2];
+                            char latitude_direction;
+                            uint32_t longitude[2];
+                            char longitude_direction;
+                            float course;
+                            char buffer[16];
+                            float second; 
+
+                            /* $GNRMC,080152.00,A,2236.01533,N,11400.47834,E,0.949,179.38,070724,,,D,V*0E */
+                            if (sscanf(sentence, "$GNRMC,%2d%2d%2d.%*d,%c,%ld.%ld,%c,%ld.%ld,%c,%*f,%f,%2d%2d%2d", 
+                            &(time.tm_hour), &time.tm_min, &time.tm_sec, &status,
+                            &(latitude[0]), &(latitude[1]), &latitude_direction, 
+                            &(longitude[0]), &(longitude[1]), &longitude_direction, 
+                            &course, &time.tm_mday, &time.tm_mon, &time.tm_year) == 14 && status == 'A') {
+                                message.type = BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA;
+                                message.gnss_zda_data.second = time.tm_sec;
+                                message.gnss_zda_data.minute = time.tm_min;
+                                message.gnss_zda_data.hour = time.tm_hour;
+                                message.gnss_zda_data.day = time.tm_mday;
+                                message.gnss_zda_data.month = time.tm_mon;
+                                message.gnss_zda_data.year = time.tm_year;
+
+                                (void)xQueueSend(m_queue_handle, &message, 0);
+
+                                NEO_M9N_GNSS_LOGD("Report GNSS ZDA data, time: %04d-%02d-%02d %02d:%02d:%02d", 
+                                    message.gnss_zda_data.year, message.gnss_zda_data.month, message.gnss_zda_data.day, 
+                                    message.gnss_zda_data.hour, message.gnss_zda_data.minute, message.gnss_zda_data.second);
+                            
+                                message.type = BLUETHROAT_MSG_TYPE_GNSS_RMC_DATA;
+                                message.gnss_rmc_data.latitude_degree = latitude[0] / 100;
+                                message.gnss_rmc_data.latitude_minute = latitude[0] % 100;
+                                message.gnss_rmc_data.latitude_direction = (latitude_direction == 'N') ? GNSS_LATITUDE_DIRECTION_NORTH : GNSS_LATITUDE_DIRECTION_SOUTH;
+                                sprintf(buffer, "0.%ld", latitude[1]); sscanf(buffer, "%f", &second);
+                                message.gnss_rmc_data.latitude_second = (float)(float32_t(second) * float32_t(60.0F));
+                                message.gnss_rmc_data.langitude_degree = longitude[0] / 100;
+                                message.gnss_rmc_data.langitude_minute = longitude[0] % 100;
+                                message.gnss_rmc_data.langitude_direction = (longitude_direction == 'E') ? GNSS_LONGITUDE_DIRECTION_EAST : GNSS_LONGITUDE_DIRECTION_WEST;
+                                sprintf(buffer, "0.%ld", longitude[1]); sscanf(buffer, "%f", &second);
+                                message.gnss_rmc_data.langitude_second = (float)(float32_t(second) * float32_t(60.0F));
+                                message.gnss_rmc_data.course = course;
+
+                                (void)xQueueSend(m_queue_handle, &message, 0);
+
+                                NEO_M9N_GNSS_LOGD("Report GNSS RMC data, latitude:%d°%d'%f\" %c, longitude:%d°%d'%f\" %c, course:%f", 
+                                    message.gnss_rmc_data.latitude_degree, message.gnss_rmc_data.latitude_minute, message.gnss_rmc_data.latitude_second, 
+                                    (message.gnss_rmc_data.latitude_direction == GNSS_LATITUDE_DIRECTION_NORTH) ? 'N' : 'S',
+                                    message.gnss_rmc_data.langitude_degree, message.gnss_rmc_data.langitude_minute, message.gnss_rmc_data.langitude_second, 
+                                    (message.gnss_rmc_data.langitude_direction == GNSS_LONGITUDE_DIRECTION_EAST) ? 'E' : 'W',
+                                    message.gnss_rmc_data.course);
+
+                            } else {
+                                NEO_M9N_GNSS_LOGD("Parse GNSS RMC data failed.");
+                            }
+                        } else if (strncmp(sentence, "$GNGGA", strlen("$GNGGA")) == 0) {
+                            uint32_t latitude[2];
+                            char latitude_direction;
+                            uint32_t longitude[2];
+                            char longitude_direction;
+                            float altitude;
+                            float undulation;
+                            char buffer[16];
+                            float second;
+
+                            /* $GNGGA,080152.00,2236.01533,N,11400.47834,E,2,12,1.00,159.0,M,-2.5,M,,0000*53 */
+                            if (sscanf(sentence, "$GNGGA,%*f,%ld.%ld,%c,%ld.%ld,%c,%*d,%*d,%*f,%f,M,%f,M", 
+                            &(latitude[0]), &(latitude[1]), &latitude_direction, 
+                            &(longitude[0]), &(longitude[1]), &longitude_direction, 
+                            &altitude, &undulation) == 8) {
+                                message.type = BLUETHROAT_MSG_TYPE_GNSS_GGA_DATA;
+                                message.gnss_gga_data.latitude_degree = latitude[0] / 100;
+                                message.gnss_gga_data.latitude_minute = latitude[0] % 100;
+                                message.gnss_gga_data.latitude_direction = (latitude_direction == 'N') ? GNSS_LATITUDE_DIRECTION_NORTH : GNSS_LATITUDE_DIRECTION_SOUTH;
+                                sprintf(buffer, "0.%ld", latitude[1]); sscanf(buffer, "%f", &second);
+                                message.gnss_gga_data.latitude_second = (float)(float32_t(second) * float32_t(60.0F));
+                                message.gnss_gga_data.langitude_degree = longitude[0] / 100;
+                                message.gnss_gga_data.langitude_minute = longitude[0] % 100;
+                                message.gnss_gga_data.langitude_direction = (longitude_direction == 'E') ? GNSS_LONGITUDE_DIRECTION_EAST : GNSS_LONGITUDE_DIRECTION_WEST;
+                                sprintf(buffer, "0.%ld", longitude[1]); sscanf(buffer, "%f", &second);
+                                message.gnss_gga_data.langitude_second = (float)(float32_t(second) * float32_t(60.0F));
+                                message.gnss_gga_data.altitude = float(float32_t(altitude) + float32_t(undulation));
+
+                                (void)xQueueSend(m_queue_handle, &message, 0);
+
+                                NEO_M9N_GNSS_LOGD("Report GNSS GGA data, latitude:%d°%d'%f\" %c, longitude:%d°%d'%f\" %c, altitude:%f", 
+                                    message.gnss_gga_data.latitude_degree, message.gnss_gga_data.latitude_minute, message.gnss_gga_data.latitude_second, 
+                                    (message.gnss_gga_data.latitude_direction == GNSS_LATITUDE_DIRECTION_NORTH) ? 'N' : 'S',
+                                    message.gnss_gga_data.langitude_degree, message.gnss_gga_data.langitude_minute, message.gnss_gga_data.langitude_second, 
+                                    (message.gnss_gga_data.langitude_direction == GNSS_LONGITUDE_DIRECTION_EAST) ? 'E' : 'W',
+                                    message.gnss_gga_data.altitude);
+                            } else {
+                                NEO_M9N_GNSS_LOGD("Parse GNSS GGA data failed.");
+                            }
+                        } else if (strncmp(sentence, "$GNVTG", strlen("$GNVTG")) == 0) {
+                            /* $GNVTG,179.38,T,,M,0.949,N,1.757,K,D*22 */
+                            if (sscanf(sentence, "$GNVTG,%f,%*sM,%f,N,%f,K", &(message.gnss_vtg_data.course), &(message.gnss_vtg_data.speed_knot), &(message.gnss_vtg_data.speed_kmh)) == 3) {
+                                message.type = BLUETHROAT_MSG_TYPE_GNSS_VTG_DATA;
+
+                                (void)xQueueSend(m_queue_handle, &message, 0);
+
+                                NEO_M9N_GNSS_LOGD("Report GNSS VTG data, course:%f, speed(knot):%f, speed(kmh):%f", 
+                                    message.gnss_vtg_data.course, message.gnss_vtg_data.speed_knot, message.gnss_vtg_data.speed_kmh);
+                            } else {
+                                NEO_M9N_GNSS_LOGD("Parse GNSS VTG data failed.");
+                            }
+                        } else {
+                            NEO_M9N_GNSS_LOGV("Unknown GNSS data.");
+                        }
+                    }
                 }
                 break;
             default:

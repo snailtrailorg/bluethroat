@@ -15,6 +15,7 @@
 #include "bluethroat_ui.h"
 #include "bluethroat_msg_proc.h"
 #include "bluethroat_clock.h"
+#include "bluethroat_bluetooth.h"
 
 #define BLUETHROAT_MAIN_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
 #define BLUETHROAT_MAIN_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
@@ -57,7 +58,8 @@ void app_main() {
     esp_log_level_set("BM8563_RTC", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_BARO", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_INFO);
-    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_INFO);
+    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_DEBUG);
+    esp_log_level_set("BLUETOOTH", ESP_LOG_INFO);
 
     /* step 0: print motd */
     BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer version %s, powered by snailtrail.org", esp_app_get_description()->version);
@@ -123,7 +125,7 @@ void app_main() {
     /* step 10: init ns4168 i2s sound */
 
     /* step 11: init bluethroat clock */
-    //bluethroat_clock_init();
+    bluethroat_clock_init();
 
     /* step 12: init gps module */
     NeoM9nGnss *p_NeoM9nGnss = NULL;
@@ -132,9 +134,6 @@ void app_main() {
 
     /* step 13: init wifi module */
     //bluethroat_wifi_init();
-
-    /* step 14: init bluetooth */
-    //bluethroat_mqtt_init();
 
     /* step 16: init main message process task */
     BluethroatMsgProc *pBluethroatMsgProc = new BluethroatMsgProc(&(g_TaskParam[TASK_INDEX_MSG_PROC]));
@@ -147,4 +146,8 @@ void app_main() {
     if (p_Dps3xxBarometer != NULL) p_Dps3xxBarometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
     if (p_Dps3xxAnemometer != NULL) p_Dps3xxAnemometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_ANEMOMETER]), pBluethroatMsgProc->m_queue_handle);
     if (p_NeoM9nGnss != NULL) p_NeoM9nGnss->Start(&(g_TaskParam[TASK_INDEX_NEO_M9N_GNSS]), pBluethroatMsgProc->m_queue_handle);
+
+    /* step 14: init bluetooth */
+    bluetooth_init(pBluethroatMsgProc->m_queue_handle);
+
 }

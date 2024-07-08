@@ -76,6 +76,8 @@ void I2cDevice::task_cpp_entry() {
 
 		if (this->m_p_task_param->task_interval > 0) {
 			vTaskDelay(this->m_p_task_param->task_interval);
+		} else {
+			//taskYIELD();
 		}
 	}
 }

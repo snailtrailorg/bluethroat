@@ -388,8 +388,8 @@ typedef struct {
 ***********************************************************************************************************************/
 #define AIR_PRESSURE_DEFAULT_VALUE      (101325)
 #define AIR_PRESSURE_DEFAULT_VALUE_MSB  (16)
-#define FILTER_DEPTH_SHALLOW            (FILTER_DEPTH_POWER_08)
-#define FILTER_DEPTH_DEEP               (FILTER_DEPTH_POWER_32)
+#define FILTER_DEPTH_SHALLOW            (FILTER_DEPTH_POWER_02)
+#define FILTER_DEPTH_DEEP               (FILTER_DEPTH_POWER_16)
 
 /***********************************************************************************************************************
 * @brief Dps3xx barometer class

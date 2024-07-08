@@ -3,17 +3,20 @@
 #include <stdint.h>
 
 typedef enum {
-    BLUETHROAT_MSG_TYPE_BUTTON = 0,
-    BLUETHROAT_MSG_TYPE_PMU,
-    BLUETHROAT_MSG_TYPE_RTC,
-    BLUETHROAT_MSG_TYPE_BAROMETER,
-    BLUETHROAT_MSG_TYPE_ANEMOMETER,
-    BLUETHROAT_MSG_TYPE_HYGROMETER,
-    BLUETHROAT_MSG_TYPE_ACCELERATION,
-    BLUETHROAT_MSG_TYPE_ROTATION,
-    BLUETHROAT_MSG_TYPE_GEOMAGNATIC,
-    BLUETHROAT_MSG_TYPE_POWER,
-    BLUETHROAT_MSG_TYPE_GPS,
+    BLUETHROAT_MSG_TYPE_BUTTON_DATA = 0,
+    BLUETHROAT_MSG_TYPE_RTC_DATA,
+    BLUETHROAT_MSG_TYPE_BAROMETER_DATA,
+    BLUETHROAT_MSG_TYPE_ANEMOMETER_DATA,
+    BLUETHROAT_MSG_TYPE_HYGROMETER_DATA,
+    BLUETHROAT_MSG_TYPE_ACCELERATION_DATA,
+    BLUETHROAT_MSG_TYPE_ROTATION_DATA,
+    BLUETHROAT_MSG_TYPE_GEOMAGNATIC_DATA,
+    BLUETHROAT_MSG_TYPE_POWER_DATA,
+    BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA,
+    BLUETHROAT_MSG_TYPE_GNSS_RMC_DATA,
+    BLUETHROAT_MSG_TYPE_GNSS_GGA_DATA,
+    BLUETHROAT_MSG_TYPE_GNSS_VTG_DATA,
+    BLUETHROAT_MSG_TYPE_BLUETOOTH_STATE,
     // ensure to occupy 4 byte space to avoid efficiency reduction caused by misalignment
     BLUETHROAT_MSG_INVALID = 0x7fffffff,
 } BluethroatMsgType_t;
@@ -110,6 +113,66 @@ typedef struct {
 } GpsData_t;
 
 typedef struct {
+    uint8_t second;
+    uint8_t minute;
+    uint8_t hour;
+    uint8_t day;
+    uint8_t month;
+    uint16_t year;
+} __attribute__ ((packed)) GnssZdaData_t;
+
+#define GNSS_LATITUDE_DIRECTION_NORTH           (0)
+#define GNSS_LATITUDE_DIRECTION_SOUTH           (1)
+#define GNSS_LONGITUDE_DIRECTION_EAST           (0)
+#define GNSS_LONGITUDE_DIRECTION_WEST           (1)
+
+typedef struct {
+    uint8_t latitude_degree        :7;
+    uint8_t                        :1;
+    uint8_t latitude_minute        :6;
+    uint8_t latitude_direction     :1;
+    uint8_t                        :1;
+    uint8_t langitude_degree       :8;
+    uint8_t langitude_minute       :6;
+    uint8_t langitude_direction    :1;
+    uint8_t                        :1;
+    float latitude_second;
+    float langitude_second;
+    float course;
+} __attribute__ ((packed)) GnssRmcData_t;
+
+typedef struct {
+    uint8_t latitude_degree        :7;
+    uint8_t                        :1;
+    uint8_t latitude_minute        :6;
+    uint8_t latitude_direction     :1;
+    uint8_t                        :1;
+    uint8_t langitude_degree       :8;
+    uint8_t langitude_minute       :6;
+    uint8_t langitude_direction    :1;
+    uint8_t                        :1;
+    float latitude_second;
+    float langitude_second;
+    float altitude;
+} __attribute__ ((packed)) GnssGgaData_t;
+
+typedef struct {
+    float course;
+    float speed_knot;
+    float speed_kmh;
+} __attribute__ ((packed)) GnssVtgData_t;
+
+typedef enum {
+    SERVICE_STATE_DISCONNECTED,
+    SERVICE_STATE_CONNECTED,
+} ServiceState_t;
+
+typedef struct {
+    ServiceState_t environment_service_state;
+    ServiceState_t nordic_uart_service_state;
+} __attribute__ ((packed)) BluetoothState_t;
+
+typedef struct {
     BluethroatMsgType_t type;
     union {
         ButtonData_t button_data;
@@ -122,7 +185,11 @@ typedef struct {
         RotationData_t rotation_data;
         GeomagneticData_t geomagnatic_data;
         PowerData_t power_data;
-        GpsData_t gps_data;
+        GnssZdaData_t gnss_zda_data;
+        GnssRmcData_t gnss_rmc_data;
+        GnssGgaData_t gnss_gga_data;
+        GnssVtgData_t gnss_vtg_data;
+        BluetoothState_t bluetooth_state;
     };
 } BluethroatMsg_t;
 

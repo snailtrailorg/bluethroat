@@ -232,7 +232,7 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
         int8_t shallow_offset = (AIR_PRESSURE_DEFAULT_VALUE_MSB + FILTER_DEPTH_SHALLOW - 31) - pressure.e;
         uint32_t prs_shallow_average = m_p_shallow_filter->PutSample(pressure.m >> ((FILTER_DEPTH_SHALLOW - 15) - pressure.e));
 
-        p_message->type = BLUETHROAT_MSG_TYPE_BAROMETER;
+        p_message->type = BLUETHROAT_MSG_TYPE_BAROMETER_DATA;
         p_message->barometer_data.temperature = (float)temperature;
         // Left shift FILTER_DEPTH_SHALLOW instead of shallow_offset bits to avoid overflow.
         // E.g., if the sample's exponent just change to -16, while the last sevaral samples' exponent is -15, the average's exponent will be -15.

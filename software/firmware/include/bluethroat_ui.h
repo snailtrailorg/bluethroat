@@ -13,6 +13,8 @@
 #include "res/fonts/user_font_symbols.h"
 #include "res/fonts/user_font_utils.h"
 
+#include "bluethroat_message.h"
+
 /***********************************************************************************************************************
  * Force type casting to eliminate warning: bitwise operation between different enumeration types '<unnamed enum>' and 
  * '<unnamed enum>' is deprecated [-Wdeprecated-enum-enum-conversion] in C++20
@@ -36,7 +38,28 @@
 #define DEFAULT_PANEL_DESCRIPTION_COLOR     LV_COLOR_MAKE(0x7F, 0x7F, 0x7F)
 #define DEFAULT_PANEL_VALUE_COLOR           LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
 
+#define DEFAULT_LABEL_CLOCK_COLOR           LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
+#define DEFAULT_ICON_BATTERY_COLOR          LV_COLOR_MAKE(0x00, 0xFF, 0x00)
+#define DEFAULT_ICON_BATTERY_LOW_COLOR      LV_COLOR_MAKE(0xFF, 0xFF, 0x00)
+#define DEFAULT_ICON_BATTERY_SICK_COLOR     LV_COLOR_MAKE(0xFF, 0x00, 0x00)
+#define DEFAULT_ICON_CHARGE_COLOR           LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
+#define DEFAULT_ICON_BT_DISABLED_COLOR      LV_COLOR_MAKE(0x7F, 0x7F, 0x7F)
+#define DEFAULT_ICON_BT_DISCONNECTED_COLOR  LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
+#define DEFAULT_ICON_BT_CONNECTED_COLOR     LV_COLOR_MAKE(0x00, 0x00, 0xFF)
+#define DEFAULT_ICON_GNSS_COLOR             LV_COLOR_MAKE(0x7F, 0x7F, 0x7F)
+#define DEFAULT_ICON_GNSS_READY_COLOR       LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
+#define DEFAULT_ICON_VOLUME_COLOR           LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
+#define DEFAULT_ICON_SDCARD_COLOR           LV_COLOR_MAKE(0x7F, 0x7F, 0x7F)
+#define DEFAULT_ICON_SDCARD_READY_COLOR     LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
+#define DEFAULT_ICON_LOCK_COLOR             LV_COLOR_MAKE(0xFF, 0xFF, 0xFF)
+
 #define LV_SELECTOR(A, B) ((lv_style_selector_t)A | (lv_style_selector_t)B)
+
+typedef enum {
+    BLURTOOTH_STATE_DISABLED,
+    BLURTOOTH_STATE_DISCONNECTED,
+    BLURTOOTH_STATE_CONNECTED,
+} UiBluetoothState_t;
 
 lv_obj_t * bluethroat_draw_panel(lv_obj_t *parent, lv_obj_t *ref, lv_align_t align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_color_t bg_color, lv_opa_t bg_opacity, lv_coord_t radius, lv_coord_t border_width, lv_color_t border_color, lv_opa_t border_opacity, lv_coord_t padding);
 lv_obj_t * bluethroat_draw_label(lv_obj_t *parent, lv_obj_t *ref, lv_align_t align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_color_t bg_color, lv_opa_t bg_opacity, lv_coord_t padding, lv_text_align_t text_align, lv_color_t text_color, const lv_font_t *font, const char *text);
@@ -53,7 +76,7 @@ public:
     lv_obj_t *m_flying_chart_tab = NULL;
 
     lv_obj_t *m_clock_label = NULL;
-    lv_obj_t *m_bettery_icon = NULL;
+    lv_obj_t *m_battery_icon = NULL;
     lv_obj_t *m_charge_icon = NULL;
     lv_obj_t *m_bluetooth_icon = NULL;
     lv_obj_t *m_gnss_icon = NULL;
@@ -82,7 +105,10 @@ public:
 
 public:
 	void Init(void);
-	void SetClock(const char * clock_string);
 };
 
 extern BluethroatUi * g_p_BluethroatUi;
+
+void UiSetClock(const char * clock_string);
+void UiSetBatteryState(uint16_t battery_voltage, bool is_charging, bool is_activiting, bool is_undercurrent);
+void UiSetBluetoothState(UiBluetoothState_t state);

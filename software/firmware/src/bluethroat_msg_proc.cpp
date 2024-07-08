@@ -1,9 +1,12 @@
 #include <esp_log.h>
 #include <time.h>
+#include <math.h>
 
 #include "bluethroat_msg_proc.h"
+#include "bluethroat_ui.h"
 
 #include "drivers/bm8563_rtc.h"
+#include "bluethroat_bluetooth.h"
 
 #define MSG_PROC_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
 #define MSG_PROC_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
@@ -62,9 +65,9 @@ void BluethroatMsgProc::message_loop() {
 		if (pdTRUE == xQueueReceive(this->m_queue_handle, &message, portMAX_DELAY)) {
 			MSG_PROC_LOGV("Receive message from queue, message type:%d.", message.type);
 			switch (message.type) {
-			case BLUETHROAT_MSG_TYPE_BUTTON:
+			case BLUETHROAT_MSG_TYPE_BUTTON_DATA:
 				break;
-			case BLUETHROAT_MSG_TYPE_RTC:
+			case BLUETHROAT_MSG_TYPE_RTC_DATA:
 				struct tm stm_time;
 				stm_time.tm_sec = message.rtc_data.second,
 				stm_time.tm_min = message.rtc_data.minute,
@@ -75,32 +78,57 @@ void BluethroatMsgProc::message_loop() {
 				Bm8563Rtc::SetSysTime(&stm_time);
 				break;
 
-			case BLUETHROAT_MSG_TYPE_BAROMETER:
+			case BLUETHROAT_MSG_TYPE_BAROMETER_DATA:
+				BluetoothSendPressure(message.barometer_data.pressure);
 				break;
 
-    		case BLUETHROAT_MSG_TYPE_HYGROMETER:
+    		case BLUETHROAT_MSG_TYPE_HYGROMETER_DATA:
 				break;
 
-    		case BLUETHROAT_MSG_TYPE_ANEMOMETER:
+    		case BLUETHROAT_MSG_TYPE_ANEMOMETER_DATA:
 				break;
 
-    		case BLUETHROAT_MSG_TYPE_ACCELERATION:
+    		case BLUETHROAT_MSG_TYPE_ACCELERATION_DATA:
 				break;
 
-    		case BLUETHROAT_MSG_TYPE_ROTATION:
+    		case BLUETHROAT_MSG_TYPE_ROTATION_DATA:
 				break;
 
-    		case BLUETHROAT_MSG_TYPE_GEOMAGNATIC:
+    		case BLUETHROAT_MSG_TYPE_GEOMAGNATIC_DATA:
 				break;
 
-    		case BLUETHROAT_MSG_TYPE_POWER:
+    		case BLUETHROAT_MSG_TYPE_POWER_DATA:
+				MSG_PROC_LOGD("Receive power message, battery voltage:%d, battery charging:%d, battery activiting:%d, charge undercurrent:%d.", message.pmu_data.battery_voltage, message.pmu_data.battery_charging, message.pmu_data.battery_activiting, message.pmu_data.charge_undercurrent);
+				UiSetBatteryState(message.pmu_data.battery_voltage, message.pmu_data.battery_charging, message.pmu_data.battery_activiting, message.pmu_data.charge_undercurrent);
 				break;
 
-    		case BLUETHROAT_MSG_TYPE_GPS:
+    		case BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA:
 				break;
 				
+			case BLUETHROAT_MSG_TYPE_GNSS_RMC_DATA:
+				break;
+
+			case BLUETHROAT_MSG_TYPE_GNSS_GGA_DATA:
+				break;
+
+			case BLUETHROAT_MSG_TYPE_GNSS_VTG_DATA:
+				break;
+
+			case BLUETHROAT_MSG_TYPE_BLUETOOTH_STATE:
+				MSG_PROC_LOGD("Receive bluetooth state message, environment service state:%d, nordic uart service state:%d.", message.bluetooth_state.environment_service_state, message.bluetooth_state.nordic_uart_service_state);
+				if (message.bluetooth_state.environment_service_state == SERVICE_STATE_CONNECTED || message.bluetooth_state.nordic_uart_service_state == SERVICE_STATE_CONNECTED) {
+					UiSetBluetoothState(BLURTOOTH_STATE_CONNECTED);
+				} else {
+					UiSetBluetoothState(BLURTOOTH_STATE_DISCONNECTED);
+				}
+				break;
+
+			case BLUETHROAT_MSG_INVALID:
+				MSG_PROC_LOGE("Receive invalid message, message type:%d(invalid).", message.type);
+				break;
+
     		default:
-				MSG_PROC_ASSERT(false, "Unknown message type %d.", message.type); 
+				MSG_PROC_LOGE("Receive invalid message, message type:%d(unknown).", message.type);
 			}
 		} else {
 			MSG_PROC_LOGV("Receive message from queue timeout.");

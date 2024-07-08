@@ -77,7 +77,7 @@ typedef union {
 
 Bm8563Rtc::Bm8563Rtc() : I2cDevice() {
     m_p_object_name = TAG;
-    ESP_LOGI(TAG, "Create %s device.", m_p_object_name);
+    BM8563_RTC_LOGI("Create %s device.", m_p_object_name);
 }
 
 Bm8563Rtc::~Bm8563Rtc() {
@@ -163,7 +163,7 @@ esp_err_t Bm8563Rtc::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
     BM8563_RTC_ASSERT(in_size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
     Bm8563rtcTimeRegs_t *regs = (Bm8563rtcTimeRegs_t *)in_data;
 
-    p_message->type = BLUETHROAT_MSG_TYPE_RTC;
+    p_message->type = BLUETHROAT_MSG_TYPE_RTC_DATA;
     p_message->rtc_data.second = bcd_to_uint8(regs->second);
     p_message->rtc_data.minute = bcd_to_uint8(regs->minute);
     p_message->rtc_data.hour = bcd_to_uint8(regs->hour);

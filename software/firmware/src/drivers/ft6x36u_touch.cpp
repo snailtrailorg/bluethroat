@@ -144,7 +144,7 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 
 		// Send long press message to message process task
 		BluethroatMsg_t message;
-		message.type = BLUETHROAT_MSG_TYPE_BUTTON;
+		message.type = BLUETHROAT_MSG_TYPE_BUTTON_DATA;
 		message.button_data.index = button_index;
 		message.button_data.act = BUTTON_ACT_LONG_PRESSED;
 		if (this->m_queue_handle != NULL) {
@@ -185,7 +185,7 @@ esp_err_t Ft6x36uTouch::read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t
 
 		// Same button pressed and released, send short press message to message process task
 		BluethroatMsg_t message;
-		message.type = BLUETHROAT_MSG_TYPE_BUTTON;
+		message.type = BLUETHROAT_MSG_TYPE_BUTTON_DATA;
 		message.button_data.index = button_index;
 		message.button_data.act = BUTTON_ACT_PRESSED;
 		if (this->m_queue_handle != NULL) {

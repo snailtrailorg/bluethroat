@@ -192,7 +192,7 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 		int16_t battery_current = discharging_current;
 		battery_current -= charging_current;
 
-		p_message->type = BLUETHROAT_MSG_TYPE_PMU;
+		p_message->type = BLUETHROAT_MSG_TYPE_POWER_DATA;
 		p_message->pmu_data.battery_voltage = voltage;
 		p_message->pmu_data.battery_current = battery_current;
 		p_message->pmu_data.battery_charging = p_pmu_status->power_status.charging;
@@ -204,6 +204,8 @@ esp_err_t Axp192Pmu::process_data(uint8_t *in_data, uint8_t in_size, BluethroatM
 			(p_message->pmu_data.battery_charging) ? "true" : "false", \
 			(p_message->pmu_data.battery_activiting) ? "true" : "false", \
 			(p_message->pmu_data.charge_undercurrent) ? "true" : "false");
+	} else {
+		p_message->type = BLUETHROAT_MSG_INVALID;
 	}
 
     return ESP_OK;
