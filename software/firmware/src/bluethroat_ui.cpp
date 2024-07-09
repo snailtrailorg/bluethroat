@@ -195,17 +195,17 @@ void BluethroatUi::Init(void) {
 
 		lv_obj_t *status_bar = bluethroat_draw_panel(m_flying_screen, m_flying_screen, LV_ALIGN_TOP_MID, 0, 0, 320, 24, DEFAULT_PANEL_BG_COLOR, DEFAULT_PANEL_BG_OPACITY, 0, 0, DEFAULT_PANEL_BORDER_COLOR, DEFAULT_PANEL_BORDER_OPACITY, 0);
 
-		m_clock_label		= bluethroat_draw_label(status_bar, status_bar, LV_ALIGN_LEFT_MID, 4, 0, 64, 16, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_LABEL_CLOCK_COLOR, &antonio_regular_16, "23:59");
+		m_clock_label		= bluethroat_draw_label(status_bar, status_bar, LV_ALIGN_LEFT_MID, 4, 0, 64, 16, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_LABEL_CLOCK_COLOR, &antonio_regular_16, "23:59:59");
 		m_battery_icon		= bluethroat_draw_icon(status_bar, status_bar, LV_ALIGN_RIGHT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_BATTERY_COLOR, &awesome6_16, LVGL_SYMBOL_BATTERY_THREE_QUARTERS);
 	    m_charge_icon		= bluethroat_draw_icon(status_bar, m_battery_icon, LV_ALIGN_CENTER, 0, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_CHARGE_COLOR, &awesome6_16, LVGL_SYMBOL_BOLT);
 		m_bluetooth_icon	= bluethroat_draw_icon(status_bar, m_battery_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_BT_DISABLED_COLOR, &awesome6_16, LVGL_SYMBOL_BLUETOOTH);
-		m_gnss_icon			= bluethroat_draw_icon(status_bar, m_bluetooth_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_GNSS_READY_COLOR, &awesome6_16, LVGL_SYMBOL_SATELLITE);
+		m_gnss_icon			= bluethroat_draw_icon(status_bar, m_bluetooth_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_GNSS_DISCONNECTED_COLOR, &awesome6_16, LVGL_SYMBOL_SATELLITE);
 		m_volumn_icon		= bluethroat_draw_icon(status_bar, m_gnss_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_VOLUME_COLOR, &awesome6_16, LVGL_SYMBOL_VOLUME_HIGH);
 		m_sdcard_icon		= bluethroat_draw_icon(status_bar, m_volumn_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_SDCARD_READY_COLOR, &awesome6_16, LVGL_SYMBOL_SD_CARD);
 		m_lock_icon			= bluethroat_draw_icon(status_bar, m_sdcard_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_LOCK_COLOR, &awesome6_16, LVGL_SYMBOL_LOCK);
 
 		m_speed_panel		= bluethroat_draw_panel(m_flying_dashboard_tab, m_flying_screen, LV_ALIGN_TOP_RIGHT, 0, 32, 104, 64, DEFAULT_PANEL_BG_COLOR, DEFAULT_PANEL_BG_OPACITY, DEFAULT_PANEL_RADIUS, DEFAULT_PANEL_BORDER_WIDTH, DEFAULT_PANEL_BORDER_COLOR, DEFAULT_PANEL_BORDER_OPACITY, DEFAULT_PANEL_PADDING);
-		bluethroat_draw_label(m_speed_panel, m_speed_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Speed(m/s)");
+		bluethroat_draw_label(m_speed_panel, m_speed_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Speed(km/h)");
 		m_speed_label		= bluethroat_draw_label(m_speed_panel, m_speed_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 96, 40, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_40, "12.5");
 
 		m_agl_panel			= bluethroat_draw_panel(m_flying_dashboard_tab, m_speed_panel, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 8, 104, 64, DEFAULT_PANEL_BG_COLOR, DEFAULT_PANEL_BG_OPACITY, DEFAULT_PANEL_RADIUS, DEFAULT_PANEL_BORDER_WIDTH, DEFAULT_PANEL_BORDER_COLOR, DEFAULT_PANEL_BORDER_OPACITY, DEFAULT_PANEL_PADDING);
@@ -313,5 +313,77 @@ void UiSetBluetoothState(UiBluetoothState_t state) {
 		}
 	} else {
 		BLUETHROAT_UI_LOGE("UiSetBluetoothState failed, g_p_BluethroatUi=%p, m_bluetooth_icon=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_bluetooth_icon);
+	}
+}
+
+void UiSetGnssStatus(UiGnssStatus_t status) {
+	lv_color_t gnss_color = DEFAULT_ICON_GNSS_DISABLED_COLOR;
+
+	switch (status) {
+	case GNSS_STATE_DISCONNECTED:
+		gnss_color = DEFAULT_ICON_GNSS_DISCONNECTED_COLOR;
+		break;
+	case GNSS_STATE_CONNECTED:
+		gnss_color = DEFAULT_ICON_GNSS_CONNECTED_COLOR;
+		break;
+	default:
+		break;
+	}
+
+	if (g_p_BluethroatUi && g_p_BluethroatUi->m_gnss_icon) {
+		if (pdTRUE == lvgl_acquire_token()) {
+			lv_obj_set_style_text_color(g_p_BluethroatUi->m_gnss_icon, gnss_color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+			lvgl_release_token();
+		} else {
+			BLUETHROAT_UI_LOGE("UiSetGnssStatus failed, lvgl_acquire_token failed");
+		}
+	} else {
+		BLUETHROAT_UI_LOGE("UiSetGnssStatus failed, g_p_BluethroatUi=%p, m_gnss_icon=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_gnss_icon);
+	}
+}
+
+void UiSetSpeed(float speed) {
+	if (g_p_BluethroatUi && g_p_BluethroatUi->m_speed_label) {
+		if (pdTRUE == lvgl_acquire_token()) {
+			char speed_string[16];
+			snprintf(speed_string, sizeof(speed_string), "%.0f", speed);
+			lv_label_set_text(g_p_BluethroatUi->m_speed_label, speed_string);
+			lvgl_release_token();
+		} else {
+			BLUETHROAT_UI_LOGE("UiSetSpeed failed, lvgl_acquire_token failed");
+		}
+	} else {
+		BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
+	}
+
+}
+
+void UiSetAltitude(float altitude) {
+	if (g_p_BluethroatUi && g_p_BluethroatUi->m_agl_label) {
+		if (pdTRUE == lvgl_acquire_token()) {
+			char altitude_string[16];
+			snprintf(altitude_string, sizeof(altitude_string), "%.0f", altitude);
+			lv_label_set_text(g_p_BluethroatUi->m_agl_label, altitude_string);
+			lvgl_release_token();
+		} else {
+			BLUETHROAT_UI_LOGE("UiSetAltitude failed, lvgl_acquire_token failed");
+		}
+	} else {
+		BLUETHROAT_UI_LOGE("UiSetAltitude failed, g_p_BluethroatUi=%p, m_agl_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_agl_label);
+	}
+}
+
+void UiSetAgl(float agl) {
+	if (g_p_BluethroatUi && g_p_BluethroatUi->m_agl_label) {
+		if (pdTRUE == lvgl_acquire_token()) {
+			char agl_string[16];
+			snprintf(agl_string, sizeof(agl_string), "%.1f", agl);
+			lv_label_set_text(g_p_BluethroatUi->m_agl_label, agl_string);
+			lvgl_release_token();
+		} else {
+			BLUETHROAT_UI_LOGE("UiSetAgl failed, lvgl_acquire_token failed");
+		}
+	} else {
+		BLUETHROAT_UI_LOGE("UiSetAgl failed, g_p_BluethroatUi=%p, m_agl_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_agl_label);
 	}
 }

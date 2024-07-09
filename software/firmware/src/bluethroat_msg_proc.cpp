@@ -67,17 +67,6 @@ void BluethroatMsgProc::message_loop() {
 			switch (message.type) {
 			case BLUETHROAT_MSG_TYPE_BUTTON_DATA:
 				break;
-			case BLUETHROAT_MSG_TYPE_RTC_DATA:
-				struct tm stm_time;
-				stm_time.tm_sec = message.rtc_data.second,
-				stm_time.tm_min = message.rtc_data.minute,
-				stm_time.tm_hour = message.rtc_data.hour,
-				stm_time.tm_mday = message.rtc_data.day,
-				stm_time.tm_mon = message.rtc_data.month,
-				stm_time.tm_year =message.rtc_data.year,
-				Bm8563Rtc::SetSysTime(&stm_time);
-				break;
-
 			case BLUETHROAT_MSG_TYPE_BAROMETER_DATA:
 				BluetoothSendPressure(message.barometer_data.pressure);
 				break;
@@ -102,16 +91,34 @@ void BluethroatMsgProc::message_loop() {
 				UiSetBatteryState(message.pmu_data.battery_voltage, message.pmu_data.battery_charging, message.pmu_data.battery_activiting, message.pmu_data.charge_undercurrent);
 				break;
 
-    		case BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA:
+			case BLUEHTROAT_MSG_TYPE_GNSS_STATUS:
+				MSG_PROC_LOGD("Receive gnss status message, status:%d.", message.gnss_status);
+				UiSetGnssStatus((message.gnss_status == GNSS_STATUS_CONNECTED) ? GNSS_STATE_CONNECTED : GNSS_STATE_DISCONNECTED);
 				break;
-				
+
+    		case BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA:
+				{
+					struct tm stm_time;
+					stm_time.tm_sec = message.gnss_zda_data.second,
+					stm_time.tm_min = message.gnss_zda_data.minute,
+					stm_time.tm_hour = message.gnss_zda_data.hour,
+					stm_time.tm_mday = message.gnss_zda_data.day,
+					stm_time.tm_mon = message.gnss_zda_data.month,
+					stm_time.tm_year = message.gnss_zda_data.year,
+					SetRtcTime(&stm_time);
+				}
+				break;
+
 			case BLUETHROAT_MSG_TYPE_GNSS_RMC_DATA:
 				break;
 
 			case BLUETHROAT_MSG_TYPE_GNSS_GGA_DATA:
+				UiSetAltitude(message.gnss_gga_data.altitude);
+				UiSetAgl(message.gnss_gga_data.altitude);
 				break;
 
 			case BLUETHROAT_MSG_TYPE_GNSS_VTG_DATA:
+				UiSetSpeed(message.gnss_vtg_data.speed_kmh);
 				break;
 
 			case BLUETHROAT_MSG_TYPE_BLUETOOTH_STATE:

@@ -47,4 +47,4 @@ public:
     esp_err_t read_buffer(uint32_t reg_addr, uint8_t *buffer, uint16_t size);
 };
 
-extern Ft6x36uTouch *g_pFt6x36uTouch;
+extern Ft6x36uTouch * g_pFt6x36uTouch;

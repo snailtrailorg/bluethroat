@@ -55,11 +55,12 @@ void app_main() {
     esp_log_level_set("AXP192_PMU", ESP_LOG_INFO);
     esp_log_level_set("FT6X36", ESP_LOG_INFO);
     esp_log_level_set("MSG_PROC", ESP_LOG_INFO);
-    esp_log_level_set("BM8563_RTC", ESP_LOG_INFO);
+    esp_log_level_set("BM8563_RTC", ESP_LOG_DEBUG);
     esp_log_level_set("DPS3XX_BARO", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_INFO);
-    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_DEBUG);
+    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_INFO);
     esp_log_level_set("BLUETOOTH", ESP_LOG_INFO);
+    esp_log_level_set("SYS_CLOCK", ESP_LOG_INFO);
 
     /* step 0: print motd */
     BLUETHROAT_MAIN_LOGI("bluethroat paragliding variometer version %s, powered by snailtrail.org", esp_app_get_description()->version);
@@ -142,7 +143,7 @@ void app_main() {
     if (p_Axp192Pmu != NULL) p_Axp192Pmu->Start(&(g_TaskParam[TASK_INDEX_AXP192_PMU]), pBluethroatMsgProc->m_queue_handle);
     /* ft6x36u touch needs no task, it's driven by lvgl, but it needs queue handle to send message fo button event */
     if (p_Ft6x36uTouch != NULL) p_Ft6x36uTouch->Start(NULL, pBluethroatMsgProc->m_queue_handle);
-    if (p_Bm8563Rtc != NULL) p_Bm8563Rtc->Start(&(g_TaskParam[TASK_INDEX_BM8563_RTC]), pBluethroatMsgProc->m_queue_handle);
+    /* bm8563 RTC doesn't need a task, so don't call Start() */
     if (p_Dps3xxBarometer != NULL) p_Dps3xxBarometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_BAROMETER]), pBluethroatMsgProc->m_queue_handle);
     if (p_Dps3xxAnemometer != NULL) p_Dps3xxAnemometer->Start(&(g_TaskParam[TASK_INDEX_DPS3XX_ANEMOMETER]), pBluethroatMsgProc->m_queue_handle);
     if (p_NeoM9nGnss != NULL) p_NeoM9nGnss->Start(&(g_TaskParam[TASK_INDEX_NEO_M9N_GNSS]), pBluethroatMsgProc->m_queue_handle);

@@ -108,13 +108,13 @@ esp_err_t Axp192Pmu::init_device() {
 	enable_battery_voltage_adc(true);
 	enable_battery_current_adc(true);
 
-	g_p_axp192_pmu = this;
+	g_pAxp192Pmu = this;
 
     return ESP_OK;
 }
 
 esp_err_t Axp192Pmu::deinit_device() {
-	g_p_axp192_pmu = NULL;
+	g_pAxp192Pmu = NULL;
 	
     return ESP_OK;
 }
@@ -1292,7 +1292,7 @@ Axp192ChargingInterCurrent_t Axp192Pmu::calc_charging_current_index(uint32_t cur
 	AXP192_REG_VALUE_CHARGING_INTER_CURRENT_1320MA;
 }
 
-Axp192Pmu *g_p_axp192_pmu = NULL;
+Axp192Pmu *g_pAxp192Pmu = NULL;
 
 /***********************************************************************************************************************
 * Axp192 virbate motor function group.
@@ -1308,10 +1308,10 @@ static void virbrate_timer_callback(TimerHandle_t handle) {
 	taskEXIT_CRITICAL(&vibrate_counter_lock);
 
 	if (vibrate_counter == 0) {
-		if (g_p_axp192_pmu == NULL) {
+		if (g_pAxp192Pmu == NULL) {
 			AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		} else {
-    		g_p_axp192_pmu->enable_ldo3(false);
+    		g_pAxp192Pmu->enable_ldo3(false);
 		}
 	}
 
@@ -1327,11 +1327,11 @@ esp_err_t VibrateMotor() {
 			vibrate_counter++;
 			taskEXIT_CRITICAL(&vibrate_counter_lock);
 
-			if (g_p_axp192_pmu == NULL) {
+			if (g_pAxp192Pmu == NULL) {
 				AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 				return ESP_FAIL;
 			} else {
-				return g_p_axp192_pmu->enable_ldo3(true);
+				return g_pAxp192Pmu->enable_ldo3(true);
 			}
 		} else {
 			xTimerDelete(handle, pdMS_TO_TICKS(VIRBRATE_TIMER_DELETE_DELAY_IN_MS));
@@ -1343,19 +1343,19 @@ esp_err_t VibrateMotor() {
 }
 
 esp_err_t EnableScreenBacklight(bool enable) {
-	if (g_p_axp192_pmu == NULL) {
+	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
 	}
 
-	return g_p_axp192_pmu->enable_dcdc3(enable);
+	return g_pAxp192Pmu->enable_dcdc3(enable);
 }
 
 #define SCREEN_BRIGHTNESS_VOTLAGE_MIN		(2500)
 #define SCREEN_BRIGHTNESS_VOTLAGE_MAX		(3300)
 
 esp_err_t SetScreenBrightness(uint8_t percent) {
-	if (g_p_axp192_pmu == NULL) {
+	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
 	}
@@ -1363,57 +1363,57 @@ esp_err_t SetScreenBrightness(uint8_t percent) {
 	if (percent > 100)  percent = 100;
 	uint16_t voltage = (uint16_t)(SCREEN_BRIGHTNESS_VOTLAGE_MIN + percent * (SCREEN_BRIGHTNESS_VOTLAGE_MAX - SCREEN_BRIGHTNESS_VOTLAGE_MIN) / 100);
 
-	return g_p_axp192_pmu->set_dcdc3_voltage(voltage);
+	return g_pAxp192Pmu->set_dcdc3_voltage(voltage);
 }
 
 esp_err_t SystemPowerOff() {
-	if (g_p_axp192_pmu == NULL) {
+	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
 	}
 
-	return g_p_axp192_pmu->power_off();
+	return g_pAxp192Pmu->power_off();
 }
 
 esp_err_t EnableBusPower(bool enable) {
-	if (g_p_axp192_pmu == NULL) {
+	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
 	}
 
-	return g_p_axp192_pmu->enable_external_module(enable);
+	return g_pAxp192Pmu->enable_external_module(enable);
 }
 
 esp_err_t EnableSpeaker(bool enable) {
-	if (g_p_axp192_pmu == NULL) {
+	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
 	}
 
-	return g_p_axp192_pmu->set_gpio2_level(enable);
+	return g_pAxp192Pmu->set_gpio2_level(enable);
 }
 
 esp_err_t ResetScreen() {
-	if (g_p_axp192_pmu == NULL) {
+	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
 	}
 
-	esp_err_t result = g_p_axp192_pmu->set_gpio4_level(0);
+	esp_err_t result = g_pAxp192Pmu->set_gpio4_level(0);
 	vTaskDelay(pdMS_TO_TICKS(100));
-	result |= g_p_axp192_pmu->set_gpio4_level(1);
+	result |= g_pAxp192Pmu->set_gpio4_level(1);
 
 	return result;
 }
 
 #if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
 esp_err_t SetSystemLedState(SoftwareLedState_t state) {
-	if (g_p_axp192_pmu == NULL) {
+	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
 	}
 
-	g_p_axp192_pmu->m_software_led_state = state;
+	g_pAxp192Pmu->m_software_led_state = state;
 
 	return ESP_OK;
 }

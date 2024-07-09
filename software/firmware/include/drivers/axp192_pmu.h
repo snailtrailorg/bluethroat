@@ -737,7 +737,7 @@ private:
 #endif
 };
 
-extern Axp192Pmu *g_p_axp192_pmu;
+extern Axp192Pmu *g_pAxp192Pmu;
 
 #ifdef __cplusplus
 extern "C" {

@@ -4,7 +4,6 @@
 
 typedef enum {
     BLUETHROAT_MSG_TYPE_BUTTON_DATA = 0,
-    BLUETHROAT_MSG_TYPE_RTC_DATA,
     BLUETHROAT_MSG_TYPE_BAROMETER_DATA,
     BLUETHROAT_MSG_TYPE_ANEMOMETER_DATA,
     BLUETHROAT_MSG_TYPE_HYGROMETER_DATA,
@@ -12,6 +11,7 @@ typedef enum {
     BLUETHROAT_MSG_TYPE_ROTATION_DATA,
     BLUETHROAT_MSG_TYPE_GEOMAGNATIC_DATA,
     BLUETHROAT_MSG_TYPE_POWER_DATA,
+    BLUEHTROAT_MSG_TYPE_GNSS_STATUS,
     BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA,
     BLUETHROAT_MSG_TYPE_GNSS_RMC_DATA,
     BLUETHROAT_MSG_TYPE_GNSS_GGA_DATA,
@@ -52,16 +52,6 @@ typedef struct {
         uint8_t                        : 4;
     };
 } __attribute__ ((packed)) PmuData_t;
-
-typedef struct {
-    uint8_t second;
-    uint8_t minute;
-    uint8_t hour;
-    uint8_t weekday;
-    uint8_t day;
-    uint8_t month;
-    uint16_t year;
-} __attribute__ ((packed)) RtcData_t;
 
 typedef struct {
     float temperature;
@@ -121,6 +111,11 @@ typedef struct {
     uint16_t year;
 } __attribute__ ((packed)) GnssZdaData_t;
 
+typedef enum {
+    GNSS_STATUS_DISCONNECTED = 0,
+    GNSS_STATUS_CONNECTED,
+} GnssStatus_t;
+
 #define GNSS_LATITUDE_DIRECTION_NORTH           (0)
 #define GNSS_LATITUDE_DIRECTION_SOUTH           (1)
 #define GNSS_LONGITUDE_DIRECTION_EAST           (0)
@@ -176,7 +171,6 @@ typedef struct {
     BluethroatMsgType_t type;
     union {
         ButtonData_t button_data;
-        RtcData_t rtc_data;
         PmuData_t pmu_data;
         BarometerData_t barometer_data;
         AnemometerData_t anemometer_data;
@@ -185,6 +179,7 @@ typedef struct {
         RotationData_t rotation_data;
         GeomagneticData_t geomagnatic_data;
         PowerData_t power_data;
+        GnssStatus_t gnss_status;
         GnssZdaData_t gnss_zda_data;
         GnssRmcData_t gnss_rmc_data;
         GnssGgaData_t gnss_gga_data;

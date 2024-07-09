@@ -48,8 +48,8 @@ typedef union {
         uint8_t:1;
         uint8_t hour:6;
         uint8_t:2;
-        uint8_t day:7;
-        uint8_t:1;
+        uint8_t day:6;
+        uint8_t:2;
         uint8_t weekday:3;
         uint8_t:5;
         uint8_t month:5;
@@ -90,19 +90,21 @@ esp_err_t Bm8563Rtc::CheckDeviceId(I2cMaster *p_i2c_master, uint16_t device_addr
 	return ESP_OK;
 }
 
-esp_err_t Bm8563Rtc::GetRtcTime(struct tm *stm_time) {
+esp_err_t Bm8563Rtc::get_time(struct tm *stm_time) {
     BM8563_RTC_ASSERT(stm_time != NULL, "Get RTC time with NULL parameter.");
     Bm8563rtcTimeRegs_t regs;
-    if (ESP_OK == this->fetch_data(regs.bytes, sizeof(regs))) {
+    
+    if (ESP_OK == this->read_buffer(BM8563_DATETIME_REGS_ADDRESS, regs.bytes, sizeof(Bm8563rtcTimeRegs_t))) {
         stm_time->tm_sec = bcd_to_uint8(regs.second);
-        stm_time->tm_sec = bcd_to_uint8(regs.minute);
-        stm_time->tm_sec = bcd_to_uint8(regs.hour);
-        stm_time->tm_sec = regs.weekday;
-        stm_time->tm_sec = bcd_to_uint8(regs.day);
-        stm_time->tm_sec = bcd_to_uint8(regs.month) - 1;
-        stm_time->tm_sec = bcd_to_uint8(regs.year) + ((regs.c == 0) ? 100 : 200);
+        stm_time->tm_min = bcd_to_uint8(regs.minute);
+        stm_time->tm_hour = bcd_to_uint8(regs.hour);
+        stm_time->tm_wday = regs.weekday;
+        stm_time->tm_mday = bcd_to_uint8(regs.day);
+        stm_time->tm_mon = bcd_to_uint8(regs.month) - 1;
+        stm_time->tm_year = bcd_to_uint8(regs.year) + ((regs.c == 0) ? 100 : 200);
         stm_time->tm_yday = this->calc_year_day(stm_time->tm_year + 1900, stm_time->tm_mon, stm_time->tm_mday);
 
+        BM8563_RTC_LOGD("Get RTC time ok %4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d", stm_time->tm_year + 1900, stm_time->tm_mon+1, stm_time->tm_mday, stm_time->tm_hour, stm_time->tm_min, stm_time->tm_sec);
         return ESP_OK;
     } else {
         BM8563_RTC_LOGE("Get RTC time filed!");
@@ -110,83 +112,53 @@ esp_err_t Bm8563Rtc::GetRtcTime(struct tm *stm_time) {
     }
 }
 
-esp_err_t Bm8563Rtc::SetRtcTime(struct tm *stm_time) {
+esp_err_t Bm8563Rtc::set_time(struct tm *stm_time) {
     BM8563_RTC_ASSERT(stm_time != NULL, "Set RTC time with NULL parameter.");
 
     Bm8563rtcTimeRegs_t regs;
-    regs.second = stm_time->tm_sec;
+    regs.second = uint8_to_bcd(stm_time->tm_sec);
     regs.vl = 0;
-    regs.minute = stm_time->tm_min;
-    regs.hour = stm_time->tm_hour;
-    regs.day = stm_time->tm_mday;
+    regs.minute = uint8_to_bcd(stm_time->tm_min);
+    regs.hour = uint8_to_bcd(stm_time->tm_hour);
+    regs.day = uint8_to_bcd(stm_time->tm_mday);
     regs.weekday = stm_time->tm_wday;
-    regs.month = stm_time->tm_mon;
-    regs.c = ((stm_time->tm_year > 199) ? 1 : 0);
-    regs.year = stm_time->tm_year - ((stm_time->tm_year > 199) ? 100 : 200);
+    regs.month = uint8_to_bcd(stm_time->tm_mon + 1);
+    regs.c = ((stm_time->tm_year >= 200) ? 1 : 0);
+    regs.year = uint8_to_bcd(stm_time->tm_year % 100);
 
-    if (ESP_OK != this->write_buffer(BM8563_DATETIME_REGS_ADDRESS, regs.bytes, sizeof(regs))) {
+    if (ESP_OK == this->write_buffer(BM8563_DATETIME_REGS_ADDRESS, regs.bytes, sizeof(Bm8563rtcTimeRegs_t))) {
+        BM8563_RTC_LOGD("Set RTC time ok %4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d", stm_time->tm_year + 1900, stm_time->tm_mon+1, stm_time->tm_mday, stm_time->tm_hour, stm_time->tm_min, stm_time->tm_sec);
+        return ESP_OK;
+    } else {
         BM8563_RTC_LOGE("Set RTC time filed!");
         return ESP_FAIL;
-    } else {
-        BM8563_RTC_LOGD("Set RTC time ok %4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d", stm_time->tm_year + 1900, stm_time->tm_mon, stm_time->tm_mday, stm_time->tm_hour, stm_time->tm_min, stm_time->tm_sec);
-        return ESP_OK;
-    }
-}
-
-esp_err_t Bm8563Rtc::SetSysTime(struct tm *stm_time) {
-    BM8563_RTC_ASSERT(stm_time != NULL, "Set system time with NULL parameter.");
-    struct timeval stv_time = {.tv_sec = mktime(stm_time), .tv_usec = 0};
-    
-    if (0 != settimeofday(&stv_time, NULL)) {
-        BM8563_RTC_LOGE("Set system time filed!");
-        return ESP_FAIL;
-    } else {
-        BM8563_RTC_LOGD("Set system time ok %4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d", stm_time->tm_year + 1900, stm_time->tm_mon, stm_time->tm_mday, stm_time->tm_hour, stm_time->tm_min, stm_time->tm_sec);
-        return ESP_OK;
     }
 }
 
 esp_err_t Bm8563Rtc::init_device() {
+    g_pBm8563Rtc = this;
     return ESP_OK;
 }
 
 esp_err_t Bm8563Rtc::deinit_device() {
+    g_pBm8563Rtc = NULL;
     return ESP_OK;
 }
 
 esp_err_t Bm8563Rtc::fetch_data(uint8_t *data, uint8_t size) {
-    BM8563_RTC_ASSERT(size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    return this->read_buffer(BM8563_DATETIME_REGS_ADDRESS, data, sizeof(Bm8563rtcTimeRegs_t));
+    return ESP_OK;
 }
 
 esp_err_t Bm8563Rtc::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
-    BM8563_RTC_ASSERT(in_size >= sizeof(bm8563rtc_time_regs_t), "Buffer size is not enough to contain datetime structure.");
-    Bm8563rtcTimeRegs_t *regs = (Bm8563rtcTimeRegs_t *)in_data;
-
-    p_message->type = BLUETHROAT_MSG_TYPE_RTC_DATA;
-    p_message->rtc_data.second = bcd_to_uint8(regs->second);
-    p_message->rtc_data.minute = bcd_to_uint8(regs->minute);
-    p_message->rtc_data.hour = bcd_to_uint8(regs->hour);
-    p_message->rtc_data.weekday = bcd_to_uint8(regs->weekday);
-    p_message->rtc_data.day = bcd_to_uint8(regs->day);
-    p_message->rtc_data.month = bcd_to_uint8(regs->month) - 1;
-    p_message->rtc_data.year = bcd_to_uint8(regs->year) + ((regs->c == 0) ? 100 : 200);
-
     return ESP_OK;
 }
 
 inline uint8_t Bm8563Rtc::bcd_to_uint8(uint8_t bcd) {
-    union {
-        uint8_t bcd;
-        struct {
-            uint8_t low : 4;
-            uint8_t high : 4;
-        } __attribute__ ((packed));
-    } converter;
+    return (bcd >> 4) * 10 + (bcd & 0x0F);
+}
 
-    converter.bcd = bcd;
-
-    return converter.high * 10 + converter.low;
+inline uint8_t Bm8563Rtc::uint8_to_bcd(uint8_t uint8) {
+    return (uint8 / 10) << 4 | (uint8 % 10);
 }
 
 inline uint16_t Bm8563Rtc::calc_year_day(uint16_t year, uint8_t month, uint8_t day) {
@@ -200,3 +172,22 @@ inline uint16_t Bm8563Rtc::calc_year_day(uint16_t year, uint8_t month, uint8_t d
     ;
 }
 
+Bm8563Rtc *g_pBm8563Rtc = NULL;
+
+esp_err_t GetRtcTime(struct tm *stm_time) {
+    if (g_pBm8563Rtc != NULL) {
+        return g_pBm8563Rtc->get_time(stm_time);
+    } else {
+        BM8563_RTC_LOGE("Get RTC time failed, RTC device is not initialized.");
+        return ESP_FAIL;
+    }
+}
+
+esp_err_t SetRtcTime(struct tm *stm_time) {
+    if (g_pBm8563Rtc != NULL) {
+        return g_pBm8563Rtc->set_time(stm_time);
+    } else {
+        BM8563_RTC_LOGE("Set RTC time failed, RTC device is not initialized.");
+        return ESP_FAIL;
+    }
+}

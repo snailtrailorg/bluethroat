@@ -96,7 +96,13 @@ void NeoM9nGnss::task_cpp_entry() {
     char sentence[MNEA_SENTENCE_MAX_SIZE];
 	int position;
     uint32_t read_length;
-    
+
+    GnssStatus_t status = GNSS_STATUS_DISCONNECTED;
+    uint32_t status_counter = 0;
+
+    uint32_t time_sync_counter = 3600;
+    uint32_t last_time_sync_counter = 0;
+
 	for ( ; ; ) {
         if (xQueueReceive(m_uart_queue, (void *)(&event), portMAX_DELAY)) {
 
@@ -144,19 +150,23 @@ void NeoM9nGnss::task_cpp_entry() {
                             &(latitude[0]), &(latitude[1]), &latitude_direction, 
                             &(longitude[0]), &(longitude[1]), &longitude_direction, 
                             &course, &time.tm_mday, &time.tm_mon, &time.tm_year) == 14 && status == 'A') {
-                                message.type = BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA;
-                                message.gnss_zda_data.second = time.tm_sec;
-                                message.gnss_zda_data.minute = time.tm_min;
-                                message.gnss_zda_data.hour = time.tm_hour;
-                                message.gnss_zda_data.day = time.tm_mday;
-                                message.gnss_zda_data.month = time.tm_mon;
-                                message.gnss_zda_data.year = time.tm_year;
+                                if ((time_sync_counter -last_time_sync_counter) >= 3600) {
+                                    last_time_sync_counter = time_sync_counter;
 
-                                (void)xQueueSend(m_queue_handle, &message, 0);
+                                    message.type = BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA;
+                                    message.gnss_zda_data.second = time.tm_sec;
+                                    message.gnss_zda_data.minute = time.tm_min;
+                                    message.gnss_zda_data.hour = time.tm_hour;
+                                    message.gnss_zda_data.day = time.tm_mday;
+                                    message.gnss_zda_data.month = time.tm_mon;
+                                    message.gnss_zda_data.year = time.tm_year;
 
-                                NEO_M9N_GNSS_LOGD("Report GNSS ZDA data, time: %04d-%02d-%02d %02d:%02d:%02d", 
-                                    message.gnss_zda_data.year, message.gnss_zda_data.month, message.gnss_zda_data.day, 
-                                    message.gnss_zda_data.hour, message.gnss_zda_data.minute, message.gnss_zda_data.second);
+                                    (void)xQueueSend(m_queue_handle, &message, 0);
+
+                                    NEO_M9N_GNSS_LOGD("Report GNSS ZDA data, time: %04d-%02d-%02d %02d:%02d:%02d", 
+                                        message.gnss_zda_data.year, message.gnss_zda_data.month, message.gnss_zda_data.day, 
+                                        message.gnss_zda_data.hour, message.gnss_zda_data.minute, message.gnss_zda_data.second);
+                                }
                             
                                 message.type = BLUETHROAT_MSG_TYPE_GNSS_RMC_DATA;
                                 message.gnss_rmc_data.latitude_degree = latitude[0] / 100;
@@ -183,6 +193,8 @@ void NeoM9nGnss::task_cpp_entry() {
                             } else {
                                 NEO_M9N_GNSS_LOGD("Parse GNSS RMC data failed.");
                             }
+
+                            time_sync_counter ++;
                         } else if (strncmp(sentence, "$GNGGA", strlen("$GNGGA")) == 0) {
                             uint32_t latitude[2];
                             char latitude_direction;
@@ -219,8 +231,40 @@ void NeoM9nGnss::task_cpp_entry() {
                                     message.gnss_gga_data.langitude_degree, message.gnss_gga_data.langitude_minute, message.gnss_gga_data.langitude_second, 
                                     (message.gnss_gga_data.langitude_direction == GNSS_LONGITUDE_DIRECTION_EAST) ? 'E' : 'W',
                                     message.gnss_gga_data.altitude);
+
+                                if (status == GNSS_STATUS_CONNECTED && status_counter != 0) {
+                                    status_counter = 0;
+                                } else if (status == GNSS_STATUS_DISCONNECTED && status_counter < 10) {
+                                    status_counter ++;
+                                } else if (status == GNSS_STATUS_DISCONNECTED && status_counter >= 10) {
+                                    status = GNSS_STATUS_CONNECTED;
+                                    status_counter = 0;
+
+                                    message.type = BLUEHTROAT_MSG_TYPE_GNSS_STATUS;
+                                    message.gnss_status = status;
+
+                                    (void)xQueueSend(m_queue_handle, &message, 0);
+
+                                    NEO_M9N_GNSS_LOGD("Report GNSS status, status:%d", message.gnss_status);
+                                }
                             } else {
                                 NEO_M9N_GNSS_LOGD("Parse GNSS GGA data failed.");
+
+                                if (status == GNSS_STATUS_DISCONNECTED && status_counter != 0) {
+                                    status_counter = 0;
+                                } else if (status == GNSS_STATUS_CONNECTED && status_counter < 10) {
+                                    status_counter ++;
+                                } else if (status == GNSS_STATUS_CONNECTED && status_counter >= 10) {
+                                    status = GNSS_STATUS_DISCONNECTED;
+                                    status_counter = 0;
+
+                                    message.type = BLUEHTROAT_MSG_TYPE_GNSS_STATUS;
+                                    message.gnss_status = status;
+
+                                    (void)xQueueSend(m_queue_handle, &message, 0);
+
+                                    NEO_M9N_GNSS_LOGD("Report GNSS status, status:%d", message.gnss_status);
+                                }
                             }
                         } else if (strncmp(sentence, "$GNVTG", strlen("$GNVTG")) == 0) {
                             /* $GNVTG,179.38,T,,M,0.949,N,1.757,K,D*22 */
