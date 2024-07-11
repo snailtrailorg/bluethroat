@@ -165,7 +165,7 @@ void NeoM9nGnss::process_gnss_sentence(char *sentence) {
     if (strncmp(sentence, "$GNGGA", strlen("$GNGGA")) == 0 || strncmp(sentence, "$GNRMC", strlen("$GNRMC")) == 0 || strncmp(sentence, "$GNVTG", strlen("$GNVTG")) == 0) {
         strcpy(split_sentence, sentence);
         int field_count = splite_sentence(sentence, fields, MNEA_SENTENCE_MAX_FIELDS);
-        NEO_M9N_GNSS_LOGE("split sentence, field count: %d", field_count);
+        NEO_M9N_GNSS_LOGD("split sentence, field count: %d", field_count);
 
         /* $GNGGA,080152.00,2236.01533,N,11400.47834,E,2,12,1.00,159.0,M,-2.5,M,,0000*53 */
         if (strcmp(fields[0], "$GNGGA") == 0 && field_count == 15) {
@@ -252,13 +252,14 @@ void NeoM9nGnss::process_gnss_sentence(char *sentence) {
                     last_time_sync_counter = time_sync_counter;
                     (void)xQueueSend(m_queue_handle, &message, 0);
 
-                    NEO_M9N_GNSS_LOGD("Report GNSS datetime data, time: %04d-%02d-%02d %02d:%02d:%02d", 
+                    NEO_M9N_GNSS_LOGD("Report GNSS RMC datetime: %04d-%02d-%02d %02d:%02d:%02d", 
                         message.gnss_zda_data.year, message.gnss_zda_data.month, message.gnss_zda_data.day, 
                         message.gnss_zda_data.hour, message.gnss_zda_data.minute, message.gnss_zda_data.second);
+                } else {
+                    NEO_M9N_GNSS_LOGD("Parse GNSS RMC datetime failed.");
                 }
             } else {
                 time_sync_counter ++;
-                NEO_M9N_GNSS_LOGD("Parse GNSS RMS datetime failed.");
             }
 
             if (sscanf(fields[3], "%d.%s", &latitude_integer, latitude_buffer) == 2 && 
