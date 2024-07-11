@@ -6,6 +6,7 @@
 #include "bluethroat_message.h"
 
 #define MNEA_SENTENCE_MAX_SIZE          (0x80)
+#define MNEA_SENTENCE_MAX_FIELDS        (0x10)
 #define UART_RECEIVE_BUFFER_SIZE        (0x400)
 #define UART_BAUDRATE_CYCLE_PER_BYTE    (10)
 #define UART_EVENT_QUEUE_SIZE           (0x40)
@@ -34,4 +35,8 @@ public:
     virtual esp_err_t init_device();
     virtual esp_err_t deinit_device();
     virtual void task_cpp_entry();
+
+private:
+    void process_gnss_sentence(char *sentence);
+    int splite_sentence(char *sentence, char *fields[], int max_fields);
 };

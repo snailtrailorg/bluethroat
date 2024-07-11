@@ -122,7 +122,7 @@ public:
     }
 
     float32_t(float number) {
-        uint32_t num_32 = (uint32_t)(number);
+        uint32_t num_32 = *((uint32_t*)(&number));
 
         if ((num_32 & 0x7fffffff) == 0) {
             // zero
