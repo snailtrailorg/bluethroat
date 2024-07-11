@@ -236,7 +236,7 @@ void NeoM9nGnss::process_gnss_sentence(char *sentence) {
                 }
             }
         /* $GNRMC,080152.00,A,2236.01533,N,11400.47834,E,0.949,179.38,070724,,,D,V*0E */
-        } else if (strcmp(fields[0], "$GNRMC") == 0 && field_count == 13 && fields[2][0] == 'A') {
+        } else if (strcmp(fields[0], "$GNRMC") == 0 && field_count == 14 && fields[2][0] == 'A') {
             if ((time_sync_counter -last_time_sync_counter) >= 3600) {
                 if (sscanf(fields[1], "%2d%2d%2d", &(time.tm_hour), &(time.tm_min), &(time.tm_sec)) == 3 &&
                     sscanf(fields[9], "%2d%2d%2d", &(time.tm_mday), &(time.tm_mon), &(time.tm_year)) == 3) {
@@ -253,7 +253,8 @@ void NeoM9nGnss::process_gnss_sentence(char *sentence) {
                     (void)xQueueSend(m_queue_handle, &message, 0);
 
                     NEO_M9N_GNSS_LOGD("Report GNSS datetime data, time: %04d-%02d-%02d %02d:%02d:%02d", 
-                        time.tm_year, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
+                        message.gnss_zda_data.year, message.gnss_zda_data.month, message.gnss_zda_data.day, 
+                        message.gnss_zda_data.hour, message.gnss_zda_data.minute, message.gnss_zda_data.second);
                 }
             } else {
                 time_sync_counter ++;
@@ -302,12 +303,13 @@ void NeoM9nGnss::process_gnss_sentence(char *sentence) {
 
                 (void)xQueueSend(m_queue_handle, &message, 0);
 
-                NEO_M9N_GNSS_LOGD("Report GNSS VTG data, course:%f", message.gnss_vtg_data.course);
+                NEO_M9N_GNSS_LOGD("Report GNSS VTG data, course:%f, speed(knot):%f, speed(kmh):%f", 
+                    message.gnss_vtg_data.course, message.gnss_vtg_data.speed_knot, message.gnss_vtg_data.speed_kmh);
             } else {
                 NEO_M9N_GNSS_LOGD("Parse GNSS VTG data failed.");
             }
         } else {
-            NEO_M9N_GNSS_LOGD("Unknown GNSS data.");
+            NEO_M9N_GNSS_LOGV("Unknown GNSS data.");
         }
     }
 }
@@ -317,7 +319,7 @@ int NeoM9nGnss::splite_sentence(char *sentence, char *fields[], int max_fields) 
     char *p = sentence;
     char *q = sentence;
 
-    while (*p != '\0' || *p != '\n' || *p != '\r') {
+    while (*p != '\0' && *p != '\n' && *p != '\r') {
         if (*p == ',' || *p == '*') {
             *p = '\0';
             fields[count] = q;
@@ -331,6 +333,8 @@ int NeoM9nGnss::splite_sentence(char *sentence, char *fields[], int max_fields) 
 
         p ++;
     }
+
+    *p = '\0';
 
     return count;
 }
