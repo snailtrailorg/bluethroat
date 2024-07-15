@@ -7,6 +7,7 @@
 #include "freertos/task.h"
 
 #include "drivers/bm8563_rtc.h"
+#include "bluethroat_config.h"
 #include "bluethroat_ui.h"
 
 #include "bluethroat_clock.h"
@@ -39,10 +40,19 @@
 
 static const char *TAG = "SYS_CLOCK";
 
+static int32_t g_n_time_zone = TIME_ZONE_DEFAULT;
+
+void SetTimeZone(int32_t n_time_zone) {
+    g_n_time_zone = n_time_zone;
+}
 
 static void bluethroat_clock_task(void *arg);
 
 void bluethroat_clock_init(void) {
+    if (g_pBluethroatConfig->GetInteger("system", "time_zone", &g_n_time_zone) != ESP_OK) {
+        SYS_CLOCK_LOGE("Get time zone failed, use default value 8.");
+    }
+
     xTaskCreate(bluethroat_clock_task, "bluethroat_clock_task", 2048*2, NULL, 0, NULL);
 }
 
@@ -74,6 +84,7 @@ static void bluethroat_clock_task(void *arg) {
         }
 
         time_t now = time(NULL);
+        now += g_n_time_zone * 3600;
         char clock_string[16];
 
         if (strftime(clock_string, sizeof(clock_string), "%T", localtime(&now)) > 0) {

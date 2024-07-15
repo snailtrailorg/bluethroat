@@ -91,7 +91,7 @@ void BluethroatMsgProc::message_loop() {
 				UiSetBatteryState(message.pmu_data.battery_voltage, message.pmu_data.battery_charging, message.pmu_data.battery_activiting, message.pmu_data.charge_undercurrent);
 				break;
 
-			case BLUEHTROAT_MSG_TYPE_GNSS_STATUS:
+			case BLUETHROAT_MSG_TYPE_GNSS_STATUS:
 				MSG_PROC_LOGD("Receive gnss status message, status:%d.", message.gnss_status);
 				UiSetGnssStatus((message.gnss_status == GNSS_STATUS_CONNECTED) ? GNSS_STATE_CONNECTED : GNSS_STATE_DISCONNECTED);
 				break;

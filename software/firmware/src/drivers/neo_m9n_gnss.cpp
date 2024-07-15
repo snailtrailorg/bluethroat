@@ -97,6 +97,11 @@ void NeoM9nGnss::task_cpp_entry() {
 	int position;
     uint32_t read_length;
 
+    BluethroatMsg_t message;
+    message.type = BLUETHROAT_MSG_TYPE_GNSS_STATUS;
+    message.gnss_status = GNSS_STATUS_DISCONNECTED;
+    (void)xQueueSend(m_queue_handle, &message, 0);
+
 	for ( ; ; ) {
         if (xQueueReceive(m_uart_queue, (void *)(&event), portMAX_DELAY)) {
 
@@ -209,7 +214,7 @@ void NeoM9nGnss::process_gnss_sentence(char *sentence) {
                     status = GNSS_STATUS_CONNECTED;
                     status_counter = 0;
 
-                    message.type = BLUEHTROAT_MSG_TYPE_GNSS_STATUS;
+                    message.type = BLUETHROAT_MSG_TYPE_GNSS_STATUS;
                     message.gnss_status = status;
 
                     (void)xQueueSend(m_queue_handle, &message, 0);
@@ -227,7 +232,7 @@ void NeoM9nGnss::process_gnss_sentence(char *sentence) {
                     status = GNSS_STATUS_DISCONNECTED;
                     status_counter = 0;
 
-                    message.type = BLUEHTROAT_MSG_TYPE_GNSS_STATUS;
+                    message.type = BLUETHROAT_MSG_TYPE_GNSS_STATUS;
                     message.gnss_status = status;
 
                     (void)xQueueSend(m_queue_handle, &message, 0);

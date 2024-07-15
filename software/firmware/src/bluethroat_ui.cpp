@@ -199,30 +199,30 @@ void BluethroatUi::Init(void) {
 		m_battery_icon		= bluethroat_draw_icon(status_bar, status_bar, LV_ALIGN_RIGHT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_BATTERY_COLOR, &awesome6_16, LVGL_SYMBOL_BATTERY_THREE_QUARTERS);
 	    m_charge_icon		= bluethroat_draw_icon(status_bar, m_battery_icon, LV_ALIGN_CENTER, 0, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_CHARGE_COLOR, &awesome6_16, LVGL_SYMBOL_BOLT);
 		m_bluetooth_icon	= bluethroat_draw_icon(status_bar, m_battery_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_BT_DISABLED_COLOR, &awesome6_16, LVGL_SYMBOL_BLUETOOTH);
-		m_gnss_icon			= bluethroat_draw_icon(status_bar, m_bluetooth_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_GNSS_DISCONNECTED_COLOR, &awesome6_16, LVGL_SYMBOL_SATELLITE);
-		m_volumn_icon		= bluethroat_draw_icon(status_bar, m_gnss_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_VOLUME_COLOR, &awesome6_16, LVGL_SYMBOL_VOLUME_HIGH);
-		m_sdcard_icon		= bluethroat_draw_icon(status_bar, m_volumn_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_SDCARD_READY_COLOR, &awesome6_16, LVGL_SYMBOL_SD_CARD);
-		m_lock_icon			= bluethroat_draw_icon(status_bar, m_sdcard_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_LOCK_COLOR, &awesome6_16, LVGL_SYMBOL_LOCK);
+		m_gnss_icon			= bluethroat_draw_icon(status_bar, m_bluetooth_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_GNSS_DISABLED_COLOR, &awesome6_16, LVGL_SYMBOL_SATELLITE);
+		m_sdcard_icon		= bluethroat_draw_icon(status_bar, m_gnss_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_SDCARD_DISABLED_COLOR, &awesome6_16, LVGL_SYMBOL_SD_CARD);
+		m_volumn_icon		= bluethroat_draw_icon(status_bar, m_sdcard_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_VOLUME_COLOR, &awesome6_16, LVGL_SYMBOL_VOLUME_HIGH);
+		m_lock_icon			= bluethroat_draw_icon(status_bar, m_volumn_icon, LV_ALIGN_OUT_LEFT_MID, -4, 0, 0, 18, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_CENTER, DEFAULT_ICON_LOCK_COLOR, &awesome6_16, LVGL_SYMBOL_LOCK);
 
 		m_speed_panel		= bluethroat_draw_panel(m_flying_dashboard_tab, m_flying_screen, LV_ALIGN_TOP_RIGHT, 0, 32, 104, 64, DEFAULT_PANEL_BG_COLOR, DEFAULT_PANEL_BG_OPACITY, DEFAULT_PANEL_RADIUS, DEFAULT_PANEL_BORDER_WIDTH, DEFAULT_PANEL_BORDER_COLOR, DEFAULT_PANEL_BORDER_OPACITY, DEFAULT_PANEL_PADDING);
 		bluethroat_draw_label(m_speed_panel, m_speed_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Speed(km/h)");
-		m_speed_label		= bluethroat_draw_label(m_speed_panel, m_speed_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 96, 40, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_40, "12.5");
+		m_speed_label		= bluethroat_draw_label(m_speed_panel, m_speed_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 96, 40, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_40, "99.9");
 
 		m_agl_panel			= bluethroat_draw_panel(m_flying_dashboard_tab, m_speed_panel, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 8, 104, 64, DEFAULT_PANEL_BG_COLOR, DEFAULT_PANEL_BG_OPACITY, DEFAULT_PANEL_RADIUS, DEFAULT_PANEL_BORDER_WIDTH, DEFAULT_PANEL_BORDER_COLOR, DEFAULT_PANEL_BORDER_OPACITY, DEFAULT_PANEL_PADDING);
 		bluethroat_draw_label(m_agl_panel, m_agl_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Above Ground(m)");
-		m_agl_label			= bluethroat_draw_label(m_agl_panel, m_agl_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 96, 40, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_40, "2345");
+		m_agl_label			= bluethroat_draw_label(m_agl_panel, m_agl_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 96, 40, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_40, "9999");
 
 		m_autitude_panel	= bluethroat_draw_panel(m_flying_dashboard_tab, m_agl_panel, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 8, 104, 64, DEFAULT_PANEL_BG_COLOR, DEFAULT_PANEL_BG_OPACITY, DEFAULT_PANEL_RADIUS, DEFAULT_PANEL_BORDER_WIDTH, DEFAULT_PANEL_BORDER_COLOR, DEFAULT_PANEL_BORDER_OPACITY, DEFAULT_PANEL_PADDING);
 		bluethroat_draw_label(m_autitude_panel, m_autitude_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Altitude(m)");
-		m_autitude_label	= bluethroat_draw_label(m_autitude_panel, m_autitude_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 96, 40, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_40, "6789");
+		m_autitude_label	= bluethroat_draw_label(m_autitude_panel, m_autitude_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 96, 40, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_40, "9999");
 
 		m_distance_panel	= bluethroat_draw_panel(m_flying_dashboard_tab, m_flying_screen, LV_ALIGN_BOTTOM_LEFT, 0, 0, 100, 44, DEFAULT_PANEL_BG_COLOR, DEFAULT_PANEL_BG_OPACITY, DEFAULT_PANEL_RADIUS, DEFAULT_PANEL_BORDER_WIDTH, DEFAULT_PANEL_BORDER_COLOR, DEFAULT_PANEL_BORDER_OPACITY, DEFAULT_PANEL_PADDING);
-		bluethroat_draw_label(m_distance_panel, m_distance_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Distance(km)");
-		m_distance_label	= bluethroat_draw_label(m_distance_panel, m_distance_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 92, 20, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_20, "12.54");
+		bluethroat_draw_label(m_distance_panel, m_distance_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Distance");
+		m_distance_label	= bluethroat_draw_label(m_distance_panel, m_distance_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 92, 20, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_20, "999.99 km");
 
 		m_airtime_panel		= bluethroat_draw_panel(m_flying_dashboard_tab, m_distance_panel, LV_ALIGN_OUT_RIGHT_MID, 8, 0, 100, 44, DEFAULT_PANEL_BG_COLOR, DEFAULT_PANEL_BG_OPACITY, DEFAULT_PANEL_RADIUS, DEFAULT_PANEL_BORDER_WIDTH, DEFAULT_PANEL_BORDER_COLOR, DEFAULT_PANEL_BORDER_OPACITY, DEFAULT_PANEL_PADDING);
-		bluethroat_draw_label(m_airtime_panel, m_airtime_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Airtime(h)");
-		m_airtime_label		= bluethroat_draw_label(m_airtime_panel, m_airtime_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 92, 20, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_20, "2.34");
+		bluethroat_draw_label(m_airtime_panel, m_airtime_panel, LV_ALIGN_TOP_LEFT, 0, 0, 0, 0, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_LEFT, DEFAULT_PANEL_DESCRIPTION_COLOR, &antonio_regular_12, "Airtime");
+		m_airtime_label		= bluethroat_draw_label(m_airtime_panel, m_airtime_panel, LV_ALIGN_BOTTOM_RIGHT, 0, 0, 92, 20, DEFAULT_LABEL_BG_COLOR, DEFAULT_LABEL_BG_OPACITY, DEFAULT_LABEL_PADDING, LV_TEXT_ALIGN_RIGHT, DEFAULT_PANEL_VALUE_COLOR, &antonio_regular_20, "99.99 h");
 
 		lvgl_release_token();
 	}
@@ -359,17 +359,17 @@ void UiSetSpeed(float speed) {
 }
 
 void UiSetAltitude(float altitude) {
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_agl_label) {
+	if (g_p_BluethroatUi && g_p_BluethroatUi->m_autitude_label) {
 		if (pdTRUE == lvgl_acquire_token()) {
 			char altitude_string[16];
 			snprintf(altitude_string, sizeof(altitude_string), "%.0f", altitude);
-			lv_label_set_text(g_p_BluethroatUi->m_agl_label, altitude_string);
+			lv_label_set_text(g_p_BluethroatUi->m_autitude_label, altitude_string);
 			lvgl_release_token();
 		} else {
 			BLUETHROAT_UI_LOGE("UiSetAltitude failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetAltitude failed, g_p_BluethroatUi=%p, m_agl_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_agl_label);
+		BLUETHROAT_UI_LOGE("UiSetAltitude failed, g_p_BluethroatUi=%p, m_autitude_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_agl_label);
 	}
 }
 
