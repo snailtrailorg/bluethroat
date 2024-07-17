@@ -346,7 +346,7 @@ void UiSetSpeed(float speed) {
 	if (g_p_BluethroatUi && g_p_BluethroatUi->m_speed_label) {
 		if (pdTRUE == lvgl_acquire_token()) {
 			char speed_string[16];
-			snprintf(speed_string, sizeof(speed_string), "%.0f", speed);
+			snprintf(speed_string, sizeof(speed_string), "%.2f", speed);
 			lv_label_set_text(g_p_BluethroatUi->m_speed_label, speed_string);
 			lvgl_release_token();
 		} else {
@@ -355,7 +355,6 @@ void UiSetSpeed(float speed) {
 	} else {
 		BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
 	}
-
 }
 
 void UiSetAltitude(float altitude) {
@@ -377,7 +376,7 @@ void UiSetAgl(float agl) {
 	if (g_p_BluethroatUi && g_p_BluethroatUi->m_agl_label) {
 		if (pdTRUE == lvgl_acquire_token()) {
 			char agl_string[16];
-			snprintf(agl_string, sizeof(agl_string), "%.1f", agl);
+			snprintf(agl_string, sizeof(agl_string), "%.0f", agl);
 			lv_label_set_text(g_p_BluethroatUi->m_agl_label, agl_string);
 			lvgl_release_token();
 		} else {
@@ -386,4 +385,42 @@ void UiSetAgl(float agl) {
 	} else {
 		BLUETHROAT_UI_LOGE("UiSetAgl failed, g_p_BluethroatUi=%p, m_agl_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_agl_label);
 	}
+}
+
+void UiSetVerticalSpeed(float vertical_speed) {
+	if (g_p_BluethroatUi) {
+		if (g_p_BluethroatUi->m_vario_label) {
+			if (pdTRUE == lvgl_acquire_token()) {
+				char vertical_speed_string[16];
+				snprintf(vertical_speed_string, sizeof(vertical_speed_string), "%.1f", vertical_speed);
+				lv_label_set_text(g_p_BluethroatUi->m_vario_label, vertical_speed_string);
+				lvgl_release_token();
+			} else {
+				BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, lvgl_acquire_token failed");
+			}
+		} else {
+			BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
+		}
+
+		if (g_p_BluethroatUi->m_sink_arc && g_p_BluethroatUi->m_lift_arc) {
+			int8_t scale_value = (int8_t)round(vertical_speed);
+			if (pdTRUE == lvgl_acquire_token()) {
+				if (scale_value < 0) {
+					lv_meter_set_indicator_end_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_sink_arc, scale_value);
+					lv_meter_set_indicator_start_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_lift_arc, 0);
+				} else {
+					lv_meter_set_indicator_end_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_sink_arc, 0);
+					lv_meter_set_indicator_start_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_lift_arc, scale_value);
+				}
+				lvgl_release_token();
+			} else {
+				BLUETHROAT_UI_LOGE("UiSetSpeed failed, lvgl_acquire_token failed");
+			}
+		} else {
+			BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_sink_arc=%p, m_lift_arc=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_sink_arc, g_p_BluethroatUi->m_lift_arc);
+		}
+	} else {
+		BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
+	}
+
 }

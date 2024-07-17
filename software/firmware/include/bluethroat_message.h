@@ -56,6 +56,8 @@ typedef struct {
 typedef struct {
     float temperature;
     float pressure;
+    float pressure_filterd;
+    uint32_t timestamp;
 } BarometerData_t;
 
 typedef struct {

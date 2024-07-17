@@ -124,3 +124,4 @@ void UiSetGnssStatus(UiGnssStatus_t status);
 void UiSetSpeed(float speed);
 void UiSetAltitude(float altitude);
 void UiSetAgl(float agl);
+void UiSetVerticalSpeed(float vertical_speed);

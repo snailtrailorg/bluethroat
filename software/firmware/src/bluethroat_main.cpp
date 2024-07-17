@@ -49,11 +49,12 @@ extern "C" void app_main(void);
 
 void app_main() {
     esp_log_level_set("*", ESP_LOG_WARN);
+    esp_log_level_set("BLUETHROAT_MAIN", ESP_LOG_INFO);
     esp_log_level_set("TASK_OBJ", ESP_LOG_INFO);
     esp_log_level_set("I2C_MASTER", ESP_LOG_INFO);
     esp_log_level_set("I2C_DEVICE", ESP_LOG_INFO);
     esp_log_level_set("AXP192_PMU", ESP_LOG_INFO);
-    esp_log_level_set("FT6X36", ESP_LOG_INFO);
+    esp_log_level_set("FT6X36U_TOUCH", ESP_LOG_INFO);
     esp_log_level_set("MSG_PROC", ESP_LOG_INFO);
     esp_log_level_set("BM8563_RTC", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_BARO", ESP_LOG_INFO);

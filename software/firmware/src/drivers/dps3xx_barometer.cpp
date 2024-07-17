@@ -3,6 +3,8 @@
 
 #include <esp_err.h>
 #include <esp_log.h>
+#include <time.h>
+#include <sys/time.h>
 
 #include "drivers/i2c_device.h"
 #include "utilities/low_pass_filter.h"
@@ -205,6 +207,8 @@ esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
 esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {
     Dps3xxData_t *regs = (Dps3xxData_t *)in_data;
 
+    uint32_t timestamp_ms = esp_log_timestamp();
+
     int32_t raw_temperature = (int32_t)(((uint32_t)regs->tmp_b2 << 24) | ((uint32_t)regs->tmp_b1 << 16) | ((uint32_t)regs->tmp_b0 << 8)) >> 8;
     int32_t raw_pressure    = (int32_t)(((uint32_t)regs->prs_b2 << 24) | ((uint32_t)regs->prs_b1 << 16) | ((uint32_t)regs->prs_b0 << 8)) >> 8;
 
@@ -234,12 +238,14 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
 
         p_message->type = BLUETHROAT_MSG_TYPE_BAROMETER_DATA;
         p_message->barometer_data.temperature = (float)temperature;
+        p_message->barometer_data.pressure = (float)pressure;
         // Left shift FILTER_DEPTH_SHALLOW instead of shallow_offset bits to avoid overflow.
         // E.g., if the sample's exponent just change to -16, while the last sevaral samples' exponent is -15, the average's exponent will be -15.
         // In this case, the shallow_offset will be 4, larger than FILTER_DEPTH_SHALLOW by 1, which will cause overflow.
         // In most cases, the pressure value is between 65536(0x10000) and 131071(0x1FFFF), just left shift FILTER_DEPTH_SHALLOW is enough.
         // If don't left shift before construct a float32_t, additional shift operations and MSB detection will cause a lot of load.
-        p_message->barometer_data.pressure = (float)float32_t(pressure.s, prs_shallow_average << FILTER_DEPTH_SHALLOW, pressure.e + shallow_offset - FILTER_DEPTH_SHALLOW);
+        p_message->barometer_data.pressure_filterd = (float)float32_t(pressure.s, prs_shallow_average << FILTER_DEPTH_SHALLOW, pressure.e + shallow_offset - FILTER_DEPTH_SHALLOW);
+        p_message->barometer_data.timestamp = timestamp_ms;
 
         DPS3XX_BARO_LOGD("Device %s send message, temperature: %f, pessure: %f", m_p_object_name, p_message->barometer_data.temperature, p_message->barometer_data.pressure);
     }

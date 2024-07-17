@@ -7,6 +7,7 @@
 
 #include "drivers/bm8563_rtc.h"
 #include "bluethroat_bluetooth.h"
+#include "bluethroat_vario.h"
 
 #define MSG_PROC_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
 #define MSG_PROC_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
@@ -69,6 +70,10 @@ void BluethroatMsgProc::message_loop() {
 				break;
 			case BLUETHROAT_MSG_TYPE_BAROMETER_DATA:
 				BluetoothSendPressure(message.barometer_data.pressure);
+				{
+					float vertical_speed = CalculateVerticalSpeed(message.barometer_data.temperature, message.barometer_data.pressure, message.barometer_data.timestamp);
+					UiSetVerticalSpeed(vertical_speed);
+				}
 				break;
 
     		case BLUETHROAT_MSG_TYPE_HYGROMETER_DATA:
