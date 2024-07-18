@@ -122,8 +122,9 @@ lv_obj_t * bluethroat_draw_icon(lv_obj_t *parent, lv_obj_t *ref, lv_align_t alig
     return label;
 }
 
-static lv_meter_indicator_t * btui_meter_add_arc_set_range(lv_obj_t *meter, lv_meter_scale_t *scale, int16_t width, lv_color_t color, int16_t r_mod, int32_t start_value, int32_t end_value) {
+static lv_meter_indicator_t * btui_meter_add_arc_set_range(lv_obj_t *meter, lv_meter_scale_t *scale, int16_t width, lv_color_t color, lv_opa_t opa, int16_t r_mod, int32_t start_value, int32_t end_value) {
     lv_meter_indicator_t *arc = lv_meter_add_arc(meter, scale, width, color, r_mod);
+	arc->opa = opa;
     lv_meter_set_indicator_start_value(meter, arc, start_value);
     lv_meter_set_indicator_end_value(meter, arc, end_value);
 
@@ -149,13 +150,13 @@ lv_obj_t * bluethroat_draw_vario_meter(lv_obj_t * parent, lv_obj_t * ref, lv_ali
 	lv_obj_set_style_text_color(meter, lv_color_hex(0x3affe7), LV_SELECTOR(LV_PART_TICKS, LV_STATE_DEFAULT));
 	lv_obj_set_style_text_font(meter, &antonio_regular_14, LV_SELECTOR(LV_PART_TICKS, LV_STATE_DEFAULT));
 
-	btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0xff7f1f), 0, -10, -8);
-	btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0xffcf1f), 0, -8, 0);
-	btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0x1fff7f), 0, 0, 8);
-	btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0x1fcfff), 0, 8, 10);
+	btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0xff7f1f), LV_OPA_COVER, 0, -10, -7);
+	btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0xffcf1f), LV_OPA_COVER, 0, -7, 0);
+	btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0x1fff7f), LV_OPA_COVER, 0, 0, 7);
+	btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0x1fcfff), LV_OPA_COVER, 0, 7, 10);
 
-	*sink_arc = btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0x7f7f7f), 0, -10, -10);
-	*lift_arc = btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0x7f7f7f), 0, 10, 10);
+	*sink_arc = btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0x7f7f7f), LV_OPA_70, 0, -10, -10);
+	*lift_arc = btui_meter_add_arc_set_range(meter, scale, 20, lv_color_hex(0x7f7f7f), LV_OPA_70, 0, 10, 10);
 
 	return meter;
 }
@@ -402,22 +403,30 @@ void UiSetVerticalSpeed(float vertical_speed) {
 			BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
 		}
 
-		if (g_p_BluethroatUi->m_sink_arc && g_p_BluethroatUi->m_lift_arc) {
-			int8_t scale_value = (int8_t)round(vertical_speed);
-			if (pdTRUE == lvgl_acquire_token()) {
-				if (scale_value < 0) {
-					lv_meter_set_indicator_end_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_sink_arc, scale_value);
-					lv_meter_set_indicator_start_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_lift_arc, 0);
+		static int8_t last_scale_value = 0;
+		int8_t scale_value = (int8_t)round(vertical_speed);
+
+		if (scale_value != last_scale_value) {
+			if (g_p_BluethroatUi->m_sink_arc && g_p_BluethroatUi->m_lift_arc) {
+				if (pdTRUE == lvgl_acquire_token()) {
+					if (scale_value < 0) {
+						lv_meter_set_indicator_end_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_sink_arc, scale_value);
+						if(last_scale_value > 0) {
+							lv_meter_set_indicator_start_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_lift_arc, 0);
+						}
+					} else {
+						lv_meter_set_indicator_start_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_lift_arc, scale_value);
+						if (last_scale_value < 0) {
+							lv_meter_set_indicator_end_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_sink_arc, 0);
+						}
+					}
+					lvgl_release_token();
 				} else {
-					lv_meter_set_indicator_end_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_sink_arc, 0);
-					lv_meter_set_indicator_start_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_lift_arc, scale_value);
+					BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, lvgl_acquire_token failed");
 				}
-				lvgl_release_token();
 			} else {
-				BLUETHROAT_UI_LOGE("UiSetSpeed failed, lvgl_acquire_token failed");
+				BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, g_p_BluethroatUi=%p, m_sink_arc=%p, m_lift_arc=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_sink_arc, g_p_BluethroatUi->m_lift_arc);
 			}
-		} else {
-			BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_sink_arc=%p, m_lift_arc=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_sink_arc, g_p_BluethroatUi->m_lift_arc);
 		}
 	} else {
 		BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);

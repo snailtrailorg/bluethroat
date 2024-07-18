@@ -58,7 +58,7 @@ float BluethraotVario::CalculateVerticalSpeed(float temperature, float pressure,
     return vertical_speed;
 }
 
-BluethraotVario *g_pBluethraotVario = NULL;
+BluethraotVario *g_pBluethraotVario = new BluethraotVario();
 
 float CalculateVerticalSpeed(float temperature, float pressure, uint32_t timestamp) {
     if (g_pBluethraotVario) {

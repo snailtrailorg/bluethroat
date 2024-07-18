@@ -71,7 +71,7 @@ void BluethroatMsgProc::message_loop() {
 			case BLUETHROAT_MSG_TYPE_BAROMETER_DATA:
 				BluetoothSendPressure(message.barometer_data.pressure);
 				{
-					float vertical_speed = CalculateVerticalSpeed(message.barometer_data.temperature, message.barometer_data.pressure, message.barometer_data.timestamp);
+					float vertical_speed = CalculateVerticalSpeed(message.barometer_data.temperature, message.barometer_data.pressure_filterd, message.barometer_data.timestamp);
 					UiSetVerticalSpeed(vertical_speed);
 				}
 				break;

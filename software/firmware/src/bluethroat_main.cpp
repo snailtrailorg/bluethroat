@@ -59,7 +59,7 @@ void app_main() {
     esp_log_level_set("BM8563_RTC", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_BARO", ESP_LOG_INFO);
     esp_log_level_set("DPS3XX_ANEMO", ESP_LOG_INFO);
-    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_DEBUG);
+    esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_INFO);
     esp_log_level_set("BLUETOOTH", ESP_LOG_INFO);
     esp_log_level_set("SYS_CLOCK", ESP_LOG_INFO);
 

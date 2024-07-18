@@ -247,7 +247,7 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
         p_message->barometer_data.pressure_filterd = (float)float32_t(pressure.s, prs_shallow_average << FILTER_DEPTH_SHALLOW, pressure.e + shallow_offset - FILTER_DEPTH_SHALLOW);
         p_message->barometer_data.timestamp = timestamp_ms;
 
-        DPS3XX_BARO_LOGD("Device %s send message, temperature: %f, pessure: %f", m_p_object_name, p_message->barometer_data.temperature, p_message->barometer_data.pressure);
+        DPS3XX_BARO_LOGD("Device: %s send message, temperature: %f, pressure: %f, pressure_filterd: %f, timestamp: %lu", m_p_object_name, p_message->barometer_data.temperature, p_message->barometer_data.pressure, p_message->barometer_data.pressure_filterd, p_message->barometer_data.timestamp);
     }
 
     return ESP_OK;

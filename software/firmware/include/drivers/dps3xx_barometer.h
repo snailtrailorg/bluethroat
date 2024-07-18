@@ -388,7 +388,7 @@ typedef struct {
 ***********************************************************************************************************************/
 #define AIR_PRESSURE_DEFAULT_VALUE      (101325)
 #define AIR_PRESSURE_DEFAULT_VALUE_MSB  (16)
-#define FILTER_DEPTH_SHALLOW            (FILTER_DEPTH_POWER_02)
+#define FILTER_DEPTH_SHALLOW            (FILTER_DEPTH_POWER_04)
 #define FILTER_DEPTH_DEEP               (FILTER_DEPTH_POWER_16)
 
 /***********************************************************************************************************************
