@@ -1,7 +1,7 @@
 [submodule "software/firmware/components/lvgl"]
 	path = software/firmware/components/lvgl
 	url = git@github.com:lvgl/lvgl.git
-	branch = release/v8.3.11
+	branch = release/v8.3.10
 [submodule "software/firmware/components/lvgl_esp32_drivers"]
 	path = software/firmware/components/lvgl_esp32_drivers
 	url = git@github.com:snailtrailorg/lvgl_esp32_drivers.git
