@@ -53,7 +53,7 @@ void bluethroat_clock_init(void) {
         SYS_CLOCK_LOGE("Get time zone failed, use default value 8.");
     }
 
-    xTaskCreate(bluethroat_clock_task, "bluethroat_clock_task", 2048*2, NULL, 0, NULL);
+    xTaskCreate(bluethroat_clock_task, "bluethroat_clock_task", 2048*2, NULL, tskIDLE_PRIORITY+2, NULL);
 }
 
 static uint32_t counter = 660;

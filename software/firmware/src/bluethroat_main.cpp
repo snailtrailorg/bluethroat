@@ -133,7 +133,7 @@ void app_main() {
 
     /* step 12: init gps module */
     NeoM9nGnss *p_NeoM9nGnss = NULL;
-    (p_NeoM9nGnss = new NeoM9nGnss())->Init(CONFIG_GNSS_UART_PORT, (gpio_num_t)CONFIG_GNSS_UART_PORT_TX_PIN, (gpio_num_t)CONFIG_GNSS_UART_PORT_RX_PIN, (gpio_num_t)UART_PIN_NO_CHANGE, (gpio_num_t)UART_PIN_NO_CHANGE, CONFIG_GNSS_UART_PORT_BAUDRATE);
+    (p_NeoM9nGnss = new NeoM9nGnss())->Init(GNSS_UART_PORT, (gpio_num_t)CONFIG_GNSS_UART_PORT_TX_PIN, (gpio_num_t)CONFIG_GNSS_UART_PORT_RX_PIN, (gpio_num_t)UART_PIN_NO_CHANGE, (gpio_num_t)UART_PIN_NO_CHANGE, CONFIG_GNSS_UART_PORT_BAUDRATE);
     //bluethroat_gps_init();
 
     /* step 13: init wifi module */

@@ -13,6 +13,20 @@
 #define UART_PATTERN_QUEUE_SIZE         (0x20)
 #define UART_RECEIVE_TIMEOUT            pdMS_TO_TICKS(20)
 
+#ifdef CONFIG_GNSS_UART_PORT
+    #if CONFIG_GNSS_UART_PORT == 0
+        #define GNSS_UART_PORT          UART_NUM_0
+    #elif CONFIG_GNSS_UART_PORT == 1
+        #define GNSS_UART_PORT          UART_NUM_1
+    #elif CONFIG_GNSS_UART_PORT == 2
+        #define GNSS_UART_PORT          UART_NUM_2
+    #elif CONFIG_GNSS_UART_PORT == 3
+        #define GNSS_UART_PORT          UART_NUM_3
+    #endif
+#else
+    #define GNSS_UART_PORT              CONFIG_GNSS_UART_PORT
+#endif
+
 class NeoM9nGnss : public TaskObject{
 public:
     uart_port_t m_uart_port;

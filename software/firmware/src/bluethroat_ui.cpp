@@ -427,6 +427,7 @@ void UiSetVerticalSpeed(float vertical_speed) {
 			} else {
 				BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, g_p_BluethroatUi=%p, m_sink_arc=%p, m_lift_arc=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_sink_arc, g_p_BluethroatUi->m_lift_arc);
 			}
+			last_scale_value = scale_value;
 		}
 	} else {
 		BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
