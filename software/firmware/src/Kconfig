@@ -290,4 +290,120 @@ menu "Bluethroat Paragliding Variometer Configurations"
 
     endmenu
 
+    menu "I2S Port Configuration"
+
+        menu "I2S Port 0"
+
+            config I2S_PORT_0_ENABLED
+                bool "Enable I2S port 0"
+                default n
+                
+            if I2S_PORT_0_ENABLED
+                config I2S_PORT_0_MCLK
+                    int "Master clock line (GPIO pin)"
+                    default -1
+                    help
+                        Master clock line. It is an optional signal depends on slave side, 
+                        mainly used for offering a reference clock to the I2S slave device.
+                config I2S_PORT_0_BCLK
+                    int "Bit clock (GPIO pin)"
+                    default 12
+                    help
+                        Bit clock line. The bit clock for data line.
+                config I2S_PORT_0_WS
+                    int "Word select (GPIO pin)"
+                    default 0
+                    help
+                        Word(Slot) select line. It is usually used to identify the vocal 
+                        tract except PDM mode.
+                config I2S_PORT_0_DIN
+                    int "Data input (GPIO pin)"
+                    default 2
+                    help
+                        Data input line. The data line for I2S input.
+                config I2S_PORT_0_DOUT
+                    int "Data output (GPIO pin)"
+                    default 2
+                    help
+                        Data output line. The data line for I2S output.
+                config I2S_PORT_0_SAMPLE_RATE
+                    int "Sample rate (Hz)"
+                    default 44100
+                    range 8000 192000
+                    help
+                        Sample rate in Hz. The sample rate of the audio data.
+                config I2S_PORT_0_SAMPLE_BITS
+                    int "Sample bits"
+                    default 8
+                    range 8 32
+                    help
+                        Sample bits. The bits of each sample.
+                config I2S_PORT_0_CHANNEL_NUM
+                    int "Channel number"
+                    default 2
+                    range 1 2
+                    help
+                        Channel number. The number of audio channels.
+            endif
+
+        endmenu
+
+        menu "I2S Port 1"
+            
+            config I2S_PORT_1_ENABLED
+                bool "Enable I2S port 1"
+                default n
+                
+            if I2S_PORT_1_ENABLED
+                config I2S_PORT_1_MCLK
+                    int "Master clock line (GPIO pin)"
+                    default -1
+                    help
+                        Master clock line. It is an optional signal depends on slave side, 
+                        mainly used for offering a reference clock to the I2S slave device.
+                config I2S_PORT_1_BCLK
+                    int "Bit clock (GPIO pin)"
+                    default 12
+                    help
+                        Bit clock line. The bit clock for data line.
+                config I2S_PORT_1_WS
+                    int "Word select (GPIO pin)"
+                    default 0
+                    help
+                        Word(Slot) select line. It is usually used to identify the vocal 
+                        tract except PDM mode.
+                config I2S_PORT_1_DIN
+                    int "Data input (GPIO pin)"
+                    default 2
+                    help
+                        Data input line. The data line for I2S input.
+                config I2S_PORT_1_DOUT
+                    int "Data output (GPIO pin)"
+                    default 2
+                    help
+                        Data output line. The data line for I2S output.
+                config I2S_PORT_1_SAMPLE_RATE
+                    int "Sample rate (Hz)"
+                    default 16000
+                    range 8000 192000
+                    help
+                        Sample rate in Hz. The sample rate of the audio data.
+                config I2S_PORT_1_SAMPLE_BITS
+                    int "Sample bits"
+                    default 8
+                    range 8 32
+                    help
+                        Sample bits. The bits of each sample.
+                config I2S_PORT_1_CHANNEL_NUM
+                    int "Channel number"
+                    default 2
+                    range 1 2
+                    help
+                        Channel number. The number of audio channels.
+            endif
+
+        endmenu
+
+    endmenu
+
 endmenu

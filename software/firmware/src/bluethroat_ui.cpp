@@ -403,7 +403,7 @@ void UiSetVerticalSpeed(float vertical_speed) {
 			BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
 		}
 
-		static int8_t last_scale_value = 0;
+		static int8_t last_scale_value = -1;
 		int8_t scale_value = (int8_t)round(vertical_speed);
 
 		if (scale_value != last_scale_value) {

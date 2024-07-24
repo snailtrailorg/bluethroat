@@ -10,6 +10,7 @@
 #include "drivers/ft6x36u_touch.h"
 #include "drivers/axp192_pmu.h"
 #include "drivers/neo_m9n_gnss.h"
+#include "drivers/i2s_master.h"
 
 #include "bluethroat_global.h"
 #include "bluethroat_ui.h"
@@ -153,5 +154,8 @@ void app_main() {
 
     /* step 14: init bluetooth */
     bluetooth_init(pBluethroatMsgProc->m_queue_handle);
+
+    /* step 15: start I2S driver */
+    I2sMaster *p_i2s_master = new I2sMaster(I2S_NUM_0, (gpio_num_t)CONFIG_I2S_PORT_0_MCLK, (gpio_num_t)CONFIG_I2S_PORT_0_BCLK, (gpio_num_t)CONFIG_I2S_PORT_0_WS, (gpio_num_t)CONFIG_I2S_PORT_0_DIN, (gpio_num_t)CONFIG_I2S_PORT_0_DOUT, (uint32_t)CONFIG_I2S_PORT_0_SAMPLE_RATE, (i2s_data_bit_width_t)CONFIG_I2S_PORT_0_SAMPLE_BITS, CONFIG_I2S_PORT_0_CHANNEL_NUM);
 
 }

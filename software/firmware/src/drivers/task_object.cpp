@@ -86,6 +86,6 @@ esp_err_t TaskObject::delete_task() {
 }
 
 void task_c_entry(void *p_param) {
-	TaskObject *p_device = (TaskObject *)p_param;
-	p_device->task_cpp_entry();
+	TaskObject *p_object = (TaskObject *)p_param;
+	p_object->task_cpp_entry();
 }
