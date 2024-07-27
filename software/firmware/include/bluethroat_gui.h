@@ -61,20 +61,20 @@ typedef enum {
     BLURTOOTH_STATE_DISABLED,
     BLURTOOTH_STATE_DISCONNECTED,
     BLURTOOTH_STATE_CONNECTED,
-} UiBluetoothState_t;
+} GuiBluetoothState_t;
 
 typedef enum {
     GNSS_STATE_DISABLED,
     GNSS_STATE_DISCONNECTED,
     GNSS_STATE_CONNECTED,
-} UiGnssStatus_t;
+} GuiGnssStatus_t;
 
 lv_obj_t * bluethroat_draw_panel(lv_obj_t *parent, lv_obj_t *ref, lv_align_t align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_color_t bg_color, lv_opa_t bg_opacity, lv_coord_t radius, lv_coord_t border_width, lv_color_t border_color, lv_opa_t border_opacity, lv_coord_t padding);
 lv_obj_t * bluethroat_draw_label(lv_obj_t *parent, lv_obj_t *ref, lv_align_t align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_color_t bg_color, lv_opa_t bg_opacity, lv_coord_t padding, lv_text_align_t text_align, lv_color_t text_color, const lv_font_t *font, const char *text);
 lv_obj_t * bluethroat_draw_icon(lv_obj_t *parent, lv_obj_t *ref, lv_align_t align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_color_t bg_color, lv_opa_t bg_opacity, lv_coord_t padding, lv_text_align_t text_align, lv_color_t text_color, const lv_font_t *font, const char *text);
 lv_obj_t * bluethroat_draw_vario_meter(lv_obj_t * parent, lv_obj_t * ref, lv_align_t align, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_meter_indicator_t **sink_arc, lv_meter_indicator_t **lift_arc);
 
-class BluethroatUi {
+class BluethroatGui {
 public:
     lv_obj_t *m_flying_screen = NULL;
 
@@ -115,13 +115,13 @@ public:
 	void Init(void);
 };
 
-extern BluethroatUi * g_p_BluethroatUi;
+extern BluethroatGui * g_p_BluethroatGui;
 
-void UiSetClock(const char * clock_string);
-void UiSetBatteryState(uint16_t battery_voltage, bool is_charging, bool is_activiting, bool is_undercurrent);
-void UiSetBluetoothState(UiBluetoothState_t state);
-void UiSetGnssStatus(UiGnssStatus_t status);
-void UiSetSpeed(float speed);
-void UiSetAltitude(float altitude);
-void UiSetAgl(float agl);
-void UiSetVerticalSpeed(float vertical_speed);
+void GuiSetClock(const char * clock_string);
+void GuiSetBatteryState(uint16_t battery_voltage, bool is_charging, bool is_activiting, bool is_undercurrent);
+void GuiSetBluetoothState(GuiBluetoothState_t state);
+void GuiSetGnssStatus(GuiGnssStatus_t status);
+void GuiSetSpeed(float speed);
+void GuiSetAltitude(float altitude);
+void GuiSetAgl(float agl);
+void GuiSetVerticalSpeed(float vertical_speed);

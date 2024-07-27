@@ -1,32 +1,32 @@
 #include <math.h>
 #include <esp_log.h>
 
-#include "bluethroat_ui.h"
+#include "bluethroat_gui.h"
 
-#define BLUETHROAT_UI_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
-#define BLUETHROAT_UI_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
-#define BLUETHROAT_UI_LOGI(format, ...) 				ESP_LOGI(TAG, format, ##__VA_ARGS__)
-#define BLUETHROAT_UI_LOGD(format, ...) 				ESP_LOGD(TAG, format, ##__VA_ARGS__)
-#define BLUETHROAT_UI_LOGV(format, ...) 				ESP_LOGV(TAG, format, ##__VA_ARGS__)
+#define BLUETHROAT_GUI_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
+#define BLUETHROAT_GUI_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
+#define BLUETHROAT_GUI_LOGI(format, ...) 				ESP_LOGI(TAG, format, ##__VA_ARGS__)
+#define BLUETHROAT_GUI_LOGD(format, ...) 				ESP_LOGD(TAG, format, ##__VA_ARGS__)
+#define BLUETHROAT_GUI_LOGV(format, ...) 				ESP_LOGV(TAG, format, ##__VA_ARGS__)
 
-#define BLUETHROAT_UI_BUFFER_LOGE(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_ERROR)
-#define BLUETHROAT_UI_BUFFER_LOGW(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_WARN)
-#define BLUETHROAT_UI_BUFFER_LOGI(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_INFO)
-#define BLUETHROAT_UI_BUFFER_LOGD(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_DEBUG)
-#define BLUETHROAT_UI_BUFFER_LOGV(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_VERBOSE)
+#define BLUETHROAT_GUI_BUFFER_LOGE(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_ERROR)
+#define BLUETHROAT_GUI_BUFFER_LOGW(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_WARN)
+#define BLUETHROAT_GUI_BUFFER_LOGI(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_INFO)
+#define BLUETHROAT_GUI_BUFFER_LOGD(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_DEBUG)
+#define BLUETHROAT_GUI_BUFFER_LOGV(buffer, buff_len) 	ESP_LOG_BUFFER_HEX_LEVEL(TAG, buffer, buff_len, ESP_LOG_VERBOSE)
 
 #ifdef _DEBUG
-#define BLUETHROAT_UI_ASSERT(condition, format, ...)   \
+#define BLUETHROAT_GUI_ASSERT(condition, format, ...)   \
 	do                                           \
 	{                                            \
 		if (!(condition))                        \
 		{                                        \
-			BLUETHROAT_UI_LOGE(format, ##__VA_ARGS__); \
+			BLUETHROAT_GUI_LOGE(format, ##__VA_ARGS__); \
 			assert(0);                           \
 		}                                        \
 	} while (0)
 #else
-#define BLUETHROAT_UI_ASSERT(condition, format, ...)
+#define BLUETHROAT_GUI_ASSERT(condition, format, ...)
 #endif
 
 static const char *TAG = "BLUETHROAT_UI";
@@ -161,7 +161,7 @@ lv_obj_t * bluethroat_draw_vario_meter(lv_obj_t * parent, lv_obj_t * ref, lv_ali
 	return meter;
 }
 
-void BluethroatUi::Init(void) {
+void BluethroatGui::Init(void) {
 	if (pdTRUE == lvgl_acquire_token()) {
 		m_flying_screen = lv_scr_act();
 		lv_obj_set_style_bg_color(m_flying_screen, DEFAULT_SCREEN_BG_COLOR, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
@@ -228,25 +228,25 @@ void BluethroatUi::Init(void) {
 		lvgl_release_token();
 	}
 
-	g_p_BluethroatUi = this;
+	g_p_BluethroatGui = this;
 }
 
-BluethroatUi * g_p_BluethroatUi = NULL;
+BluethroatGui * g_p_BluethroatGui = NULL;
 
-void UiSetClock(const char * clock_string) {
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_clock_label) {
+void GuiSetClock(const char * clock_string) {
+	if (g_p_BluethroatGui && g_p_BluethroatGui->m_clock_label) {
 		if (pdTRUE == lvgl_acquire_token()) {
-			lv_label_set_text(g_p_BluethroatUi->m_clock_label, clock_string);
+			lv_label_set_text(g_p_BluethroatGui->m_clock_label, clock_string);
 			lvgl_release_token();
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetClock failed, lvgl_acquire_token failed");
+			BLUETHROAT_GUI_LOGE("GuiSetClock failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetClock failed, g_p_BluethroatUi=%p, m_clock_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_clock_label);
+		BLUETHROAT_GUI_LOGE("GuiSetClock failed, g_p_BluethroatGui=%p, m_clock_label=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_clock_label);
 	}
 }
 
-void UiSetBatteryState(uint16_t battery_voltage, bool is_charging, bool is_activiting, bool is_undercurrent) {
+void GuiSetBatteryState(uint16_t battery_voltage, bool is_charging, bool is_activiting, bool is_undercurrent) {
 	const char * battery_icon;
 	lv_color_t battery_color = DEFAULT_ICON_BATTERY_COLOR;
 
@@ -267,31 +267,31 @@ void UiSetBatteryState(uint16_t battery_voltage, bool is_charging, bool is_activ
 		battery_color = DEFAULT_ICON_BATTERY_SICK_COLOR;
 	}
 
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_battery_icon) {
+	if (g_p_BluethroatGui && g_p_BluethroatGui->m_battery_icon) {
 		if (pdTRUE == lvgl_acquire_token()) {
-			lv_label_set_text(g_p_BluethroatUi->m_battery_icon, battery_icon);
-			lv_obj_set_style_text_color(g_p_BluethroatUi->m_battery_icon, battery_color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+			lv_label_set_text(g_p_BluethroatGui->m_battery_icon, battery_icon);
+			lv_obj_set_style_text_color(g_p_BluethroatGui->m_battery_icon, battery_color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 			lvgl_release_token();
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetBetteryState failed, lvgl_acquire_token failed");
+			BLUETHROAT_GUI_LOGE("GuiSetBetteryState failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetBetteryState failed, g_p_BluethroatUi=%p, m_battery_icon=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_battery_icon);
+		BLUETHROAT_GUI_LOGE("GuiSetBetteryState failed, g_p_BluethroatGui=%p, m_battery_icon=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_battery_icon);
 	}
 
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_charge_icon) {
+	if (g_p_BluethroatGui && g_p_BluethroatGui->m_charge_icon) {
 		if (pdTRUE == lvgl_acquire_token()) {
-			lv_label_set_text(g_p_BluethroatUi->m_charge_icon, (is_charging ? LVGL_SYMBOL_BOLT : ""));
+			lv_label_set_text(g_p_BluethroatGui->m_charge_icon, (is_charging ? LVGL_SYMBOL_BOLT : ""));
 			lvgl_release_token();
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetBetteryState failed, lvgl_acquire_token failed");
+			BLUETHROAT_GUI_LOGE("GuiSetBetteryState failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetBetteryState failed, g_p_BluethroatUi=%p, m_charge_icon=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_charge_icon);
+		BLUETHROAT_GUI_LOGE("GuiSetBetteryState failed, g_p_BluethroatGui=%p, m_charge_icon=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_charge_icon);
 	}
 }
 
-void UiSetBluetoothState(UiBluetoothState_t state) {
+void GuiSetBluetoothState(GuiBluetoothState_t state) {
 	lv_color_t bluetooth_color = DEFAULT_ICON_BT_DISABLED_COLOR;
 
 	switch (state) {
@@ -305,19 +305,19 @@ void UiSetBluetoothState(UiBluetoothState_t state) {
 		break;
 	}
 
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_bluetooth_icon) {
+	if (g_p_BluethroatGui && g_p_BluethroatGui->m_bluetooth_icon) {
 		if (pdTRUE == lvgl_acquire_token()) {
-			lv_obj_set_style_text_color(g_p_BluethroatUi->m_bluetooth_icon, bluetooth_color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+			lv_obj_set_style_text_color(g_p_BluethroatGui->m_bluetooth_icon, bluetooth_color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 			lvgl_release_token();
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetBluetoothState failed, lvgl_acquire_token failed");
+			BLUETHROAT_GUI_LOGE("GuiSetBluetoothState failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetBluetoothState failed, g_p_BluethroatUi=%p, m_bluetooth_icon=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_bluetooth_icon);
+		BLUETHROAT_GUI_LOGE("GuiSetBluetoothState failed, g_p_BluethroatGui=%p, m_bluetooth_icon=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_bluetooth_icon);
 	}
 }
 
-void UiSetGnssStatus(UiGnssStatus_t status) {
+void GuiSetGnssStatus(GuiGnssStatus_t status) {
 	lv_color_t gnss_color = DEFAULT_ICON_GNSS_DISABLED_COLOR;
 
 	switch (status) {
@@ -331,106 +331,108 @@ void UiSetGnssStatus(UiGnssStatus_t status) {
 		break;
 	}
 
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_gnss_icon) {
+	if (g_p_BluethroatGui && g_p_BluethroatGui->m_gnss_icon) {
 		if (pdTRUE == lvgl_acquire_token()) {
-			lv_obj_set_style_text_color(g_p_BluethroatUi->m_gnss_icon, gnss_color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
+			lv_obj_set_style_text_color(g_p_BluethroatGui->m_gnss_icon, gnss_color, LV_SELECTOR(LV_PART_MAIN, LV_STATE_DEFAULT));
 			lvgl_release_token();
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetGnssStatus failed, lvgl_acquire_token failed");
+			BLUETHROAT_GUI_LOGE("GuiSetGnssStatus failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetGnssStatus failed, g_p_BluethroatUi=%p, m_gnss_icon=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_gnss_icon);
+		BLUETHROAT_GUI_LOGE("GuiSetGnssStatus failed, g_p_BluethroatGui=%p, m_gnss_icon=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_gnss_icon);
 	}
 }
 
-void UiSetSpeed(float speed) {
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_speed_label) {
+void GuiSetSpeed(float speed) {
+	if (g_p_BluethroatGui && g_p_BluethroatGui->m_speed_label) {
 		if (pdTRUE == lvgl_acquire_token()) {
 			char speed_string[16];
 			snprintf(speed_string, sizeof(speed_string), "%.2f", speed);
-			lv_label_set_text(g_p_BluethroatUi->m_speed_label, speed_string);
+			lv_label_set_text(g_p_BluethroatGui->m_speed_label, speed_string);
 			lvgl_release_token();
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetSpeed failed, lvgl_acquire_token failed");
+			BLUETHROAT_GUI_LOGE("GuiSetSpeed failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
+		BLUETHROAT_GUI_LOGE("GuiSetSpeed failed, g_p_BluethroatGui=%p, m_speed_label=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_speed_label);
 	}
 }
 
-void UiSetAltitude(float altitude) {
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_autitude_label) {
+void GuiSetAltitude(float altitude) {
+	if (g_p_BluethroatGui && g_p_BluethroatGui->m_autitude_label) {
 		if (pdTRUE == lvgl_acquire_token()) {
 			char altitude_string[16];
 			snprintf(altitude_string, sizeof(altitude_string), "%.0f", altitude);
-			lv_label_set_text(g_p_BluethroatUi->m_autitude_label, altitude_string);
+			lv_label_set_text(g_p_BluethroatGui->m_autitude_label, altitude_string);
 			lvgl_release_token();
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetAltitude failed, lvgl_acquire_token failed");
+			BLUETHROAT_GUI_LOGE("GuiSetAltitude failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetAltitude failed, g_p_BluethroatUi=%p, m_autitude_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_agl_label);
+		BLUETHROAT_GUI_LOGE("GuiSetAltitude failed, g_p_BluethroatGui=%p, m_autitude_label=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_agl_label);
 	}
 }
 
-void UiSetAgl(float agl) {
-	if (g_p_BluethroatUi && g_p_BluethroatUi->m_agl_label) {
+void GuiSetAgl(float agl) {
+	if (g_p_BluethroatGui && g_p_BluethroatGui->m_agl_label) {
 		if (pdTRUE == lvgl_acquire_token()) {
 			char agl_string[16];
 			snprintf(agl_string, sizeof(agl_string), "%.0f", agl);
-			lv_label_set_text(g_p_BluethroatUi->m_agl_label, agl_string);
+			lv_label_set_text(g_p_BluethroatGui->m_agl_label, agl_string);
 			lvgl_release_token();
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetAgl failed, lvgl_acquire_token failed");
+			BLUETHROAT_GUI_LOGE("GuiSetAgl failed, lvgl_acquire_token failed");
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetAgl failed, g_p_BluethroatUi=%p, m_agl_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_agl_label);
+		BLUETHROAT_GUI_LOGE("GuiSetAgl failed, g_p_BluethroatGui=%p, m_agl_label=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_agl_label);
 	}
 }
 
-void UiSetVerticalSpeed(float vertical_speed) {
-	if (g_p_BluethroatUi) {
-		if (g_p_BluethroatUi->m_vario_label) {
+void GuiSetVerticalSpeed(float vertical_speed) {
+	if (g_p_BluethroatGui) {
+		if (g_p_BluethroatGui->m_vario_label) {
 			if (pdTRUE == lvgl_acquire_token()) {
 				char vertical_speed_string[16];
 				snprintf(vertical_speed_string, sizeof(vertical_speed_string), "%.1f", vertical_speed);
-				lv_label_set_text(g_p_BluethroatUi->m_vario_label, vertical_speed_string);
+				lv_label_set_text(g_p_BluethroatGui->m_vario_label, vertical_speed_string);
 				lvgl_release_token();
 			} else {
-				BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, lvgl_acquire_token failed");
+				BLUETHROAT_GUI_LOGE("GuiSetVerticalSpeed failed, lvgl_acquire_token failed");
 			}
 		} else {
-			BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
+			BLUETHROAT_GUI_LOGE("GuiSetVerticalSpeed failed, g_p_BluethroatGui=%p, m_speed_label=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_speed_label);
 		}
 
-		static int8_t last_scale_value = -1;
-		int8_t scale_value = (int8_t)round(vertical_speed);
+		static int32_t last_scale_value = -1;
+		int32_t scale_value = (int32_t)round(vertical_speed);
+		scale_value = (scale_value > 10) ? 10 : scale_value;
+		scale_value = (scale_value < -10) ? -10 : scale_value;
 
 		if (scale_value != last_scale_value) {
-			if (g_p_BluethroatUi->m_sink_arc && g_p_BluethroatUi->m_lift_arc) {
+			if (g_p_BluethroatGui->m_sink_arc && g_p_BluethroatGui->m_lift_arc) {
 				if (pdTRUE == lvgl_acquire_token()) {
 					if (scale_value < 0) {
-						lv_meter_set_indicator_end_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_sink_arc, scale_value);
+						lv_meter_set_indicator_end_value(g_p_BluethroatGui->m_vario_meter, g_p_BluethroatGui->m_sink_arc, scale_value);
 						if(last_scale_value > 0) {
-							lv_meter_set_indicator_start_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_lift_arc, 0);
+							lv_meter_set_indicator_start_value(g_p_BluethroatGui->m_vario_meter, g_p_BluethroatGui->m_lift_arc, 0);
 						}
 					} else {
-						lv_meter_set_indicator_start_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_lift_arc, scale_value);
+						lv_meter_set_indicator_start_value(g_p_BluethroatGui->m_vario_meter, g_p_BluethroatGui->m_lift_arc, scale_value);
 						if (last_scale_value < 0) {
-							lv_meter_set_indicator_end_value(g_p_BluethroatUi->m_vario_meter, g_p_BluethroatUi->m_sink_arc, 0);
+							lv_meter_set_indicator_end_value(g_p_BluethroatGui->m_vario_meter, g_p_BluethroatGui->m_sink_arc, 0);
 						}
 					}
 					lvgl_release_token();
 				} else {
-					BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, lvgl_acquire_token failed");
+					BLUETHROAT_GUI_LOGE("GuiSetVerticalSpeed failed, lvgl_acquire_token failed");
 				}
 			} else {
-				BLUETHROAT_UI_LOGE("UiSetVerticalSpeed failed, g_p_BluethroatUi=%p, m_sink_arc=%p, m_lift_arc=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_sink_arc, g_p_BluethroatUi->m_lift_arc);
+				BLUETHROAT_GUI_LOGE("GuiSetVerticalSpeed failed, g_p_BluethroatGui=%p, m_sink_arc=%p, m_lift_arc=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_sink_arc, g_p_BluethroatGui->m_lift_arc);
 			}
 			last_scale_value = scale_value;
 		}
 	} else {
-		BLUETHROAT_UI_LOGE("UiSetSpeed failed, g_p_BluethroatUi=%p, m_speed_label=%p", g_p_BluethroatUi, g_p_BluethroatUi->m_speed_label);
+		BLUETHROAT_GUI_LOGE("GuiSetSpeed failed, g_p_BluethroatGui=%p, m_speed_label=%p", g_p_BluethroatGui, g_p_BluethroatGui->m_speed_label);
 	}
 
 }

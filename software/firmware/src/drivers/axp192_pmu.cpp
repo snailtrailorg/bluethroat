@@ -1318,7 +1318,7 @@ static void virbrate_timer_callback(TimerHandle_t handle) {
     xTimerDelete(handle, pdMS_TO_TICKS(VIRBRATE_TIMER_DELETE_DELAY_IN_MS));
 }
 
-esp_err_t VibrateMotor() {
+esp_err_t PmuVibrateMotor() {
 	TimerHandle_t handle = xTimerCreate("vibrate", pdMS_TO_TICKS(VIRBRATE_TIME_IN_MS), pdFALSE, NULL, virbrate_timer_callback);
 
 	if (handle != NULL) {
@@ -1342,7 +1342,7 @@ esp_err_t VibrateMotor() {
 	}
 }
 
-esp_err_t EnableScreenBacklight(bool enable) {
+esp_err_t PmuEnableScreenBacklight(bool enable) {
 	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
@@ -1354,7 +1354,7 @@ esp_err_t EnableScreenBacklight(bool enable) {
 #define SCREEN_BRIGHTNESS_VOTLAGE_MIN		(2500)
 #define SCREEN_BRIGHTNESS_VOTLAGE_MAX		(3300)
 
-esp_err_t SetScreenBrightness(uint8_t percent) {
+esp_err_t PmuSetScreenBrightness(uint8_t percent) {
 	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
@@ -1366,7 +1366,7 @@ esp_err_t SetScreenBrightness(uint8_t percent) {
 	return g_pAxp192Pmu->set_dcdc3_voltage(voltage);
 }
 
-esp_err_t SystemPowerOff() {
+esp_err_t PmuSystemPowerOff() {
 	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
@@ -1375,7 +1375,7 @@ esp_err_t SystemPowerOff() {
 	return g_pAxp192Pmu->power_off();
 }
 
-esp_err_t EnableBusPower(bool enable) {
+esp_err_t PmuEnableBusPower(bool enable) {
 	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
@@ -1384,7 +1384,7 @@ esp_err_t EnableBusPower(bool enable) {
 	return g_pAxp192Pmu->enable_external_module(enable);
 }
 
-esp_err_t EnableSpeaker(bool enable) {
+esp_err_t PmuEnableSpeaker(bool enable) {
 	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
@@ -1393,7 +1393,7 @@ esp_err_t EnableSpeaker(bool enable) {
 	return g_pAxp192Pmu->set_gpio2_level(enable);
 }
 
-esp_err_t ResetScreen() {
+esp_err_t PmuResetScreen() {
 	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;
@@ -1407,7 +1407,7 @@ esp_err_t ResetScreen() {
 }
 
 #if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
-esp_err_t SetSystemLedState(SoftwareLedState_t state) {
+esp_err_t PmuSetSystemLedState(SoftwareLedState_t state) {
 	if (g_pAxp192Pmu == NULL) {
 		AXP192_PMU_LOGE("Axp192 pmu is not initialized.");
 		return ESP_FAIL;

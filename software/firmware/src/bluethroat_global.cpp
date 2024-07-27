@@ -36,6 +36,7 @@ const TaskParam_t g_TaskParam[] = {
     [TASK_INDEX_DPS3XX_BAROMETER]       = {.task_name = "DPS3XX_BARO",      .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES -  8) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS(              0))},
     [TASK_INDEX_DPS3XX_ANEMOMETER]      = {.task_name = "DPS3XX_ANEMO",     .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES -  8) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS(              0))},
     [TASK_INDEX_NEO_M9N_GNSS]           = {.task_name = "NEO_M9N_GNSS",     .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES -  8) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS(              0))},
+    [TASK_INDEX_SOUND]                  = {.task_name = "SOUND",            .task_stack_size = (2048 * 2),      .task_priority = ((configMAX_PRIORITIES -  8) | portPRIVILEGE_BIT),     .task_core_id = TASK_CORE_1,    .task_interval = (pdMS_TO_TICKS(              0))},
 #elif CONFIG_BLUETHROAD_TARGET_DEVICE_M5CORES3
 #else
     #error Invalid target device configuration, run menuconfig and reconfigure it properly

@@ -8,7 +8,7 @@
 
 #include "drivers/bm8563_rtc.h"
 #include "bluethroat_config.h"
-#include "bluethroat_ui.h"
+#include "bluethroat_gui.h"
 
 #include "bluethroat_clock.h"
 
@@ -88,7 +88,7 @@ static void bluethroat_clock_task(void *arg) {
         char clock_string[16];
 
         if (strftime(clock_string, sizeof(clock_string), "%T", localtime(&now)) > 0) {
-            UiSetClock(clock_string);
+            GuiSetClock(clock_string);
         }
     }
 }

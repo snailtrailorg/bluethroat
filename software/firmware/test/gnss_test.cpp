@@ -120,7 +120,7 @@ void process_gnss_sentence(char *sentence) {
                     status = GNSS_STATUS_CONNECTED;
                     status_counter = 0;
 
-                    message.type = BLUEHTROAT_MSG_TYPE_GNSS_STATUS;
+                    message.type = BLUETHROAT_MSG_TYPE_GNSS_STATUS;
                     message.gnss_status = status;
 
                     (void)xQueueSend(m_queue_handle, &message, 0);
@@ -138,7 +138,7 @@ void process_gnss_sentence(char *sentence) {
                     status = GNSS_STATUS_DISCONNECTED;
                     status_counter = 0;
 
-                    message.type = BLUEHTROAT_MSG_TYPE_GNSS_STATUS;
+                    message.type = BLUETHROAT_MSG_TYPE_GNSS_STATUS;
                     message.gnss_status = status;
 
                     (void)xQueueSend(m_queue_handle, &message, 0);

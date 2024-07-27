@@ -742,15 +742,15 @@ extern Axp192Pmu *g_pAxp192Pmu;
 #ifdef __cplusplus
 extern "C" {
 #endif
-esp_err_t VibrateMotor();
-esp_err_t EnableScreenBacklight(bool enable);
-esp_err_t SetScreenBrightness(uint8_t percent);
-esp_err_t SystemPowerOff();
-esp_err_t EnableBusPower(bool enable);
-esp_err_t EnableSpeaker(bool enable);
-esp_err_t ResetScreen();
+esp_err_t PmuVibrateMotor();
+esp_err_t PmuEnableScreenBacklight(bool enable);
+esp_err_t PmuSetScreenBrightness(uint8_t percent);
+esp_err_t PmuSystemPowerOff();
+esp_err_t PmuEnableBusPower(bool enable);
+esp_err_t PmuEnableSpeaker(bool enable);
+esp_err_t PmuResetScreen();
 #if CONFIG_I2C_DEVICE_AXP192_SOFTWARE_LED
-esp_err_t SetSystemLedState(SoftwareLedState_t state);
+esp_err_t PmuSetSystemLedState(SoftwareLedState_t state);
 #endif
 
 #ifdef __cplusplus

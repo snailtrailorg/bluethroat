@@ -2,12 +2,13 @@
 #include <time.h>
 #include <math.h>
 
-#include "bluethroat_msg_proc.h"
-#include "bluethroat_ui.h"
-
 #include "drivers/bm8563_rtc.h"
+#include "drivers/ns4168_sound.h"
+
+#include "bluethroat_gui.h"
 #include "bluethroat_bluetooth.h"
 #include "bluethroat_vario.h"
+#include "bluethroat_msg_proc.h"
 
 #define MSG_PROC_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
 #define MSG_PROC_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)
@@ -72,7 +73,8 @@ void BluethroatMsgProc::message_loop() {
 				BluetoothSendPressure(message.barometer_data.pressure);
 				{
 					float vertical_speed = CalculateVerticalSpeed(message.barometer_data.temperature, message.barometer_data.pressure_filterd, message.barometer_data.timestamp);
-					UiSetVerticalSpeed(vertical_speed);
+					GuiSetVerticalSpeed(vertical_speed);
+					SoundSetVerticalSpeed(vertical_speed);
 				}
 				break;
 
@@ -93,12 +95,12 @@ void BluethroatMsgProc::message_loop() {
 
     		case BLUETHROAT_MSG_TYPE_POWER_DATA:
 				MSG_PROC_LOGD("Receive power message, battery voltage:%d, battery charging:%d, battery activiting:%d, charge undercurrent:%d.", message.pmu_data.battery_voltage, message.pmu_data.battery_charging, message.pmu_data.battery_activiting, message.pmu_data.charge_undercurrent);
-				UiSetBatteryState(message.pmu_data.battery_voltage, message.pmu_data.battery_charging, message.pmu_data.battery_activiting, message.pmu_data.charge_undercurrent);
+				GuiSetBatteryState(message.pmu_data.battery_voltage, message.pmu_data.battery_charging, message.pmu_data.battery_activiting, message.pmu_data.charge_undercurrent);
 				break;
 
 			case BLUETHROAT_MSG_TYPE_GNSS_STATUS:
 				MSG_PROC_LOGD("Receive gnss status message, status:%d.", message.gnss_status);
-				UiSetGnssStatus((message.gnss_status == GNSS_STATUS_CONNECTED) ? GNSS_STATE_CONNECTED : GNSS_STATE_DISCONNECTED);
+				GuiSetGnssStatus((message.gnss_status == GNSS_STATUS_CONNECTED) ? GNSS_STATE_CONNECTED : GNSS_STATE_DISCONNECTED);
 				break;
 
     		case BLUETHROAT_MSG_TYPE_GNSS_ZDA_DATA:
@@ -118,20 +120,20 @@ void BluethroatMsgProc::message_loop() {
 				break;
 
 			case BLUETHROAT_MSG_TYPE_GNSS_GGA_DATA:
-				UiSetAltitude(message.gnss_gga_data.altitude);
-				UiSetAgl(message.gnss_gga_data.altitude);
+				GuiSetAltitude(message.gnss_gga_data.altitude);
+				GuiSetAgl(message.gnss_gga_data.altitude);
 				break;
 
 			case BLUETHROAT_MSG_TYPE_GNSS_VTG_DATA:
-				UiSetSpeed(message.gnss_vtg_data.speed_kmh);
+				GuiSetSpeed(message.gnss_vtg_data.speed_kmh);
 				break;
 
 			case BLUETHROAT_MSG_TYPE_BLUETOOTH_STATE:
 				MSG_PROC_LOGD("Receive bluetooth state message, environment service state:%d, nordic uart service state:%d.", message.bluetooth_state.environment_service_state, message.bluetooth_state.nordic_uart_service_state);
 				if (message.bluetooth_state.environment_service_state == SERVICE_STATE_CONNECTED || message.bluetooth_state.nordic_uart_service_state == SERVICE_STATE_CONNECTED) {
-					UiSetBluetoothState(BLURTOOTH_STATE_CONNECTED);
+					GuiSetBluetoothState(BLURTOOTH_STATE_CONNECTED);
 				} else {
-					UiSetBluetoothState(BLURTOOTH_STATE_DISCONNECTED);
+					GuiSetBluetoothState(BLURTOOTH_STATE_DISCONNECTED);
 				}
 				break;
 
