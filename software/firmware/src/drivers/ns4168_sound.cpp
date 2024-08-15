@@ -35,7 +35,7 @@
 
 static const char *TAG = "NS4168_SOUND";
 
-int8_t Ns4168Sound::m_sin_table[256] = {
+int8_t Ns4168Sound::m_sine_wave_table[256] = {
     (int8_t)0x00, (int8_t)0x03, (int8_t)0x06, (int8_t)0x09, (int8_t)0x0c, (int8_t)0x0f, (int8_t)0x12, (int8_t)0x15, 
     (int8_t)0x18, (int8_t)0x1c, (int8_t)0x1f, (int8_t)0x22, (int8_t)0x25, (int8_t)0x28, (int8_t)0x2b, (int8_t)0x2e, 
     (int8_t)0x30, (int8_t)0x33, (int8_t)0x36, (int8_t)0x39, (int8_t)0x3c, (int8_t)0x3f, (int8_t)0x41, (int8_t)0x44, 
@@ -70,18 +70,78 @@ int8_t Ns4168Sound::m_sin_table[256] = {
     (int8_t)0xe8, (int8_t)0xeb, (int8_t)0xee, (int8_t)0xf1, (int8_t)0xf4, (int8_t)0xf7, (int8_t)0xfa, (int8_t)0xfd, 
 };
 
-Ns4168Sound::Ns4168Sound(I2sMaster *i2s_master, uint32_t sample_rate, uint32_t sample_bits) {
-    if (g_pBluethroatConfig->GetInteger("sound", "volume", &m_volume) != ESP_OK) {
-        m_volume = 10;
-    }
+int8_t Ns4168Sound::m_square_wave_table[256] = {0};
+int8_t Ns4168Sound::m_triangle_wave_table[256] = {0};
+int8_t Ns4168Sound::m_sawtooth_wave_table[256] = {0};
 
+Ns4168Sound::Ns4168Sound(I2sMaster *i2s_master, uint32_t sample_rate, uint32_t sample_bits) {
     m_p_i2s_master = i2s_master;
     m_sample_rate = sample_rate;
     m_sample_bits = sample_bits;
-    m_speaker_enabled = false;
-    g_pNs4168Sound = this;
+
+    if (g_pBluethroatConfig->GetInteger("sound", "volume", &m_volume) != ESP_OK) {
+        m_volume = DEFAULT_VOLUME;
+    }
+
+    int32_t timeout_ms;
+    if (g_pBluethroatConfig->GetInteger("sound", "disable_sound_timeout", &timeout_ms) != ESP_OK) {
+        timeout_ms = DEFAULT_DISABLE_SOUND_TIMEOUT_MS;
+        m_disable_sound_timeout_ticks = pdMS_TO_TICKS(timeout_ms);
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "power_off_timeout", &timeout_ms) != ESP_OK) {
+        timeout_ms = DEFAULT_POWER_OFF_TIMEOUT_MS;
+        m_power_off_timeout_ticks = pdMS_TO_TICKS(timeout_ms);
+    }
+
+    if (g_pBluethroatConfig->GetInteger("sound", "accel_tone_freq", &m_accel_tone_freq_hz) != ESP_OK) {
+        m_accel_tone_freq_hz = DEFAULT_ACCEL_TONE_FREQ_HZ;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "accel_tone_waveform", &m_accel_tone_waveform) != ESP_OK) {
+        m_accel_tone_waveform = DEFAULT_ACCEL_TONE_WAVEFORM;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "accel_beep_period", &m_accel_beep_period_ms) != ESP_OK) {
+        m_accel_beep_period_ms = DEFAULT_ACCEL_BEEP_PERIOD_MS;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "speed_lift_tone_freq_base", &m_speed_lift_tone_freq_hz_base) != ESP_OK) {
+        m_speed_lift_tone_freq_hz_base = DEFAULT_SPEED_LIFT_TONE_FREQ_HZ_BASE;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "speed_lift_tone_freq_step", &m_speed_lift_tone_freq_hz_step) != ESP_OK) {
+        m_speed_lift_tone_freq_hz_step = DEFAULT_SPEED_LIFT_TONE_FREQ_HZ_STEP;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "speed_lift_tone_waveform", &m_speed_lift_tone_waveform) != ESP_OK) {
+        m_speed_lift_tone_waveform = DEFAULT_SPEED_LIFT_TONE_WAVEFORM;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "speed_lift_beep_period_base", &m_speed_lift_beep_period_ms_base) != ESP_OK) {
+        m_speed_lift_beep_period_ms_base = DEFAULT_SPEED_LIFT_BEEP_PERIOD_MS_BASE;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "speed_lift_beep_period_step", &m_speed_lift_beep_period_ms_step) != ESP_OK) {
+        m_speed_lift_beep_period_ms_step = DEFAULT_SPEED_LIFT_BEEP_PERIOD_MS_STEP;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "speed_sink_tone_freq_base", &m_speed_sink_tone_freq_hz_base) != ESP_OK) {
+        m_speed_sink_tone_freq_hz_base = DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "speed_sink_tone_freq_step", &m_speed_sink_tone_freq_hz_step) != ESP_OK) {
+        m_speed_sink_tone_freq_hz_step = DEFAULT_SPEED_SINK_TONE_FREQ_HZ_STEP;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "speed_sink_tone_waveform", &m_speed_sink_tone_waveform) != ESP_OK) {
+        m_speed_sink_tone_waveform = DEFAULT_SPEED_SINK_TONE_WAVEFORM;
+    }
+    if (g_pBluethroatConfig->GetInteger("sound", "gradient_period", &m_gradient_period_ms) != ESP_OK) {
+        m_gradient_period_ms = DEFAULT_GGRADIENT_PERIOD_MS;
+    }
+
+    m_sound_mutex = xSemaphoreCreateMutex();
+    NS4168_SOUND_ASSERT(m_sound_mutex != NULL, "Failed to create sound mutex");
+
+    m_sound_enabled = false;
     m_vertical_accel = 0;
     m_vertical_speed = 0;
+
+    CalculateSpeedLiftParams(this);
+    CalculateSpeedSinkParams(this);
+    CalculateAccelParams(this);
+
+    g_pNs4168Sound = this;
 }
 
 Ns4168Sound::~Ns4168Sound() {
@@ -112,25 +172,31 @@ void Ns4168Sound::task_cpp_entry() {
     NS4168_SOUND_ASSERT(buffer != NULL, "Failed to allocate buffer");
 
     for ( ; ; ) {
+/*
+        static uint32_t n = 0;
+        n++;
+        m_vertical_speed = 10 - ((n / 5) % 21);
+        NS4168_SOUND_LOGD("n: %ld, m_vertical_accel: %ld", n, m_vertical_speed);
+*/
         size_t written;
         esp_err_t result;
 
         if (m_vertical_speed >= 1) {
-            uint32_t tone_freq = SPEED_LIFT_TONE_FREQ_HZ_BASE + SPEED_LIFT_TONE_FREQ_HZ_STEP * m_vertical_speed;
-            uint32_t beep_period = SPEED_LIFT_BEEP_PERIOD_MS_BASE + SPEED_LIFT_BEEP_PERIOD_MS_STEP * m_vertical_speed;
+            uint32_t tone_freq = m_speed_lift_tone_freq_hz_base + m_speed_lift_tone_freq_hz_step * (m_vertical_speed - 1);
+            uint32_t beep_period = m_speed_lift_beep_period_ms_base + m_speed_lift_beep_period_ms_step * (m_vertical_speed - 1);
             uint32_t beep_period_samples = beep_period * m_sample_rate / 1000 ;
-            uint32_t sound_samples = beep_period_samples * 618 / 1000;
+            uint32_t sound_samples = beep_period_samples * SPEED_LIFT_BEEP_DUTY_RATIO;
             uint32_t grad_samples = GGRADIENT_PERIOD_MS * m_sample_rate / 1000;
             uint32_t grad_stop_sample_at_beginning = grad_samples;
             uint32_t grad_start_sample_at_end = sound_samples - grad_samples;
 
-            //NS4168_SOUND_LOGD("m_vertical_speed: %ld, tone_freq: %ld, beep_period: %ld, beep_period_samples: %ld, sound_samples: %ld, grad_samples: %ld, grad_stop_sample_at_beginning: %ld, grad_start_sample_at_end: %ld", m_vertical_speed, tone_freq, beep_period, beep_period_samples, sound_samples, grad_samples, grad_stop_sample_at_beginning, grad_start_sample_at_end);
+            NS4168_SOUND_LOGD("tone_freq: %ld, beep_period: %ld, beep_period_samples: %ld, sound_samples: %ld, grad_samples: %ld, grad_stop_sample_at_beginning: %ld, grad_start_sample_at_end: %ld", tone_freq, beep_period, beep_period_samples, sound_samples, grad_samples, grad_stop_sample_at_beginning, grad_start_sample_at_end);
 
             int32_t sample;
             uint32_t buffer_offset = 0;
             for (uint32_t i = 0; i < beep_period_samples; i++) {
                 if (i < sound_samples) {
-                    sample = m_sin_table[(((i * tone_freq) % m_sample_rate) * 256 / m_sample_rate) % 256];
+                    sample = m_sin_table[(((i * tone_freq) % m_sample_rate) * WAVEFORM_TABLE_SIZE / m_sample_rate) % WAVEFORM_TABLE_SIZE];
                     sample = sample * m_volume / 100;
                     if (grad_samples != 0 && i < grad_stop_sample_at_beginning) {
                         sample = sample * m_sin_table[i * 64 / grad_samples] / 128;
@@ -145,8 +211,10 @@ void Ns4168Sound::task_cpp_entry() {
 
                 buffer[buffer_offset++] = sample;
                 buffer[buffer_offset++] = sample;
+                buffer[buffer_offset++] = sample;
+                buffer[buffer_offset++] = sample;
 
-                if (buffer_offset >= NS4168_SOUND_BUFFER_SIZE || i >= beep_period_samples) {
+                if (buffer_offset >= NS4168_SOUND_BUFFER_SIZE || i >= (beep_period_samples - 1)) {
                     //if (i >= grad_start_sample_at_end) NS4168_SOUND_BUFFER_LOGD(buffer, buffer_offset);
                     result = m_p_i2s_master->Write(buffer, buffer_offset, &written, portMAX_DELAY);
                     if (result != ESP_OK || written != buffer_offset) {
@@ -155,8 +223,33 @@ void Ns4168Sound::task_cpp_entry() {
                     buffer_offset = 0;
                 }
             }
+        } else if (m_vertical_speed <= -1) {
+            uint32_t tone_freq = SPEED_SINK_TONE_FREQ_HZ_BASE + SPEED_SINK_TONE_FREQ_HZ_STEP * (m_vertical_speed + 1);
+            uint32_t beep_period = SPEED_SINK_BEEP_PERIOD_MS;
+            uint32_t beep_period_samples = tone_freq * beep_period / 1000 * m_sample_rate / tone_freq;
+
+            NS4168_SOUND_LOGD("tone_freq: %ld, beep_period: %ld, beep_period_samples_old: %ld, beep_period_samples: %ld", tone_freq, beep_period, beep_period_samples_old, beep_period_samples);
+
+            int32_t sample;
+            uint32_t buffer_offset = 0;
+            for (uint32_t i = 0; i < beep_period_samples; i++) {
+                sample = m_sin_table[(((i * tone_freq) % m_sample_rate) * WAVEFORM_TABLE_SIZE / m_sample_rate) % WAVEFORM_TABLE_SIZE];
+                sample = sample * m_volume / 100;
+
+                buffer[buffer_offset++] = sample;
+                buffer[buffer_offset++] = sample;
+                buffer[buffer_offset++] = sample;
+                buffer[buffer_offset++] = sample;
+
+                if (buffer_offset >= NS4168_SOUND_BUFFER_SIZE || i >= (beep_period_samples - 1)) {
+                    result = m_p_i2s_master->Write(buffer, buffer_offset, &written, portMAX_DELAY);
+                    if (result != ESP_OK || written != buffer_offset) {
+                        NS4168_SOUND_LOGE("Failed to write sound buffer: %d, %d", result, written);
+                    }
+                    buffer_offset = 0;
+                }
+            }
         } else {
-/*
             for (uint32_t i = 0; i < NS4168_SOUND_BUFFER_SIZE; i++) {
                 buffer[i] = 0;
             }
@@ -165,8 +258,9 @@ void Ns4168Sound::task_cpp_entry() {
             if (result != ESP_OK || written != NS4168_SOUND_BUFFER_SIZE) {
                 NS4168_SOUND_LOGE("Failed to write sound buffer: %d, %d", result, written);
             } 
-*/
+/*
             vTaskDelay(pdMS_TO_TICKS(10));
+*/
         }
     }
 
@@ -174,6 +268,90 @@ void Ns4168Sound::task_cpp_entry() {
 }
 
 Ns4168Sound *g_pNs4168Sound = NULL;
+
+void SoundCalculateSpeedLiftParams(Ns4168Sound *pSound) {
+    if (pSound != NULL) {
+        if (xSemaphoreTake(pSound->m_sound_mutex, portMAX_DELAY) == pdTRUE) {
+            pSound->m_p_speed_lift_wave_table = 
+                (pSound->m_speed_lift_tone_waveform == WAVEFORM_SQUARE) ? pSound->m_square_wave_table : 
+                (pSound->m_speed_lift_tone_waveform == WAVEFORM_TRIANGLE) ? pSound->m_triangle_wave_table :
+                (pSound->m_speed_lift_tone_waveform == WAVEFORM_SAWTOOTH) ? pSound->m_sawtooth_wave_table :
+                pSound->m_sine_wave_table;
+
+            for (int i=0; i<VERTICAL_SPEED_MAX; i++) {
+                uint32_t tone_freq = pSound->m_speed_lift_tone_freq_hz_base + pSound->m_speed_lift_tone_freq_hz_step * i;
+                uint32_t beep_period = pSound->m_speed_lift_beep_period_ms_base + pSound->m_speed_lift_beep_period_ms_step * i;
+                uint32_t beep_period_samples = beep_period * pSound->m_sample_rate / 1000 ;
+                uint32_t sound_samples = beep_period_samples * SPEED_LIFT_BEEP_DUTY_RATIO;
+                uint32_t grad_samples = pSound->m_gradient_period_ms * pSound->m_sample_rate / 1000;
+                uint32_t grad_stop_sample_at_beginning = grad_samples;
+                uint32_t grad_start_sample_at_end = sound_samples - grad_samples;
+
+                pSound->m_speed_lift_params[i].tone_freq = tone_freq;
+                pSound->m_speed_lift_params[i].beep_period_samples = beep_period_samples;
+                pSound->m_speed_lift_params[i].sound_samples = sound_samples;
+                pSound->m_speed_lift_params[i].grad_samples = grad_samples;
+                pSound->m_speed_lift_params[i].grad_stop_sample_at_beginning = grad_stop_sample_at_beginning;
+                pSound->m_speed_lift_params[i].grad_start_sample_at_end = grad_start_sample_at_end;
+            }
+            xSemaphoreGive(pSound->m_sound_mutex);
+        } else {
+            NS4168_SOUND_LOGE("Can not take sound mutex, failed to calculate speed lift parameters");
+        }
+    } else {
+        NS4168_SOUND_LOGE("Invalid parameter, failed to calculate speed lift parameters");
+    }
+}
+
+void SoundCalculateSpeedSinkParams(Ns4168Sound *pSound) {
+    if (pSound != NULL) {
+        if (xSemaphoreTake(pSound->m_sound_mutex, portMAX_DELAY) == pdTRUE) {
+            pSound->m_p_speed_sink_wave_table = 
+                (pSound->m_speed_sink_tone_waveform == WAVEFORM_SQUARE) ? pSound->m_square_wave_table : 
+                (pSound->m_speed_sink_tone_waveform == WAVEFORM_TRIANGLE) ? pSound->m_triangle_wave_table :
+                (pSound->m_speed_sink_tone_waveform == WAVEFORM_SAWTOOTH) ? pSound->m_sawtooth_wave_table :
+                pSound->m_sine_wave_table;
+
+            for (int i=0; i<(0-VERTICAL_SPEED_MIN); i++) {
+                uint32_t tone_freq = pSound->m_speed_sink_tone_freq_hz_base + pSound->m_speed_sink_tone_freq_hz_step * i;
+                uint32_t beep_period_samples = tone_freq * SPEED_SINK_BEEP_PERIOD_MS / 1000 * pSound->m_sample_rate / tone_freq;
+
+                pSound->m_speed_sink_params[i].tone_freq = tone_freq;
+                pSound->m_speed_sink_params[i].beep_period_samples = beep_period_samples;
+            }
+            xSemaphoreGive(pSound->m_sound_mutex);
+        } else {
+            NS4168_SOUND_LOGE("Can not take sound mutex, failed to calculate speed sink parameters");
+        }
+    } else {
+        NS4168_SOUND_LOGE("Invalid parameter, failed to calculate speed sink parameters");
+    }
+}
+
+void SoundCalculateAccelParams(Ns4168Sound *pSound) {
+    if (pSound != NULL) {
+        if (xSemaphoreTake(pSound->m_sound_mutex, portMAX_DELAY) == pdTRUE) {
+            pSound->m_p_accel_wave_table = 
+                (pSound->m_accel_tone_waveform == WAVEFORM_SQUARE) ? pSound->m_p_accel_wave_table :
+                (pSound->m_accel_tone_waveform == WAVEFORM_TRIANGLE) ? pSound->m_triangle_wave_table :
+                (pSound->m_accel_tone_waveform == WAVEFORM_SAWTOOTH) ? pSound->m_sawtooth_wave_table :
+                pSound->m_sine_wave_table;
+
+            for (int i=0; i<(0-VERTICAL_SPEED_MIN); i++) {
+                uint32_t tone_freq = pSound->m_speed_sink_tone_freq_hz_base + pSound->m_speed_sink_tone_freq_hz_step * i;
+                uint32_t beep_period_samples = tone_freq * SPEED_SINK_BEEP_PERIOD_MS / 1000 * pSound->m_sample_rate / tone_freq;
+
+                pSound->m_speed_sink_params[i].tone_freq = tone_freq;
+                pSound->m_speed_sink_params[i].beep_period_samples = beep_period_samples;
+            }
+            xSemaphoreGive(pSound->m_sound_mutex);
+        } else {
+            NS4168_SOUND_LOGE("Can not take sound mutex, failed to calculate accel parameters");
+        }
+    } else {
+        NS4168_SOUND_LOGE("Invalid parameter, failed to calculate accel parameters");
+    }
+}
 
 void SoundSetVolume(uint8_t volume) {
     if (g_pNs4168Sound != NULL) {
