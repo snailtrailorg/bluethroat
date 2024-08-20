@@ -177,8 +177,8 @@ public:
     /* Constant configuration namespace and key strings */
     static const char *m_conf_namespace;
     static const char *m_conf_key_volume;
-    static const char *m_conf_key_disable_sound_timeout;
-    static const char *m_conf_key_power_off_timeout;
+    static const char *m_conf_key_disable_sound_timeout_ms;
+    static const char *m_conf_key_power_off_timeout_ms;
     static const char *m_conf_key_acceleration_tone_freq_hz;
     static const char *m_conf_key_acceleration_beep_period_ms;
     static const char *m_conf_key_speed_lift_tone_freq_hz_base;
@@ -187,20 +187,20 @@ public:
     static const char *m_conf_key_speed_lift_beep_period_ms_step;
     static const char *m_conf_key_speed_sink_tone_freq_hz_base;
     static const char *m_conf_key_speed_sink_tone_freq_hz_step;
-    static const char *m_conf_key_speed_sink_beep_period_ms;
     static const char *m_conf_key_acceleration_tone_waveform;
     static const char *m_conf_key_speed_lift_tone_waveform;
     static const char *m_conf_key_speed_sink_tone_waveform;
 
     /* Static member variables */
     static int8_t m_waveform_table[WAVEFORM_MAX][WAVEFORM_TABLE_SIZE];
+    static int8_t m_sound_buffer[NS4168_SOUND_BUFFER_SIZE];
 
     /* Runtime member variables */
     int8_t *m_p_acceleration_waveform_table;
     int8_t *m_p_speed_lift_waveform_table;
     int8_t *m_p_speed_sink_waveform_table;
-    SpeedLiftParams_t m_speed_lift_params[VERTICAL_SPEED_MAX];
-    SpeedSinkParams_t m_speed_sink_params[0-VERTICAL_SPEED_MIN];
+    SpeedLiftParams_t m_speed_lift_params[VERTICAL_SPEED_MAX+1];
+    SpeedSinkParams_t m_speed_sink_params[1-VERTICAL_SPEED_MIN];
     AccelParams_t m_acceleration_params;
 
     SoundState_t m_sound_state;
@@ -220,6 +220,10 @@ public:
     ~Ns4168Sound();
 
 public:
+    esp_err_t conf_get_integer(const char *key_str, int32_t *value);
+    esp_err_t conf_set_integer(const char *key_str, int32_t value);
+
+public:
     esp_err_t init_device();
     esp_err_t deinit_device();
     void task_cpp_entry();
@@ -232,7 +236,7 @@ public:
 public:
     void set_acceleration_params(int32_t tone_freq_hz, int32_t beep_period_ms);
     void set_speed_lift_params(int32_t tone_freq_hz_base, int32_t tone_freq_hz_step, int32_t beep_period_ms_base, int32_t beep_period_ms_step);
-    void set_speed_sink_params(int32_t tone_freq_hz_base, int32_t tone_freq_hz_step, int32_t beep_period_ms);
+    void set_speed_sink_params(int32_t tone_freq_hz_base, int32_t tone_freq_hz_step);
     void set_acceleration_waveform(Waveform_t tone_waveform);
     void set_speed_lift_waveform(Waveform_t tone_waveform);
     void set_speed_sink_waveform(Waveform_t tone_waveform);
@@ -241,6 +245,7 @@ public:
     void play_acceleration_sound(int32_t vertical_accel);
     void play_speed_lift_sound(int32_t vertical_speed);
     void play_speed_sink_sound(int32_t vertical_speed);
+    void play_silence_sound();
 };
 
 extern Ns4168Sound *g_pNs4168Sound;
