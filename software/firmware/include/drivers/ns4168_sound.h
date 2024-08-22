@@ -54,15 +54,21 @@ typedef enum {
  * Default acceleration tone frequency and beep period.
 ****************************************************************************************/
 #define DEFAULT_ACCELERATION_TONE_FREQ_HZ       (300)
-#define DEFAULT_ACCELERATION_BEEP_PERIOD_MS     (500)
+#define DEFAULT_ACCELERATION_BEEP_PERIOD_MS     (800)
+#define SPEED_ACCELERATION_DUTY_RATIO           382 / 1000
+#define DEFAULT_ACCELERATION_BEEP_COUNT         (2)
+#define DEFAULT_ACCELERATION_BEEP_INTERVAL_MS   (10)
 #define DEFAULT_ACCELERATION_TONE_WAVEFORM      WAVEFORM_SINE
+#if DEFAULT_ACCELERATION_BEEP_COUNT < 2
+#error "Beep count of acceleration per period must not less more than 2."
+#endif
 
 /****************************************************************************************
  * Default lift tone frequency and beep period parameters.
  * Speed lift tone frequency must be a positive value.
  * Speed lift beep period must be a positive value.
 ****************************************************************************************/ 
-#define DEFAULT_SPEED_LIFT_TONE_FREQ_HZ_BASE    (800)
+#define DEFAULT_SPEED_LIFT_TONE_FREQ_HZ_BASE    (600)
 #define DEFAULT_SPEED_LIFT_TONE_FREQ_HZ_STEP    (100)
 #if (DEFAULT_SPEED_LIFT_TONE_FREQ_HZ_STEP <= 0 || DEFAULT_SPEED_LIFT_TONE_FREQ_HZ_BASE + DEFAULT_SPEED_LIFT_TONE_FREQ_HZ_STEP * VERTICAL_SPEED_MAX <= 0)
 #error "Speed lift tone frequency must be a positive value."
@@ -84,7 +90,7 @@ typedef enum {
  * Sink tone is continuous tone, so the beep period is just a peroiod of data transfer.
  * Speed sink tone frequency must more than 100.
 ****************************************************************************************/
-#define DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE    (800)
+#define DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE    (600)
 #define DEFAULT_SPEED_SINK_TONE_FREQ_HZ_STEP    (-100)
 #define SPEED_SINK_BEEP_PERIOD_MS               (500)
 #if (DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE <= 100 || DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE + DEFAULT_SPEED_SINK_TONE_FREQ_HZ_STEP * VERTICAL_SPEED_MIN <= 100)

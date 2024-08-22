@@ -64,7 +64,7 @@ void app_main() {
     esp_log_level_set("NEO_M9N_GNSS", ESP_LOG_INFO);
     esp_log_level_set("BLUETOOTH", ESP_LOG_INFO);
     esp_log_level_set("SYS_CLOCK", ESP_LOG_INFO);
-    esp_log_level_set("NS4168_SOUND", ESP_LOG_DEBUG);
+    esp_log_level_set("NS4168_SOUND", ESP_LOG_INFO);
 
     BLUETHROAT_MAIN_LOGD("ESP-IDF version: %s, size of unsigned int is: %d, sizeof unsigned long is %d", esp_get_idf_version(), sizeof(unsigned int), sizeof(unsigned long));
 
@@ -160,5 +160,6 @@ void app_main() {
     /* step 15: start I2S driver and sound task */
     I2sMaster *p_i2s_master = new I2sMaster(I2S_NUM_0, (gpio_num_t)CONFIG_I2S_PORT_0_MCLK, (gpio_num_t)CONFIG_I2S_PORT_0_BCLK, (gpio_num_t)CONFIG_I2S_PORT_0_WS, (gpio_num_t)CONFIG_I2S_PORT_0_DIN, (gpio_num_t)CONFIG_I2S_PORT_0_DOUT, (uint32_t)CONFIG_I2S_PORT_0_SAMPLE_RATE, (i2s_data_bit_width_t)CONFIG_I2S_PORT_0_SAMPLE_BITS, CONFIG_I2S_PORT_0_CHANNEL_NUM);
     Ns4168Sound *pNs4168Sound = new Ns4168Sound(p_i2s_master, CONFIG_I2S_PORT_0_SAMPLE_RATE, CONFIG_I2S_PORT_0_SAMPLE_BITS);
+    pNs4168Sound->Init();
     pNs4168Sound->Start(&(g_TaskParam[TASK_INDEX_SOUND]), pBluethroatMsgProc->m_queue_handle);
 }

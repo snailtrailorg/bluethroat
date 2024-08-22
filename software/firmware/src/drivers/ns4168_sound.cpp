@@ -230,14 +230,17 @@ esp_err_t Ns4168Sound::deinit_device() {
 
 void Ns4168Sound::set_volume(int32_t volume) {
     m_volume = volume;
+    NS4168_SOUND_LOGI("Set volume: %ld%%", volume);
 }
 
 void Ns4168Sound::set_disable_sound_timeout(int32_t timeout_ms) {
     m_disable_sound_timeout_ticks = pdMS_TO_TICKS(timeout_ms);
+    NS4168_SOUND_LOGI("Set disable sound timeout: %ld ms", timeout_ms);
 }
 
 void Ns4168Sound::set_power_off_timeout(int32_t timeout_ms) {
     m_power_off_timeout_ticks = pdMS_TO_TICKS(timeout_ms);
+    NS4168_SOUND_LOGI("Set power off timeout: %ld ms", timeout_ms);
 }
 
 void Ns4168Sound::set_acceleration_params(int32_t tone_freq_hz, int32_t beep_period_ms) {
@@ -249,6 +252,8 @@ void Ns4168Sound::set_acceleration_params(int32_t tone_freq_hz, int32_t beep_per
     m_acceleration_params.beep_period_samples = beep_period_ms * m_sample_rate / 1000;
 
     xSemaphoreGive(m_sound_mutex);
+
+    NS4168_SOUND_LOGI("Set acceleration parameters: tone_freq: %ld Hz, beep_period: %ld ms", tone_freq_hz, beep_period_ms);
 }
 
 void Ns4168Sound::set_speed_lift_params(int32_t tone_freq_hz_base, int32_t tone_freq_hz_step, int32_t beep_period_ms_base, int32_t beep_period_ms_step) {
@@ -274,19 +279,33 @@ void Ns4168Sound::set_speed_lift_params(int32_t tone_freq_hz_base, int32_t tone_
     }
 
     xSemaphoreGive(m_sound_mutex);
+
+    for (int i=0; i<(VERTICAL_SPEED_MAX+1); i++) {
+        NS4168_SOUND_LOGI("Set speed lift parameters: index: %d, tone_freq: %ld Hz, beep_period_samples: %ld ms, sound_samples: %ld, grad_samples: %ld, grad_stop_sample_at_beginning: %ld, grad_start_sample_at_end: %ld",
+            i, m_speed_lift_params[i].tone_freq, m_speed_lift_params[i].beep_period_samples, m_speed_lift_params[i].sound_samples, m_speed_lift_params[i].grad_samples, m_speed_lift_params[i].grad_stop_sample_at_beginning, m_speed_lift_params[i].grad_start_sample_at_end);
+    }
+
 }
 
 void Ns4168Sound::set_speed_sink_params(int32_t tone_freq_hz_base, int32_t tone_freq_hz_step) {
+    NS4168_SOUND_LOGE("Set speed sink parameters: tone_freq_hz_base: %ld, tone_freq_hz_step: %ld", tone_freq_hz_base, tone_freq_hz_step);
     while (xSemaphoreTake(m_sound_mutex, portMAX_DELAY) != pdTRUE) {
         NS4168_SOUND_LOGE("Can not take sound mutex to set speed sink parameters, delay and try again");
     }
 
     for (int i=0; i<(1-VERTICAL_SPEED_MIN); i++) {
-        uint32_t tone_freq = tone_freq_hz_base + tone_freq_hz_step * i;
+        uint32_t tone_freq = tone_freq_hz_base - tone_freq_hz_step * i;
         uint32_t beep_period_samples = tone_freq * SPEED_SINK_BEEP_PERIOD_MS / 1000 * m_sample_rate / tone_freq;
 
         m_speed_sink_params[i].tone_freq = tone_freq;
         m_speed_sink_params[i].beep_period_samples = beep_period_samples;
+    }
+
+    xSemaphoreGive(m_sound_mutex);
+
+    for (int i=0; i<(1-VERTICAL_SPEED_MIN); i++) {
+        NS4168_SOUND_LOGI("Set speed sink parameters: index: %d, tone_freq: %ld Hz, beep_period_samples: %ld ms",
+            i, m_speed_sink_params[i].tone_freq, m_speed_sink_params[i].beep_period_samples);
     }
 }
 
@@ -296,6 +315,11 @@ void Ns4168Sound::set_acceleration_waveform(Waveform_t tone_waveform) {
         (tone_waveform == WAVEFORM_TRIANGLE) ? m_waveform_table[WAVEFORM_TRIANGLE] :
         (tone_waveform == WAVEFORM_SAWTOOTH) ? m_waveform_table[WAVEFORM_SAWTOOTH] :
         m_waveform_table[WAVEFORM_SINE];
+    NS4168_SOUND_LOGI("Set acceleration waveform: %d(%s)", tone_waveform, 
+        (tone_waveform == WAVEFORM_SQUARE) ? "WAVEFORM_SQUARE" : 
+        (tone_waveform == WAVEFORM_TRIANGLE) ? "WAVEFORM_TRIANGLE" : 
+        (tone_waveform == WAVEFORM_SAWTOOTH) ? "WAVEFORM_SAWTOOTH" : 
+        "WAVEFORM_SINE");
 }
 
 void Ns4168Sound::set_speed_lift_waveform(Waveform_t tone_waveform) {
@@ -304,6 +328,11 @@ void Ns4168Sound::set_speed_lift_waveform(Waveform_t tone_waveform) {
         (tone_waveform == WAVEFORM_TRIANGLE) ? m_waveform_table[WAVEFORM_TRIANGLE] :
         (tone_waveform == WAVEFORM_SAWTOOTH) ? m_waveform_table[WAVEFORM_SAWTOOTH] :
         m_waveform_table[WAVEFORM_SINE];
+    NS4168_SOUND_LOGI("Set speed lift waveform: %d(%s)", tone_waveform,
+        (tone_waveform == WAVEFORM_SQUARE) ? "WAVEFORM_SQUARE" : 
+        (tone_waveform == WAVEFORM_TRIANGLE) ? "WAVEFORM_TRIANGLE" : 
+        (tone_waveform == WAVEFORM_SAWTOOTH) ? "WAVEFORM_SAWTOOTH" : 
+        "WAVEFORM_SINE");
 }
 
 void Ns4168Sound::set_speed_sink_waveform(Waveform_t tone_waveform) {
@@ -312,6 +341,11 @@ void Ns4168Sound::set_speed_sink_waveform(Waveform_t tone_waveform) {
         (tone_waveform == WAVEFORM_TRIANGLE) ? m_waveform_table[WAVEFORM_TRIANGLE] :
         (tone_waveform == WAVEFORM_SAWTOOTH) ? m_waveform_table[WAVEFORM_SAWTOOTH] :
         m_waveform_table[WAVEFORM_SINE];
+    NS4168_SOUND_LOGI("Set speed sink waveform: %d(%s)", tone_waveform,
+        (tone_waveform == WAVEFORM_SQUARE) ? "WAVEFORM_SQUARE" : 
+        (tone_waveform == WAVEFORM_TRIANGLE) ? "WAVEFORM_TRIANGLE" : 
+        (tone_waveform == WAVEFORM_SAWTOOTH) ? "WAVEFORM_SAWTOOTH" : 
+        "WAVEFORM_SINE");
 }
 
 void Ns4168Sound::play_acceleration_sound(int32_t vertical_accel) {
