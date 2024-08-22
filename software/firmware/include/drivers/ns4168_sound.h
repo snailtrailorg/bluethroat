@@ -90,7 +90,7 @@ typedef enum {
  * Sink tone is continuous tone, so the beep period is just a peroiod of data transfer.
  * Speed sink tone frequency must more than 100.
 ****************************************************************************************/
-#define DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE    (600)
+#define DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE    (200)
 #define DEFAULT_SPEED_SINK_TONE_FREQ_HZ_STEP    (-100)
 #define SPEED_SINK_BEEP_PERIOD_MS               (500)
 #if (DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE <= 100 || DEFAULT_SPEED_SINK_TONE_FREQ_HZ_BASE + DEFAULT_SPEED_SINK_TONE_FREQ_HZ_STEP * VERTICAL_SPEED_MIN <= 100)
@@ -154,10 +154,10 @@ typedef enum {
  * VERTICAL_ACCELERATION_MIN and VERTICAL_SPEED_MIN must be a negative value.
  * VERTICAL_ACCELERATION_MAX and VERTICAL_SPEED_MAX must be a positive value.
 ****************************************************************************************/
-#define VERTICAL_ACCELERATION_MIN               (-10)
-#define VERTICAL_ACCELERATION_MAX               (10)
-#define VERTICAL_SPEED_MIN                      (-10)
-#define VERTICAL_SPEED_MAX                      (10)
+#define VERTICAL_ACCELERATION_MIN               (-10)   // m/s^2
+#define VERTICAL_ACCELERATION_MAX               (10)    // m/s^2
+#define VERTICAL_SPEED_MIN                      (-10)   // m/s
+#define VERTICAL_SPEED_MAX                      (10)    // m/s
 # if (VERTICAL_ACCELERATION_MIN >= 0) || (VERTICAL_SPEED_MIN >= 0)
 #error "VERTICAL_ACCELERATION_MIN and VERTICAL_SPEED_MIN must be a negative value."
 # endif
@@ -166,7 +166,16 @@ typedef enum {
 # endif
 
 /****************************************************************************************
- * @brief Axp192 PMU class
+ *  * Verticle acceleration and speed multiple and latch.
+****************************************************************************************/
+#define VERTICAL_ACCELERATION_MULTIPLE          (10)
+#define VERTICAL_SPEED_MULTIPLE                 (10)
+#define DEFAULT_ACCELERATION_LATCH_IN_MULTIPLE  (1)
+#define DEFAULT_SPEED_LIFT_LATCH_IN_MULTIPLE    (2)
+#define DEFAULT_SPEED_SINK_LATCH_IN_MULTIPLE    (-20)
+
+/****************************************************************************************
+ * @brief NS4168 Sound class for vario meter.
 ****************************************************************************************/
 class Ns4168Sound : public TaskObject {
 public:
@@ -196,6 +205,9 @@ public:
     static const char *m_conf_key_acceleration_tone_waveform;
     static const char *m_conf_key_speed_lift_tone_waveform;
     static const char *m_conf_key_speed_sink_tone_waveform;
+    static const char *m_conf_key_acceleration_latch_in_multiple;
+    static const char *m_conf_key_speed_lift_latch_in_multiple;
+    static const char *m_conf_key_speed_sink_latch_in_multiple;
 
     /* Static member variables */
     static int8_t m_waveform_table[WAVEFORM_MAX][WAVEFORM_TABLE_SIZE];
@@ -215,8 +227,12 @@ public:
     bool m_sound_enabled;
     TickType_t m_last_beep_time_ticks;
 
-    int32_t m_vertical_accel;
-    int32_t m_vertical_speed;
+    int32_t m_vertical_accel_in_multiple;
+    int32_t m_vertical_speed_in_multiple;
+
+    int32_t m_acceleration_latch_in_multiple;
+    int32_t m_speed_lift_latch_in_multiple;
+    int32_t m_speed_sink_latch_in_multiple;
 
     /* Mutex member variables */
     SemaphoreHandle_t m_sound_mutex;
@@ -246,6 +262,9 @@ public:
     void set_acceleration_waveform(Waveform_t tone_waveform);
     void set_speed_lift_waveform(Waveform_t tone_waveform);
     void set_speed_sink_waveform(Waveform_t tone_waveform);
+    void set_acceleration_latch_in_multiple(int32_t acceleration_latch_in_multiple);
+    void set_speed_lift_latch_in_multiple(int32_t speed_lift_latch_in_multiple);
+    void set_speed_sink_latch_in_multiple(int32_t speed_sink_latch_in_multiple);
 
 public:
     void play_acceleration_sound(int32_t vertical_accel);

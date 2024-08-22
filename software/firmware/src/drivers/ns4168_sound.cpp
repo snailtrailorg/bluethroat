@@ -50,6 +50,9 @@ const char *Ns4168Sound::m_conf_key_speed_sink_tone_freq_hz_step = "speed_sink_t
 const char *Ns4168Sound::m_conf_key_acceleration_tone_waveform = "acceleration_waveform";
 const char *Ns4168Sound::m_conf_key_speed_lift_tone_waveform = "speed_lift_waveform";
 const char *Ns4168Sound::m_conf_key_speed_sink_tone_waveform = "speed_sink_waveform";
+const char *Ns4168Sound::m_conf_key_acceleration_latch_in_multiple = "acceleration_latch_in_multiple";
+const char *Ns4168Sound::m_conf_key_speed_lift_latch_in_multiple = "speed_lift_latch_in_multiple";
+const char *Ns4168Sound::m_conf_key_speed_sink_latch_in_multiple = "speed_sink_latch_in_multiple";
 
 int8_t Ns4168Sound::m_waveform_table[WAVEFORM_MAX][WAVEFORM_TABLE_SIZE] = {
     {
@@ -115,8 +118,8 @@ Ns4168Sound::Ns4168Sound(I2sMaster *i2s_master, uint32_t sample_rate, uint32_t s
     m_sound_enabled = false;
     m_last_beep_time_ticks = 0;
 
-    m_vertical_accel = 0;
-    m_vertical_speed = 0;
+    m_vertical_accel_in_multiple = 0;
+    m_vertical_speed_in_multiple = 0;
 
     m_sound_mutex = xSemaphoreCreateMutex();
     NS4168_SOUND_ASSERT(m_sound_mutex != NULL, "Failed to create sound mutex");
@@ -157,13 +160,13 @@ esp_err_t Ns4168Sound::init_device() {
     if (conf_get_integer(m_conf_key_disable_sound_timeout_ms, &disable_sound_timeout_ms) != ESP_OK) {
         disable_sound_timeout_ms = DEFAULT_DISABLE_SOUND_TIMEOUT_MS;
     }
-    set_disable_sound_timeout(pdMS_TO_TICKS(disable_sound_timeout_ms));
+    set_disable_sound_timeout(disable_sound_timeout_ms);
 
     int32_t power_off_timeout_ms;
     if (conf_get_integer(m_conf_key_power_off_timeout_ms, &power_off_timeout_ms) != ESP_OK) {
         power_off_timeout_ms = DEFAULT_POWER_OFF_TIMEOUT_MS;
     }
-    set_power_off_timeout(pdMS_TO_TICKS(power_off_timeout_ms));
+    set_power_off_timeout(power_off_timeout_ms);
 
     int32_t acceleration_tone_freq_hz;
     int32_t acceleration_beep_period_ms;
@@ -221,6 +224,24 @@ esp_err_t Ns4168Sound::init_device() {
     }
     set_speed_sink_waveform((Waveform_t)speed_sink_tone_waveform);
 
+    int32_t acceleration_latch_in_multiple;
+    if (conf_get_integer(m_conf_key_acceleration_latch_in_multiple, &acceleration_latch_in_multiple) != ESP_OK) {
+        acceleration_latch_in_multiple = DEFAULT_ACCELERATION_LATCH_IN_MULTIPLE;
+    }
+    set_acceleration_latch_in_multiple(acceleration_latch_in_multiple);
+
+    int32_t speed_lift_latch_in_multiple;
+    if (conf_get_integer(m_conf_key_speed_lift_latch_in_multiple, &speed_lift_latch_in_multiple) != ESP_OK) {
+        speed_lift_latch_in_multiple = DEFAULT_SPEED_LIFT_LATCH_IN_MULTIPLE;
+    }
+    set_speed_lift_latch_in_multiple(speed_lift_latch_in_multiple);
+
+    int32_t speed_sink_latch_in_multiple;
+    if (conf_get_integer(m_conf_key_speed_sink_latch_in_multiple, &speed_sink_latch_in_multiple) != ESP_OK) {
+        speed_sink_latch_in_multiple = DEFAULT_SPEED_SINK_LATCH_IN_MULTIPLE;
+    }
+    set_speed_sink_latch_in_multiple(speed_sink_latch_in_multiple);
+
     return ESP_OK;
 }
 
@@ -244,6 +265,8 @@ void Ns4168Sound::set_power_off_timeout(int32_t timeout_ms) {
 }
 
 void Ns4168Sound::set_acceleration_params(int32_t tone_freq_hz, int32_t beep_period_ms) {
+    NS4168_SOUND_LOGI("Set acceleration parameters: tone_freq: %ld Hz, beep_period: %ld ms", tone_freq_hz, beep_period_ms);
+
     while (xSemaphoreTake(m_sound_mutex, portMAX_DELAY) != pdTRUE) {
         NS4168_SOUND_LOGE("Can not take sound mutex to set acceleration parameters, delay and try again");
     }
@@ -257,6 +280,8 @@ void Ns4168Sound::set_acceleration_params(int32_t tone_freq_hz, int32_t beep_per
 }
 
 void Ns4168Sound::set_speed_lift_params(int32_t tone_freq_hz_base, int32_t tone_freq_hz_step, int32_t beep_period_ms_base, int32_t beep_period_ms_step) {
+    NS4168_SOUND_LOGI("Set speed lift parameters: tone_freq_base: %ld Hz, tone_freq_step: %ld Hz, beep_period_base: %ld ms, beep_period_step: %ld ms", tone_freq_hz_base, tone_freq_hz_step, beep_period_ms_base, beep_period_ms_step);
+
     while (xSemaphoreTake(m_sound_mutex, portMAX_DELAY) != pdTRUE) {
         NS4168_SOUND_LOGE("Can not take sound mutex to set speed lift parameters, delay and try again");
     }
@@ -288,7 +313,8 @@ void Ns4168Sound::set_speed_lift_params(int32_t tone_freq_hz_base, int32_t tone_
 }
 
 void Ns4168Sound::set_speed_sink_params(int32_t tone_freq_hz_base, int32_t tone_freq_hz_step) {
-    NS4168_SOUND_LOGE("Set speed sink parameters: tone_freq_hz_base: %ld, tone_freq_hz_step: %ld", tone_freq_hz_base, tone_freq_hz_step);
+    NS4168_SOUND_LOGI("Set speed sink parameters: tone_freq_base: %ld Hz, tone_freq_step: %ld Hz", tone_freq_hz_base, tone_freq_hz_step);
+
     while (xSemaphoreTake(m_sound_mutex, portMAX_DELAY) != pdTRUE) {
         NS4168_SOUND_LOGE("Can not take sound mutex to set speed sink parameters, delay and try again");
     }
@@ -346,6 +372,21 @@ void Ns4168Sound::set_speed_sink_waveform(Waveform_t tone_waveform) {
         (tone_waveform == WAVEFORM_TRIANGLE) ? "WAVEFORM_TRIANGLE" : 
         (tone_waveform == WAVEFORM_SAWTOOTH) ? "WAVEFORM_SAWTOOTH" : 
         "WAVEFORM_SINE");
+}
+
+void Ns4168Sound::set_acceleration_latch_in_multiple(int32_t acceleration_latch_in_multiple) {
+    m_acceleration_latch_in_multiple = acceleration_latch_in_multiple;
+    NS4168_SOUND_LOGI("Set acceleration latch in multiple: %ld", acceleration_latch_in_multiple);
+}
+
+void Ns4168Sound::set_speed_lift_latch_in_multiple(int32_t speed_lift_latch_in_multiple) {
+    m_speed_lift_latch_in_multiple = speed_lift_latch_in_multiple;
+    NS4168_SOUND_LOGI("Set speed lift latch in multiple: %ld", speed_lift_latch_in_multiple);
+}
+
+void Ns4168Sound::set_speed_sink_latch_in_multiple(int32_t speed_sink_latch_in_multiple) {
+    m_speed_sink_latch_in_multiple = speed_sink_latch_in_multiple;
+    NS4168_SOUND_LOGI("Set speed sink latch in multiple: %ld", speed_sink_latch_in_multiple);
 }
 
 void Ns4168Sound::play_acceleration_sound(int32_t vertical_accel) {
@@ -450,7 +491,6 @@ void Ns4168Sound::play_silence_sound() {
 }
 
 void Ns4168Sound::task_cpp_entry() {
-    PmuEnableSpeaker(true);
     for ( ; ; ) {
 /*
         static uint32_t n = 0;
@@ -458,12 +498,47 @@ void Ns4168Sound::task_cpp_entry() {
         m_vertical_speed = 10 - ((n / 5) % 21);
         NS4168_SOUND_LOGD("n: %ld, m_vertical_accel: %ld", n, m_vertical_speed);
 */
-        if (m_vertical_speed >= 1) {
-            play_speed_lift_sound(m_vertical_speed);
-        } else if (m_vertical_speed <= -1) {
-            play_speed_sink_sound(m_vertical_speed);
+
+        if (m_vertical_speed_in_multiple >= m_speed_lift_latch_in_multiple) {
+            if (m_sound_enabled == false) {
+                PmuEnableSpeaker(true);
+                m_sound_enabled = true;
+                NS4168_SOUND_LOGI("Verticle speed over lift letch, enable speaker");
+            }
+
+            play_speed_lift_sound(m_vertical_speed_in_multiple / VERTICAL_SPEED_MULTIPLE);
+            m_last_sound_state = SOUND_SPEED_LIFT;
+            m_last_beep_time_ticks = xTaskGetTickCount();
+        } else if (m_vertical_speed_in_multiple <= m_speed_sink_latch_in_multiple) {
+            if (m_sound_enabled == false) {
+                PmuEnableSpeaker(true);
+                m_sound_enabled = true;
+                NS4168_SOUND_LOGI("Verticle speed under sink letch, enable speaker");
+            }
+            play_speed_sink_sound(m_vertical_speed_in_multiple / VERTICAL_SPEED_MULTIPLE);
+            m_last_sound_state = SOUND_SPEED_SINK;
+            m_last_beep_time_ticks = xTaskGetTickCount();
+        } else if (m_vertical_accel_in_multiple >= m_acceleration_latch_in_multiple) {
+            if (m_sound_enabled == false) {
+                PmuEnableSpeaker(true);
+                m_sound_enabled = true;
+                NS4168_SOUND_LOGI("Verticle accelaration over letch, enable speaker");
+            }
+            play_acceleration_sound(m_vertical_accel_in_multiple / VERTICAL_ACCELERATION_MULTIPLE);
+            m_last_sound_state = SOUND_ACCELERATION;
+            m_last_beep_time_ticks = xTaskGetTickCount();
         } else {
-            play_silence_sound();
+            if (m_sound_enabled == true && (xTaskGetTickCount() - m_last_beep_time_ticks) >= m_disable_sound_timeout_ticks) {
+                PmuEnableSpeaker(false);
+                m_sound_enabled = false;
+                NS4168_SOUND_LOGI("Disable sound timeout, disable speaker");
+            } else if ((xTaskGetTickCount() - m_last_beep_time_ticks) >= m_power_off_timeout_ticks) {
+                NS4168_SOUND_LOGI("Power off timeout, power off system");
+                vTaskDelay(pdMS_TO_TICKS(1000));
+                PmuSystemPowerOff();
+            } else {
+                play_silence_sound();
+            }
         }
     }
 }
@@ -638,8 +713,8 @@ void SoundSetSpeedSinkWaveform(Waveform_t tone_waveform) {
 
 void SoundSetVerticalAccel(float vertical_accel) {
     if (g_pNs4168Sound != NULL) {
-        //NS4168_SOUND_LOGD("Set vertical acceleration: %f, %ld", vertical_accel, g_pNs4168Sound->m_vertical_accel);
-        g_pNs4168Sound->m_vertical_accel = (int32_t)round(vertical_accel);
+        g_pNs4168Sound->m_vertical_accel_in_multiple = (int32_t)(vertical_accel * VERTICAL_ACCELERATION_MULTIPLE);
+        NS4168_SOUND_LOGV("Set vertical acceleration: %f, %ld", vertical_accel, g_pNs4168Sound->m_vertical_accel_in_multiple);
     } else {
         NS4168_SOUND_LOGD("Sound instance not initialized, failed to set vertical acceleration");
     }
@@ -647,11 +722,11 @@ void SoundSetVerticalAccel(float vertical_accel) {
 
 void SoundSetVerticalSpeed(float vertical_speed) {
     if (g_pNs4168Sound != NULL) {
-        int32_t n_vertical_speed = (int32_t)round(vertical_speed);
-        n_vertical_speed = n_vertical_speed > 10 ? 10 : n_vertical_speed;
-        n_vertical_speed = n_vertical_speed < -10 ? -10 : n_vertical_speed;
-        //NS4168_SOUND_LOGD("Set vertical speed: %f, %ld", vertical_speed, n_vertical_speed);
-        g_pNs4168Sound->m_vertical_speed = n_vertical_speed;
+        int32_t n_vertical_speed = (int32_t)(vertical_speed * VERTICAL_SPEED_MULTIPLE);
+        n_vertical_speed = n_vertical_speed > (VERTICAL_SPEED_MAX * VERTICAL_SPEED_MULTIPLE) ? (VERTICAL_SPEED_MAX * VERTICAL_SPEED_MULTIPLE) : n_vertical_speed;
+        n_vertical_speed = n_vertical_speed < (VERTICAL_SPEED_MIN * VERTICAL_SPEED_MULTIPLE) ? (VERTICAL_SPEED_MIN * VERTICAL_SPEED_MULTIPLE) : n_vertical_speed;
+        g_pNs4168Sound->m_vertical_speed_in_multiple = n_vertical_speed;
+        NS4168_SOUND_LOGV("Set vertical speed: %f, %ld", vertical_speed, n_vertical_speed);
     } else {
         NS4168_SOUND_LOGD("Sound instance not initialized, failed to set vertical speed");
     }

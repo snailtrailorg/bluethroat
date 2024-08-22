@@ -212,7 +212,7 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
     int32_t raw_temperature = (int32_t)(((uint32_t)regs->tmp_b2 << 24) | ((uint32_t)regs->tmp_b1 << 16) | ((uint32_t)regs->tmp_b0 << 8)) >> 8;
     int32_t raw_pressure    = (int32_t)(((uint32_t)regs->prs_b2 << 24) | ((uint32_t)regs->prs_b1 << 16) | ((uint32_t)regs->prs_b0 << 8)) >> 8;
 
-    DPS3XX_BARO_LOGD("Device: %s, raw_temperature: 0x%8.8lx, raw_pressure: 0x%8.8lx", m_p_object_name, raw_temperature, raw_pressure);
+    DPS3XX_BARO_LOGV("Device: %s, raw_temperature: 0x%8.8lx, raw_pressure: 0x%8.8lx", m_p_object_name, raw_temperature, raw_pressure);
 
     float32_t temperature = m_coef_data.scaled_c0 + 
                             m_coef_data.scaled_c1 * raw_temperature;
@@ -247,7 +247,7 @@ esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, Bluet
         p_message->barometer_data.pressure_filterd = (float)float32_t(pressure.s, prs_shallow_average << FILTER_DEPTH_SHALLOW, pressure.e + shallow_offset - FILTER_DEPTH_SHALLOW);
         p_message->barometer_data.timestamp = timestamp_ms;
 
-        DPS3XX_BARO_LOGD("Device: %s send message, temperature: %f, pressure: %f, pressure_filterd: %f, timestamp: %lu", m_p_object_name, p_message->barometer_data.temperature, p_message->barometer_data.pressure, p_message->barometer_data.pressure_filterd, p_message->barometer_data.timestamp);
+        DPS3XX_BARO_LOGV("Device: %s send message, temperature: %f, pressure: %f, pressure_filterd: %f, timestamp: %lu", m_p_object_name, p_message->barometer_data.temperature, p_message->barometer_data.pressure, p_message->barometer_data.pressure_filterd, p_message->barometer_data.timestamp);
     }
 
     return ESP_OK;
