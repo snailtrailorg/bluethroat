@@ -2,7 +2,7 @@
 
 #include <driver/uart.h>
 
-#include "drivers/task_object.h"
+#include "utilities/task_object.h"
 #include "bluethroat_message.h"
 
 #define MNEA_SENTENCE_MAX_SIZE          (0x80)

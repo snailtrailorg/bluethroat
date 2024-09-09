@@ -1,0 +1,82 @@
+list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/user_font_utils.c)
+
+
+if(CONFIG_ANTONIO_REGULAR_10)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_10.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_12)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_12.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_14)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_14.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_16)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_16.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_18)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_18.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_20)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_20.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_24)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_24.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_32)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_32.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_36)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_36.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_40)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_40.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_48)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_48.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_60)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_60.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_64)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_64.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_68)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_68.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_72)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_72.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_80)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_80.c)
+endif()
+
+if(CONFIG_ANTONIO_REGULAR_96)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/antonio_regular_96.c)
+endif()
+
+if(CONFIG_AWESOME6_12)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/awesome6_12.c)
+endif()
+
+if(CONFIG_AWESOME6_14)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/awesome6_14.c)
+endif()
+
+if(CONFIG_AWESOME6_16)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/awesome6_16.c)
+endif()

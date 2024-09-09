@@ -1,0 +1,1 @@
+list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/compass_face.c)

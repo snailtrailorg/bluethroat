@@ -5,7 +5,7 @@
 #include <freertos/task.h>
 #include <driver/i2c.h>
 
-#include "drivers/i2c_master.h"
+#include "utilities/i2c_master.h"
 
 #if defined __has_include
 #if __has_include("esp_idf_version.h")

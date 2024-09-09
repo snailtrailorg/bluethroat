@@ -6,7 +6,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include "drivers/i2c_device.h"
+#include "utilities/i2c_device.h"
 #include "utilities/low_pass_filter.h"
 #include "drivers/dps3xx_barometer.h"
 

@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "drivers/i2c_device.h"
-
+#include "utilities/i2c_device.h"
 #include "utilities/low_pass_filter.h"
 #include "utilities/sme_float.h"
 

@@ -1,5 +1,5 @@
 #include <esp_log.h>
-#include "drivers/i2c_device.h"
+#include "utilities/i2c_device.h"
 #include "bluethroat_msg_proc.h"
 
 #define I2C_DEVICE_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)

@@ -1,0 +1,229 @@
+menu "SOC bus drivers"
+
+    config HAVE_I2C_MANAGER
+        bool
+        default y if I2C_PORT_0_ENABLED || I2C_PORT_1_ENABLED
+
+    menu "I2C Port Configuration"
+
+        menu "I2C Port 0"
+
+            config I2C_PORT_0_ENABLED
+                bool "Enable I2C port 0"
+                
+            if I2C_PORT_0_ENABLED
+                config I2C_PORT_0_SDA
+                    int "SDA (GPIO pin)"
+                    default 21 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                config I2C_PORT_0_SCL
+                    int "SCL (GPIO pin)"
+                    default 22 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                config I2C_PORT_0_FREQ_HZ
+                    int "Frequency (Hz)"
+                    default 400000
+                    range 100000 5000000
+                    help
+                        The clock speed in Hz. Ranges from 100000 (100 kHz) to
+                        5000000 (5 Mhz). I2C busses that involve external wires may
+                        have to be slower, and the real maximum speed the bus will
+                        support depends on the value of the pullup resistors and the
+                        design of the overall circuit. 
+                config I2C_PORT_0_TIMEOUT
+                    int "R/W timeout (ms)"
+                    default 20
+                    range 10 1000
+                    help
+                        Timeout for I2C read and write operations. This does not
+                        include the time waiting for a lock.
+                config I2C_PORT_0_LOCK_TIMEOUT
+                    int "Stale lock override (ms)"
+                    default 50
+                    range 10 1000
+                    help
+                        Timeout at which point an operation waiting for its turn on
+                        the port will assume that whatever set the lock has died and
+                        overrides it. Set this somewhat larger than the previous
+                        timeout.
+                config I2C_PORT_0_PULLUPS
+                    bool "Use ESP32 built-in bus pull-up resistors"
+                    default n
+                    help
+                        The I2C bus needs resistors to make sure it's in a defined
+                        state when nobody is talking. Many circuits have external
+                        pullup resistors already and turning these on will increase
+                        power consumption slightly and may limit the speed your bus
+                        can attain. Try with these off first if you don't know.
+            endif
+
+        endmenu
+
+        menu "I2C Port 1"
+            
+            config I2C_PORT_1_ENABLED
+                bool "Enable I2C port 1"
+                
+            if I2C_PORT_1_ENABLED
+                config I2C_PORT_1_SDA
+                    int "SDA (GPIO pin)"
+                    default 32 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                config I2C_PORT_1_SCL
+                    int "SCL (GPIO pin)"
+                    default 33 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                config I2C_PORT_1_FREQ_HZ
+                    int "Frequency (Hz)"
+                    default 1000000
+                    range 100000 5000000
+                    help
+                        The clock speed in Hz. Ranges from 100000 (100 kHz) to
+                        5000000 (5 Mhz). I2C busses that involve external wires may
+                        have to be slower, and the real maximum speed the bus will
+                        support depends on the value of the pullup resistors and the
+                        design of the overall circuit. 
+                config I2C_PORT_1_TIMEOUT
+                    int "R/W timeout (ms)"
+                    default 20
+                    range 10 1000
+                    help
+                        Timeout for I2C read and write operations. This does not
+                        include the time waiting for a lock. Default should be fine.
+                config I2C_PORT_1_LOCK_TIMEOUT
+                    int "Stale lock override (ms)"
+                    default 50
+                    help
+                        Timeout at which point an operation waiting for its turn on
+                        the port will assume that whatever set the lock has died and
+                        overrides it. Set this somewhat larger than the previous
+                        timeout. Default should be fine.
+                    range 30 1000
+                config I2C_PORT_1_PULLUPS
+                    bool "Use ESP32 built-in bus pull-up resistors"
+                    default n
+                    help
+                        The I2C bus needs resistors to make sure it's in a defined
+                        state when nobody is talking. Many circuits have external
+                        pullup resistors already and turning these on will increase
+                        power consumption slightly and may limit the speed your bus
+                        can attain. Try with these off first if you don't know.
+            endif
+
+        endmenu
+
+    endmenu
+
+    menu "I2S Port Configuration"
+
+        menu "I2S Port 0"
+
+            config I2S_PORT_0_ENABLED
+                bool "Enable I2S port 0"
+                default y if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                
+            if I2S_PORT_0_ENABLED
+                config I2S_PORT_0_MCLK
+                    int "Master clock line (GPIO pin)"
+                    default -1 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                    help
+                        Master clock line. It is an optional signal depends on slave side, 
+                        mainly used for offering a reference clock to the I2S slave device.
+                config I2S_PORT_0_BCLK
+                    int "Bit clock (GPIO pin)"
+                    default 12 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                    help
+                        Bit clock line. The bit clock for data line.
+                config I2S_PORT_0_WS
+                    int "Word select (GPIO pin)"
+                    default 0 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                    help
+                        Word(Slot) select line. It is usually used to identify the vocal 
+                        tract except PDM mode.
+                config I2S_PORT_0_DIN
+                    int "Data input (GPIO pin)"
+                    default 2 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                    help
+                        Data input line. The data line for I2S input.
+                config I2S_PORT_0_DOUT
+                    int "Data output (GPIO pin)"
+                    default 2 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+                    help
+                        Data output line. The data line for I2S output.
+                config I2S_PORT_0_SAMPLE_RATE
+                    int "Sample rate (Hz)"
+                    default 44100
+                    range 8000 192000
+                    help
+                        Sample rate in Hz. The sample rate of the audio data.
+                config I2S_PORT_0_SAMPLE_BITS
+                    int "Sample bits"
+                    default 8
+                    range 8 32
+                    help
+                        Sample bits. The bits of each sample.
+                config I2S_PORT_0_CHANNEL_NUM
+                    int "Channel number"
+                    default 2
+                    range 1 2
+                    help
+                        Channel number. The number of audio channels.
+            endif
+
+        endmenu
+
+        menu "I2S Port 1"
+            
+            config I2S_PORT_1_ENABLED
+                bool "Enable I2S port 1"
+                default n
+                
+            if I2S_PORT_1_ENABLED
+                config I2S_PORT_1_MCLK
+                    int "Master clock line (GPIO pin)"
+                    default -1
+                    help
+                        Master clock line. It is an optional signal depends on slave side, 
+                        mainly used for offering a reference clock to the I2S slave device.
+                config I2S_PORT_1_BCLK
+                    int "Bit clock (GPIO pin)"
+                    default 12
+                    help
+                        Bit clock line. The bit clock for data line.
+                config I2S_PORT_1_WS
+                    int "Word select (GPIO pin)"
+                    default 0
+                    help
+                        Word(Slot) select line. It is usually used to identify the vocal 
+                        tract except PDM mode.
+                config I2S_PORT_1_DIN
+                    int "Data input (GPIO pin)"
+                    default 2
+                    help
+                        Data input line. The data line for I2S input.
+                config I2S_PORT_1_DOUT
+                    int "Data output (GPIO pin)"
+                    default 2
+                    help
+                        Data output line. The data line for I2S output.
+                config I2S_PORT_1_SAMPLE_RATE
+                    int "Sample rate (Hz)"
+                    default 16000
+                    range 8000 192000
+                    help
+                        Sample rate in Hz. The sample rate of the audio data.
+                config I2S_PORT_1_SAMPLE_BITS
+                    int "Sample bits"
+                    default 8
+                    range 8 32
+                    help
+                        Sample bits. The bits of each sample.
+                config I2S_PORT_1_CHANNEL_NUM
+                    int "Channel number"
+                    default 2
+                    range 1 2
+                    help
+                        Channel number. The number of audio channels.
+            endif
+
+        endmenu
+
+    endmenu
+
+endmenu

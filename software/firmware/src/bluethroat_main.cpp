@@ -4,13 +4,14 @@
 
 #include "adapters/lvgl_adapter.h"
 
+#include "utilities/i2s_master.h"
+
 #include "drivers/bm8563_rtc.h"
 #include "drivers/dps3xx_barometer.h"
 #include "drivers/dps3xx_anemometer.h"
 #include "drivers/ft6x36u_touch.h"
 #include "drivers/axp192_pmu.h"
 #include "drivers/neo_m9n_gnss.h"
-#include "drivers/i2s_master.h"
 #include "drivers/ns4168_sound.h"
 
 #include "bluethroat_global.h"

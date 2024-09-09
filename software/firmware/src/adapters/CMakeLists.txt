@@ -1,0 +1,1 @@
+list(APPEND APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/lvgl_adapter.cpp)

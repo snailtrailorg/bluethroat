@@ -1,0 +1,14 @@
+menu "LVGL adapter display resolution"
+
+    config LV_HOR_RES_MAX
+        int "Display horizontal resolution"
+        default 240 if BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS
+        default 320 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+        default 320 if BLUETHROAD_TARGET_DEVICE_M5CORES3
+    config LV_VER_RES_MAX
+        int "Display vertical resolution"
+        default 135 if BLUETHROAD_TARGET_DEVICE_M5STICKCPLUS
+        default 240 if BLUETHROAD_TARGET_DEVICE_M5CORE2AWS
+        default 240 if BLUETHROAD_TARGET_DEVICE_M5CORES3
+
+endmenu

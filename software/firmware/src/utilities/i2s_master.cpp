@@ -1,7 +1,7 @@
 #include <esp_err.h>
 #include <esp_log.h>
 
-#include "drivers/i2s_master.h"
+#include "utilities/i2s_master.h"
 
 #define I2S_MASTER_LOGE(format, ...) 				ESP_LOGE(TAG, format, ##__VA_ARGS__)
 #define I2S_MASTER_LOGW(format, ...) 				ESP_LOGW(TAG, format, ##__VA_ARGS__)

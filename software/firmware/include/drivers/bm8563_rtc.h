@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "drivers/i2c_device.h"
+#include "utilities/i2c_device.h"
 
 class Bm8563Rtc : public I2cDevice {
 public:

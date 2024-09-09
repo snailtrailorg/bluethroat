@@ -1,6 +1,6 @@
 #pragma once
 
-#include "drivers/i2c_device.h"
+#include "utilities/i2c_device.h"
 
 #define FT6X36U_REG_ADDR_TD_STATUS      (0x02)
 #define FT6X36U_REG_ADDR_TOUCH1_X_MSB   (0x03)

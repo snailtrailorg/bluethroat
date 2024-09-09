@@ -1,0 +1,47 @@
+menu "User-defined fonts"
+    config ANTONIO_REGULAR_10
+        bool "Enable Antonio Regular 10"
+        default y
+    config ANTONIO_REGULAR_12
+        bool "Enable Antonio Regular 12"
+    config ANTONIO_REGULAR_14
+        bool "Enable Antonio Regular 14"
+    config ANTONIO_REGULAR_16
+        bool "Enable Antonio Regular 16"
+        default y
+    config ANTONIO_REGULAR_18
+        bool "Enable Antonio Regular 18"
+    config ANTONIO_REGULAR_20
+        bool "Enable Antonio Regular 20"
+    config ANTONIO_REGULAR_24
+        bool "Enable Antonio Regular 24"
+    config ANTONIO_REGULAR_32
+        bool "Enable Antonio Regular 32"
+    config ANTONIO_REGULAR_36
+        bool "Enable Antonio Regular 36"
+    config ANTONIO_REGULAR_40
+        bool "Enable Antonio Regular 40"
+    config ANTONIO_REGULAR_48
+        bool "Enable Antonio Regular 48"
+    config ANTONIO_REGULAR_60
+        bool "Enable Antonio Regular 60"
+    config ANTONIO_REGULAR_64
+        bool "Enable Antonio Regular 64"
+    config ANTONIO_REGULAR_68
+        bool "Enable Antonio Regular 68"
+        default y
+    config ANTONIO_REGULAR_72
+        bool "Enable Antonio Regular 72"
+    config ANTONIO_REGULAR_80
+        bool "Enable Antonio Regular 80"
+    config ANTONIO_REGULAR_96
+        bool "Enable Antonio Regular 96"
+
+    config AWESOME6_12
+        bool "Enable Awesome 6.40 Free Solid 12"
+    config AWESOME6_14
+        bool "Enable Awesome 6.40 Free Solid 14"
+    config AWESOME6_16
+        bool "Enable Awesome 6.40 Free Solid 16"
+        default y
+endmenu

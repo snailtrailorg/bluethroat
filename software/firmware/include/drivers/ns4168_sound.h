@@ -2,8 +2,8 @@
 
 #include "freertos/semphr.h"
 
-#include "drivers/i2s_master.h"
-#include "drivers/task_object.h"
+#include "utilities/i2s_master.h"
+#include "utilities/task_object.h"
 /****************************************************************************************
  * Sound data buffer size, must be the multiple of 4.
 ****************************************************************************************/

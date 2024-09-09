@@ -2,8 +2,8 @@
 
 #include <driver/i2c.h>
 
-#include "drivers/task_object.h"
-#include "drivers/i2c_master.h"
+#include "utilities/task_object.h"
+#include "utilities/i2c_master.h"
 
 #define MAX_RAW_DATA_BUFFER_LENGTH		(32)
 

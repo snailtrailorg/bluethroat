@@ -11,7 +11,7 @@
  * Use a configuration tool such as menuconfig to configure it.
 ***********************************************************************************************************************/
 
-#include "drivers/i2c_device.h"
+#include "utilities/i2c_device.h"
 
 /***********************************************************************************************************************
  * Axp192 charging current configuration parameters defination
