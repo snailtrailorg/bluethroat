@@ -3,4 +3,3 @@
 .platformio
 .vscode
 dependencies.lock
-sdkconfig.*

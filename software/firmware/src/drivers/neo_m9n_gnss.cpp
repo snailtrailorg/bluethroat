@@ -74,6 +74,9 @@ esp_err_t NeoM9nGnss::init_device() {
 		.flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 0,
         .source_clk = UART_SCLK_DEFAULT,
+        .flags = {
+            .backup_before_sleep = 1,
+        },
 	};
 
 	ESP_ERROR_CHECK(uart_param_config(m_uart_port, &uart_config));
