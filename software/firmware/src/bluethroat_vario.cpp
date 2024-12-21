@@ -51,6 +51,9 @@ float BluethraotVario::CalculateVerticalSpeed(float temperature, float pressure,
         vertical_speed = elevation / delta_time;
     }
 
+    BLUETHROAT_VARIO_LOGD("last_temp:%f, last_pres:%f, last_time:%ld, temp:%f, pres:%f, time:%ld, vertical_speed:%f",
+        m_last_temperature, m_last_pressure, m_last_timestamp, temperature, pressure, timestamp, vertical_speed);
+
     m_last_temperature = temperature;
     m_last_pressure = pressure;
     m_last_timestamp = timestamp;

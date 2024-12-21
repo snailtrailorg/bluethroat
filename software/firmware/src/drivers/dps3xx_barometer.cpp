@@ -201,7 +201,15 @@ esp_err_t Dps3xxBarometer::fetch_data(uint8_t *data, uint8_t size) {
         return ESP_FAIL;
     }
 
-    return this->read_buffer(DPS3XX_REG_ADDR_PSR_B2, data, sizeof(Dps3xxData_t));
+    result = this->read_buffer(DPS3XX_REG_ADDR_PSR_B2, data, sizeof(Dps3xxData_t));
+
+    if (result == ESP_OK) {
+        DPS3XX_BARO_LOGD("Device: %s, raw_temperature: 0x%2.2x%2.2x%2.2x, raw_pressure: 0x%2.2x%2.2x%2.2x", m_p_object_name, data[2], data[1], data[0], data[5], data[4], data[3]);
+        return ESP_OK;
+    } else {
+        DPS3XX_BARO_LOGE("Failed to read %s pressure and temperature data", m_p_object_name);
+        return result;
+    }
 }
 
 esp_err_t Dps3xxBarometer::process_data(uint8_t *in_data, uint8_t in_size, BluethroatMsg_t *p_message) {

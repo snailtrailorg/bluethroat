@@ -14,7 +14,7 @@
 ****************************************************************************************/
 #define MIN_VOLUME                              (0)
 #define MAX_VOLUME                              (100)
-#define DEFAULT_VOLUME                          (50)
+#define DEFAULT_VOLUME                          (0)
 
 /****************************************************************************************
  * Range and default timeout disable sound.
@@ -29,7 +29,7 @@
 ****************************************************************************************/
 #define MIN_POWER_OFF_TIMEOUT_MS                (300000)
 #define MAX_POWER_OFF_TIMEOUT_MS                (3600000)
-#define DEFAULT_POWER_OFF_TIMEOUT_MS            (600000)
+#define DEFAULT_POWER_OFF_TIMEOUT_MS            (6000000)
 
 /****************************************************************************************
  * Enumeration of waveform for sound generation.
