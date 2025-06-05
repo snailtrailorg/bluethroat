@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>地图瓦片选择和下载</title>
+    <script src="https://kit.fontawesome.com/d1f7300f56.js" crossorigin="anonymous"></script>
+    <style>
+      html, body {height: 100%; margin: 0; padding: 0;}
+      #map {height: 100%;}
+      .custom_control{display:flex;position:absolute;margin:10px;align-items: center}
+      .custom_text_input,.custom_number_input,.custom_button{height:40px;padding:0 10px;box-sizing:border-box}
+      .custom_text_input,.custom_number_input,.custom_button,.custom_label{margin:0 4px;font-size:large}
+      .custom_button{width:96px}
+      .custom_number_input{width:64px}
+    </style>
+    <script type="module" src="./index.js"></script>
+  </head>
+
+  <body>
+    <div id="map" width=200 height=200></div>
+
+    <div class="custom_control" id="geocoder_control">
+      <input class="custom_text_input" id="geocoder_address_input" placeholder="搜索一个位置..." aria-label="Search input">
+      <button class="custom_button" id="geocoder_search_button" aria-label="Search button"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;搜索</button>
+    </div>
+
+    <div class="custom_control" id="maptiles_control">
+        <button class="custom_button" id="maptiles_mark_button" aria-label="Mark button"><i class="fa-solid fa-vector-square"></i>&nbsp;选择</button>
+        <button class="custom_button" id="maptiles_clear_button" aria-label="Clear button"><i class="fa fa-eraser"></i>&nbsp;清除</button>
+        <span class="custom_label">级别从</span>
+        <input class="custom_number_input" id="maptiles_min_zoom_input" type="number" value="12" min="1" max="20" aria-label="Minimum zoom input">
+        <span class="custom_label">至</span>
+        <input class="custom_number_input" id="maptiles_max_zoom_input" type="number" value="16" min="1" max="20" aria-label="Maximum zoom input">
+        <button class="custom_button" id="maptiles_download_button" aria-label="Download button"><i class="fa fa-download"></i>&nbsp;下载</button>
+    </div>
+
+    <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+        ({key: "AIzaSyBXn0fuQG1tjxhm8rXwgLMAQloDYXy2nvE", v: "weekly"});</script>
+  </body>
+
+</html>

@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+import os
+import sys
+import struct
+import hashlib
+import argparse
+from pathlib import Path
+import re
+
+class Cache2Extractor:
+    def __init__(self, regex, output, cache_folder):
+        self.regex = regex
+        self.output = Path(output)
+        self.cache_folder = Path(cache_folder)
+        self.entries_folder = self.cache_folder / "entries"
+        
+        if not self.entries_folder.exists():
+            print(f"错误: 缓存目录 {self.cache_folder} 不是有效的Firefox Cache2目录")
+            sys.exit(1)
+        
+        self.output.mkdir(parents=True, exist_ok=True)
+    
+    def extract_all(self):
+        """提取所有缓存文件"""
+        total_files = 0
+        success_files = 0
+        
+        for entry_file in self.entries_folder.glob("*"):
+            if entry_file.is_file():
+                total_files += 1
+                try:
+                    self.extract_file(entry_file)
+                    success_files += 1
+                except Exception as e:
+                    print(f"无法处理文件 {entry_file}: {e}")
+        
+        print(f"处理完成: 总共 {total_files} 个文件，成功提取 {success_files} 个")
+    
+    def extract_file(self, entry_path):
+        """提取单个缓存文件"""
+        print(f"处理缓存文件：{entry_path}")
+        try:
+            with open(entry_path, 'rb') as f:
+                # 读取文件末尾的4字节，获取原始文件长度
+                f.seek(-4, os.SEEK_END)
+                original_length_bytes = f.read(4)
+                original_length = struct.unpack('>I', original_length_bytes)[0]
+                if original_length == 0:
+                    raise Exception("原始文件长度为0")
+                print(f"原始文件长度:{original_length}")
+                
+                # 读取元数据
+                f.seek(original_length, os.SEEK_SET)
+                metadata = f.read()
+                
+                # 解析元数据中的URL
+                url = self._parse_url(metadata)
+                if not url:
+                    raise ValueError("无法解析URL")
+                print(f"URL:{url}")
+                #import pdb; pdb.set_trace()
+                if not self.regex.search(url):
+                    raise ValueError("ULR匹配失败")
+                
+                # 确定输出文件路径
+                output_path = self._determine_output_path(url)
+                print(f"输出文件:{output_path}")
+
+                # 创建必要的目录
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                # 读取并写入原始数据
+                f.seek(0)
+                with open(output_path, 'wb') as out_f:
+                    # 读取并写入数据，处理每262144字节的哈希
+                    data = f.read(original_length)
+                    out_f.write(data[0:original_length])
+            print(f"已提取: {url} -> {output_path}")
+        except Exception as e:
+            raise Exception(f"提取失败: {e}")
+    
+    def _parse_url(self, metadata):
+        """从元数据中解析URL"""
+        try:
+            # 元数据结构: 32字节头部 + URL + 键值对
+            # 跳过32字节头部
+            pos = 32
+            
+            #确定URL的起始位置
+            start_pos = metadata.find(b':http', pos)
+            if start_pos == -1:
+                return None
+            start_pos += 1
+
+            # 查找URL的结束位置（以空字节结尾）
+            end_pos = metadata.find(b'\x00', start_pos)
+            if end_pos == -1:
+                return None
+            
+            url = metadata[start_pos:end_pos].decode('utf-8', errors='ignore')
+            return url
+        except:
+            return None
+    
+    def _determine_output_path(self, url):
+        """根据URL确定输出文件路径"""
+        try:
+            from urllib.parse import urlparse
+            
+            parsed = urlparse(url)
+            path = parsed.path
+            
+            # 如果路径为空，使用主机名作为文件名
+            if not path or path == '/':
+                filename = parsed.netloc
+            else:
+                # 获取最后一部分作为文件名
+                filename = os.path.basename(path)
+                
+                # 如果没有文件名部分，添加默认名称
+                if not filename:
+                    filename = f"file_{hashlib.sha1(url.encode()).hexdigest()[:8]}"
+            
+            # 处理查询参数中的文件名（例如?file=xxx）
+            if not filename or '.' not in filename:
+                from urllib.parse import parse_qs
+                query_params = parse_qs(parsed.query)
+                if 'file' in query_params:
+                    filename = query_params['file'][0]
+            
+            # 确保文件名有效
+            invalid_chars = '<>:"/\\|?*'
+            for c in invalid_chars:
+                filename = filename.replace(c, '_')
+            
+            # 构建完整输出路径
+            output_subdir = Path(parsed.netloc) / os.path.dirname(path).lstrip('/')
+            return self.output / output_subdir / filename
+        except:
+            # 如果URL解析失败，使用哈希作为文件名
+            return self.output / f"unknown_{hashlib.sha1(url.encode()).hexdigest()}"
+
+def main():
+    parser = argparse.ArgumentParser(description='从Firefox的缓存文件中提取原始文件')
+    parser.add_argument('--pattern', '-p', help='提取来自指定网站的缓存文件', default='.*')
+    parser.add_argument('--output', '-o', help='从缓存中提取的原始文件的输出目录路径', default='.')
+    parser.add_argument('cache_folder', help='Firefox Cache2目录路径')
+    
+    args = parser.parse_args()
+    
+    try:
+        regex = re.compile(args.pattern)
+    except re.error as e:
+        print(f"无效的正则表达式: {args.pattern}")
+        print(f"错误详情: {e}")
+        parser.print_help()
+        return
+    
+    extractor = Cache2Extractor(regex, args.output, args.cache_folder)
+    extractor.extract_all()
+
+if __name__ == "__main__":
+    main()    
