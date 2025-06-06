@@ -73,8 +73,73 @@ async function initMap() {
     }
   });
 
+  // Define manager rectangle drawing state
+  let startPoint = null;
+  let endPoint = null;
+  let rectRange = null;
+  let isMarking = false;
   // Add map tiles control to the map
   map.controls[google.maps.ControlPosition.TOP_CENTER].push(document.getElementById("maptiles_control"));
+
+  document.getElementById("maptiles_mark_button").addEventListener("click", () => {
+    map.setOptions({gestureHandling: "none"});
+    if (rectRange != null) {
+      rectRange.setMap(null);
+      rectRange = null;
+    }
+    startPoint = null;
+    endPoint = null;
+    rectRange = new google.maps.Rectangle({
+      map: map,
+      strokeColor: "#0000FF",
+      strokeOpacity: 0.75,
+      strokeWeight: 2,
+      fillColor: "#0000FF",
+      fillOpacity: 0.15,
+      clickable: false,
+      editable: false,
+      draggable: false,
+    });
+    isMarking = true;
+  });
+
+  document.getElementById("maptiles_clear_button").addEventListener("click", () => {
+    map.setOptions({gestureHandling: "auto"});
+    if (rectRange != null) {
+      rectRange.setMap(null);
+      rectRange = null;
+    }
+    startPoint = null;
+    endPoint = null;
+    isMarking = false;
+  });
+
+  map.addListener('mousedown', function(event) {
+    if (isMarking) {
+      startPoint = event.latLng;
+    }
+  });
+
+  map.addListener('mousemove', function(event) {
+    if (isMarking) {
+      if (startPoint!= null) {
+        endPoint = event.latLng;
+        if (endPoint!= null) {
+          rectRange.setBounds(new google.maps.LatLngBounds(startPoint, endPoint));
+        }
+      }
+    }
+  });
+
+  document.addEventListener('mouseup', function(event) {
+    if (isMarking) {
+      isMarking = false;
+      map.setOptions({gestureHandling: "auto"});
+      if (rectRange != null) {
+        rectRange.setOptions({clickable: true, editable: true, draggable: true})
+      }
+    }
+  });
 }
 
 initMap();
