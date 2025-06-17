@@ -1,3 +1,16 @@
+<?php
+    // 数据库连接配置
+    $dbConfig = ['host' => 'localhost', 'user' => 'maptiles', 'pass' => '4pEm(YFWXZi5!1NO', 'name' => 'maptiles'];
+    // 创建数据库连接
+    $conn = new mysqli($dbConfig['host'], $dbConfig['user'], $dbConfig['pass'], $dbConfig['name']);
+    // 检查连接
+    if ($conn->connect_error) {
+        die("数据库连接失败: {$conn->connect_error}");
+    }
+    // 选择数据库
+    $conn->select_db($dbConfig['name']);
+?>
+
 <!DOCTYPE html>
 <html>
 
@@ -14,7 +27,7 @@
       .custom_button{width:96px}
       .custom_number_input{width:64px}
     </style>
-    <script type="module" src="./index.js"></script>
+    <script type="module" src="./maptiles.js"></script>
   </head>
 
   <body>
