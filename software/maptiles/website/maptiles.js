@@ -140,6 +140,8 @@ async function initMap() {
       }
     }
   });
+
+  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(document.getElementById("download_control"));
 }
 
 initMap();
