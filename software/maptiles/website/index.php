@@ -29,7 +29,7 @@
       .input,.button{height:40px;padding:0 10px;box-sizing:border-box}
       .input,.button,.label{font-size:large;font-family:'Roboto',Arial,sans-serif;}
       .title{font-size:large;color:white;font-family:'Roboto',Arial,sans-serif;}
-      .button{width:96px}
+      .button{width:88px}
     </style>
     <script type="module" src="./maptiles.js"></script>
   </head>
@@ -43,6 +43,7 @@
     </div>
 
     <div class="map-control" id="maptiles_control">
+      <button class="button" id="maptiles_login_button" aria-label="Login button"><i class="fa-solid fa-user"></i>&nbsp;登录</button>
       <button class="button" id="maptiles_mark_button" aria-label="Mark button"><i class="fa-solid fa-vector-square"></i>&nbsp;标记</button>
       <button class="button" id="maptiles_clear_button" aria-label="Clear button"><i class="fa fa-eraser"></i>&nbsp;清除</button>
       <button class="button" id="maptiles_download_button" aria-label="Download button"><i class="fa fa-download"></i>&nbsp;下载</button>
