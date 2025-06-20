@@ -141,7 +141,7 @@ async function initMap() {
     }
   });
 
-  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(document.getElementById("download_control"));
+  //map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(document.getElementById("download_window"));
 }
 
 initMap();
