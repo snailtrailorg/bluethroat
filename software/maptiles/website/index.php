@@ -17,6 +17,7 @@
   <head>
     <title>地图瓦片标记和下载</title>
     <meta name="robots" content="noindex, nofollow">
+    <meta charset="utf-8">
     <script src="https://kit.fontawesome.com/d1f7300f56.js" crossorigin="anonymous"></script>
     <style>
       html,body{height:100%;margin:0;padding:0;}
@@ -30,6 +31,8 @@
       .input,.button,.label{font-size:large;font-family:'Roboto',Arial,sans-serif;}
       .title{font-size:large;color:white;font-family:'Roboto',Arial,sans-serif;}
       .button{width:88px}
+      .non-left{margin-left:10px;}
+      .tooltip {font-family: "PingFang SC", "Microsoft YaHei", "SimSun", sans-serif}
     </style>
     <script type="module" src="./maptiles.js"></script>
   </head>
@@ -39,34 +42,35 @@
 
     <div class="map-control" id="geocoder_control">
       <input class="input" id="geocoder_address_input" placeholder="搜索一个位置..." aria-label="Search input">
-      <button class="button" id="geocoder_search_button" aria-label="Search button"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;搜索</button>
+      <button class="button non-left" id="geocoder_search_button" aria-label="Search button"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;搜索</button>
     </div>
 
     <div class="map-control" id="maptiles_control">
       <button class="button" id="maptiles_login_button" aria-label="Login button"><i class="fa-solid fa-user"></i>&nbsp;登录</button>
-      <button class="button" id="maptiles_mark_button" aria-label="Mark button"><i class="fa-solid fa-vector-square"></i>&nbsp;标记</button>
-      <button class="button" id="maptiles_clear_button" aria-label="Clear button"><i class="fa fa-eraser"></i>&nbsp;清除</button>
-      <button class="button" id="maptiles_download_button" aria-label="Download button"><i class="fa fa-download"></i>&nbsp;下载</button>
+      <button class="button non-left" id="maptiles_mark_button" aria-label="Mark button"><i class="fa-solid fa-vector-square"></i>&nbsp;标记</button>
+      <button class="button non-left" id="maptiles_clear_button" aria-label="Clear button"><i class="fa fa-eraser"></i>&nbsp;清除</button>
+      <button class="button non-left" id="maptiles_download_button" aria-label="Download button"><i class="fa fa-download"></i>&nbsp;下载</button>
     </div>
 
     <div class="pop-window" id="download_window">
-      <form id="download" method="post">
+      <form id="download_form" method="post">
         <div class="title-bar">
             <span class="title">下载地图瓦片</span>
         </div>
         <div class="content-row">
-            <span class="label">瓦片级别从</span>
-            <input class="input" id="download_min_zoom" type="number" value="12" min="1" max="20" aria-label="Minimum zoom level">
-            <span class="label">至</span>
-            <input class="input" id="download_max_zoom" type="number" value="16" min="1" max="20" aria-label="Maximum zoom level">
+            <span class="label" style="width:164px; text-align:right">地图瓦片级别：</span>
+            <span class="label non-left">从</span>
+            <input class="input non-left" name="download_min_zoom" type="number" value="12" min="1" max="20" aria-label="Minimum zoom level">
+            <span class="label non-left">至</span>
+            <input class="input non-left" name="download_max_zoom" type="number" value="18" min="1" max="20" aria-label="Maximum zoom level">
         </div>
         <div class="content-row">
-          <span class="label">瓦片服务器URL</span>
-          <input class="input" type="text" name="url" placeholder="https://example.com/{z}/{x}/{y}.png?key=AIzaSyBXn0fuQG1tjxhm8rXwgLMAQloDYXy2nvE" required>
+          <span class="label"  style="width:164px; text-align:right" title="URL中必须包含{x}，{y}和{z}，下载过程中将被分别&#10;替换为地图瓦片的列序号，行序号和缩放级别。">瓦片服务器URL<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span>
+          <input class="input non-left" style="width:500px" type="text" name="url" placeholder="https://tile.example.com/{z}/{x}/{y}.png?key=<YouTileServerApiKey>" required>
         </div>
         <div class="footer-bar">
-            <button class="button" type="reset">取消</button>
-          <button class="button" type="submit">确定</button>
+            <button class="button" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
+          <button class="button non-left" type="submit"><i class="fa-solid fa-check"></i>&nbsp;确定</button>
         </div>
         </form>
     </div>
