@@ -66,7 +66,11 @@
         </div>
         <div class="content-row">
           <span class="label"  style="width:164px; text-align:right" title="URL中必须包含{x}，{y}和{z}，下载过程中将被分别&#10;替换为地图瓦片的列序号，行序号和缩放级别。">瓦片服务器URL<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span>
-          <input class="input non-left" style="width:500px" type="text" name="url" placeholder="https://tile.example.com/{z}/{x}/{y}.png?key=<YouTileServerApiKey>" required>
+          <input class="input non-left" style="width:500px" type="text" name="url" list="url_list" placeholder="https://tile.example.com/{z}/{x}/{y}.png?key=<YouTileServerApiKey>" required>
+          <datalist id="url_list">
+            <option value="https://tile.openstreetmap.org/{z}/{x}/{y}.png"></option>
+            <option value="https://tileserver.com/{z}/{x}/{y}.png"></option>
+          </datalist>
         </div>
         <div class="footer-bar">
             <button class="button" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>

@@ -125,7 +125,12 @@ async function initMap() {
       if (startPoint!= null) {
         endPoint = event.latLng;
         if (endPoint!= null) {
-          rectRange.setBounds(new google.maps.LatLngBounds(startPoint, endPoint));
+          let lng_diff = endPoint.lng() - startPoint.lng();
+          if (lng_diff < 0 && lng_diff > -180 || lng_diff > 180) {
+            rectRange.setBounds(new google.maps.LatLngBounds(endPoint, startPoint));
+          } else {
+            rectRange.setBounds(new google.maps.LatLngBounds(startPoint, endPoint));
+          }
         }
       }
     }
@@ -136,6 +141,7 @@ async function initMap() {
       isMarking = false;
       map.setOptions({gestureHandling: "auto"});
       if (rectRange != null) {
+        console.log("rectRange.getBounds(): " + rectRange.getBounds());
         rectRange.setOptions({clickable: true, editable: true, draggable: true})
       }
     }
