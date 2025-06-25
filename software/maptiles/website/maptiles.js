@@ -1,4 +1,8 @@
-// Initialize libraries
+// Initialize global variables
+var user_id = null;
+var public_key = null;
+
+// Initialize the map and geocoder
 let map;
 let geocoder;
 

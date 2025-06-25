@@ -9,6 +9,9 @@
     }
     // 选择数据库
     $conn->select_db($dbConfig['name']);
+
+    $private_key = file_get_contents('rsakeys/privatekey.pem');
+    $public_key = preg_replace('/-----(BEGIN|END)\s+(.*?)\s+KEY-----|\s/', '', file_get_contents('rsakeys/publickey.pem'));
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +26,7 @@
       html,body{height:100%;margin:0;padding:0;}
       #map {height: 100%;}
       .map-control{display:flex;align-items:center;position:absolute;margin:10px}
-      .pop-window{display:flex;flex-direction:column;background-color:#D7D7D3;border-radius:10px;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}
+      .pop-window{visibility:hidden;display:flex;flex-direction:column;background-color:#D7D7D3;border-radius:10px;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}
       .title-bar{display:flex;align-items:center;justify-content:center;background-color:darkblue;height:40px;border-top-left-radius:10px;border-top-right-radius:10px}
       .footer-bar{display:flex;align-items:center;justify-content:flex-end;margin:10px;border-bottom-left-radius:10px;border-bottom-right-radius:10px}
       .content-row{display:flex;align-items:center;margin:10px}
@@ -78,6 +81,15 @@
         </div>
         </form>
     </div>
+
+    <script>
+        <?php if (isset($_SESSION['user_id'])) { ?> 
+            user_id = <?php echo $_SESSION['user_id']; ?>;
+        <?php } ?>
+        <?php if ($public_key != '') { ?>
+            window.crypto.subtle.importKey('spki', Uint8Array.from(atob('<?php echo addslashes($public_key); ?>'), c => c.charCodeAt(0)), {name:'RSA-OAEP', hash:'SHA-256'}, true, ['encrypt']).then(key => { public_key = key;}).catch(error => { console.error('Error importing public key:', error); public_key = null;});
+        <?php } ?>
+    </script>
 
     <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
         ({key: "AIzaSyBXn0fuQG1tjxhm8rXwgLMAQloDYXy2nvE", v: "weekly"});</script>
