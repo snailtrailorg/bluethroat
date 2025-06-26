@@ -49,27 +49,31 @@
     </div>
 
     <div class="map-control" id="maptiles_control">
-      <button class="button" id="maptiles_login_button" aria-label="Login button"><i class="fa-solid fa-user"></i>&nbsp;登录</button>
-      <button class="button non-left" id="maptiles_mark_button" aria-label="Mark button"><i class="fa-solid fa-vector-square"></i>&nbsp;标记</button>
+      <button class="button" id="maptiles_mark_button" aria-label="Mark button"><i class="fa-solid fa-vector-square"></i>&nbsp;标记</button>
       <button class="button non-left" id="maptiles_clear_button" aria-label="Clear button"><i class="fa fa-eraser"></i>&nbsp;清除</button>
       <button class="button non-left" id="maptiles_download_button" aria-label="Download button"><i class="fa fa-download"></i>&nbsp;下载</button>
+      <button class="button non-left" id="maptiles_task_button" aria-label="Task button"><i class="fa fa-download"></i>&nbsp;任务</button>
+      <button class="button" id="maptiles_account_button" aria-label="Account button"><i class="fa-solid fa-user"></i>&nbsp;登录</button>
     </div>
 
     <div class="pop-window" id="download_window">
+      <div class="title-bar">
+          <span class="title">下载地图瓦片</span>
+      </div>
       <form id="download_form" method="post">
-        <div class="title-bar">
-            <span class="title">下载地图瓦片</span>
-        </div>
+        <input type="hidden" name="download" value="1">
         <div class="content-row">
+            <span class="label" style="width:164px; text-align:right">下载任务名称：</span>
+            <input class="input non-left" style="width:300px" type="text" name="task_name" placeholder="输入名称以区分不同任务..." required>
             <span class="label" style="width:164px; text-align:right">地图瓦片级别：</span>
             <span class="label non-left">从</span>
-            <input class="input non-left" name="download_min_zoom" type="number" value="12" min="1" max="20" aria-label="Minimum zoom level">
+            <input class="input non-left" name="min_zoom" type="number" value="12" min="1" max="20" aria-label="Minimum zoom level">
             <span class="label non-left">至</span>
-            <input class="input non-left" name="download_max_zoom" type="number" value="18" min="1" max="20" aria-label="Maximum zoom level">
+            <input class="input non-left" name="max_zoom" type="number" value="18" min="1" max="20" aria-label="Maximum zoom level">
         </div>
         <div class="content-row">
           <span class="label"  style="width:164px; text-align:right" title="URL中必须包含{x}，{y}和{z}，下载过程中将被分别&#10;替换为地图瓦片的列序号，行序号和缩放级别。">瓦片服务器URL<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span>
-          <input class="input non-left" style="width:500px" type="text" name="url" list="url_list" placeholder="https://tile.example.com/{z}/{x}/{y}.png?key=<YouTileServerApiKey>" required>
+          <input class="input non-left" style="width:500px" type="text" name="url" list="url_list" placeholder="https://tile.example.com/{z}/{x}/{y}.png?key=<SERVER_KEY>" required>
           <datalist id="url_list">
             <option value="https://tile.openstreetmap.org/{z}/{x}/{y}.png"></option>
             <option value="https://tileserver.com/{z}/{x}/{y}.png"></option>
@@ -79,7 +83,37 @@
             <button class="button" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
           <button class="button non-left" type="submit"><i class="fa-solid fa-check"></i>&nbsp;确定</button>
         </div>
-        </form>
+      </form>
+    </div>
+
+    <div class="pop-window" id="login_window" style="visibility: visible;">
+      <div class="title-bar">
+          <span class="title">登录</span>
+      </div>
+      <form id="login_form" method="post">
+        <input type="hidden" name="login" value="1">
+        <div class="content-row">
+            <span class="label" style="width:164px; text-align:right">E-MAIL地址：</span>
+            <input class="input non-left" style="width:300px" type="text" name="email" placeholder="输入E-MAIL地址作为登录名..." required>
+            <span class="label" style="width:164px; text-align:right">密码：</span>
+            <span class="label non-left">从</span>
+            <input class="input non-left" name="download_min_zoom" type="number" value="12" min="1" max="20" aria-label="Minimum zoom level">
+            <span class="label non-left">至</span>
+            <input class="input non-left" name="download_max_zoom" type="number" value="18" min="1" max="20" aria-label="Maximum zoom level">
+        </div>
+        <div class="content-row">
+          <span class="label"  style="width:164px; text-align:right" title="URL中必须包含{x}，{y}和{z}，下载过程中将被分别&#10;替换为地图瓦片的列序号，行序号和缩放级别。">瓦片服务器URL<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span>
+          <input class="input non-left" style="width:500px" type="text" name="url" list="url_list" placeholder="https://tile.example.com/{z}/{x}/{y}.png?key=<SERVER_KEY>" required>
+          <datalist id="url_list">
+            <option value="https://tile.openstreetmap.org/{z}/{x}/{y}.png"></option>
+            <option value="https://tileserver.com/{z}/{x}/{y}.png"></option>
+          </datalist>
+        </div>
+        <div class="footer-bar">
+            <button class="button" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
+          <button class="button non-left" type="submit"><i class="fa-solid fa-check"></i>&nbsp;确定</button>
+        </div>
+      </form>
     </div>
 
     <script>
