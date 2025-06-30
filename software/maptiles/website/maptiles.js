@@ -140,7 +140,7 @@ async function initMap() {
     }
   });
 
-  document.addEventListener('mouseup', function(event) {
+  document.addEventListener('pointerdown', function(event) {
     if (isMarking) {
       isMarking = false;
       map.setOptions({gestureHandling: "auto"});

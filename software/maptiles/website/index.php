@@ -40,7 +40,6 @@
             .left-margin{margin-left:10px;}
             .link{color: darkblue;text-decoration: none;}
             .link:hover{color:blue;text-decoration: underline;}
-}
         </style>
         <script type="module" src="./maptiles.js"></script>
     </head>
