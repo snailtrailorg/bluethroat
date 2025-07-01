@@ -1,3 +1,107 @@
+// Status enum
+export const Status = Object.freeze({
+    UNMARKED: "Unmarked",
+    MARKING: "Marking",
+    ADJUSTING: "Adjusting",
+    PROCESSING: "Processing",
+    DONE: "Done",
+  });
+
+// Task class definition
+export class MapTiles extends google.maps.OverlayView {
+    constructor(map) {
+        super();
+        this.map = map;
+
+        this.status = Status.UNMARKED;
+        this.startPoint = null;
+        this.endPoint = null;
+        this.rectRange = null;
+        this.minZoom = 12;
+        this.maxZoom = 16;
+
+        this.taskId = null;
+        this.taskName = null;
+        this.taskPrograss = 0;
+    }
+
+    getStatus() {
+        return this.status;
+    }
+
+    setStatus(status) {
+        this.status = status;
+    }
+
+    getStartPoint() {
+        return this.startPoint;
+    }
+
+    setStartPoint(startPoint) {
+        this.startPoint = startPoint;
+    }
+
+    getEndPoint() {
+        return this.endPoint;
+    }
+
+    setEndPoint(endPoint) {
+        this.endPoint = endPoint;
+    }
+
+    getBounds() {
+        return new google.maps.LatLngBounds(this.startPoint, this.endPoint);
+    }
+
+    setBounds(bounds) {
+        this.startPoint = bounds.getSouthWest();
+        this.endPoint = bounds.getNorthEast();
+    }
+
+    startTask(task_id, task_name, min_zoom, max_zoom) {
+        this.setStatus(Status.PROCESSING);
+        this.taskId = task_id;
+        this.taskName = task_name;
+        this.minZoom = min_zoom;
+        this.maxZoom = max_zoom;
+    }
+
+    setTaskProgress(progress) {
+        this.taskPrograss = progress;
+    }
+
+    onAdd() {
+        const div = document.createElement('div');
+        div.style.position = 'absolute';
+        // 设置其他样式...
+        
+        this.div_ = div;
+        const panes = this.getPanes();
+        panes.overlayLayer.appendChild(div); // 添加到覆盖层
+      }
+
+    draw() {
+        if (!this.div_) {
+            return;
+        }
+        const projection = this.getProjection();
+        const bounds = new google.maps.LatLngBounds(this.startPoint, this.endPoint);
+        const sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
+        const ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
+        this.div_.style.left = sw.x + 'px';
+        this.div_.style.top = ne.y + 'px';
+        this.div_.style.width = (ne.x - sw.x) + 'px';
+        this.div_.style.height = (sw.y - ne.y) + 'px';
+    }
+
+    onRemove() {
+        if (this.div_) {
+          this.div_.parentNode.removeChild(this.div_);
+          this.div_ = null;
+        }
+      }
+}
+
 // Initialize global variables
 var user_id = null;
 var public_key = null;
