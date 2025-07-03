@@ -25,6 +25,7 @@
         <style>
             html,body{height:100%;margin:0;padding:0;}
             #map {height: 100%;}
+            #maptiles_canvas {position:absolute;background-color:rgba(0, 0, 0, 0.5);visibility:hidden}
             .map-control{display:flex;align-items:center;position:absolute;margin:10px}
             .pop-window{visibility:hidden;display:flex;flex-direction:column;background-color:#D7D7D3;border-radius:10px;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000}
             .title-bar{display:flex;align-items:center;justify-content:center;background-color:darkblue;height:40px;border-top-left-radius:10px;border-top-right-radius:10px}
@@ -46,6 +47,8 @@
 
     <body>
         <div id="map" width=200 height=200></div>
+
+        <div id="maptiles_canvas"></div>
 
         <div class="map-control" id="geocoder_control">
             <input class="input" id="geocoder_address_input" placeholder="搜索一个位置..." aria-label="Search input">
@@ -111,7 +114,7 @@
             </form>
         </div>
 
-        <div class="pop-window" id="register_window" style="visibility: visible;">
+        <div class="pop-window" id="register_window">
             <div class="title-bar"><span class="title">注册账号</span></div>
             <form id="register_form" method="post">
                 <input type="hidden" name="register" value="1">
