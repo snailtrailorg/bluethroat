@@ -120,15 +120,10 @@ async function initMap() {
                 const projection = this.getProjection();
                 const sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
                 const ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
-                const left = Math.min(sw.x, ne.x);
-                const top = Math.min(sw.y, ne.y);
-                const right = Math.max(sw.x, ne.x);
-                const bottom = Math.max(sw.y, ne.y);
-                this.canvas.style.left = left + 'px';
-                this.canvas.style.top = top + 'px';
-                this.canvas.style.width = (right - left) + 'px';
-                this.canvas.style.height = (bottom - top) + 'px';
-                console.log("bounds: " + bounds + ", sw: " + sw + ", ne: " + ne + ", left: " + this.canvas.style.left + ", top: " + this.canvas.style.top + ", width: " + this.canvas.style.width + ", height: " + this.canvas.style.height);
+                this.canvas.style.left = sw.x + 'px';
+                this.canvas.style.top = ne.y + 'px';
+                this.canvas.style.width = (ne.x - sw.x) + 'px';
+                this.canvas.style.height = (sw.y - ne.y) + 'px';
             }
         }
 
@@ -203,11 +198,13 @@ async function initMap() {
             if (startPoint != null) {
                 endPoint = event.latLng;
                 if (endPoint != null) {
-                    let lng_diff = endPoint.lng() - startPoint.lng();
+                    const sw = new google.maps.LatLng(Math.min(startPoint.lat(), endPoint.lat()), Math.min(startPoint.lng(), endPoint.lng()));
+                    const ne = new google.maps.LatLng(Math.max(startPoint.lat(), endPoint.lat()), Math.max(startPoint.lng(), endPoint.lng()));
+                    let lng_diff = ne.lng() - sw.lng();
                     if (lng_diff < 0 && lng_diff > -180 || lng_diff > 180) {
-                        mapTiles.setBounds(new google.maps.LatLngBounds(endPoint, startPoint));
+                        mapTiles.setBounds(new google.maps.LatLngBounds(ne, sw));
                     } else {
-                        mapTiles.setBounds(new google.maps.LatLngBounds(startPoint, endPoint));
+                        mapTiles.setBounds(new google.maps.LatLngBounds(sw, ne));
                     }
                 }
             }
