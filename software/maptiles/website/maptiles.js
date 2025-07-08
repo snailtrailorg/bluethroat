@@ -198,14 +198,21 @@ async function initMap() {
             if (startPoint != null) {
                 endPoint = event.latLng;
                 if (endPoint != null) {
-                    const sw = new google.maps.LatLng(Math.min(startPoint.lat(), endPoint.lat()), Math.min(startPoint.lng(), endPoint.lng()));
-                    const ne = new google.maps.LatLng(Math.max(startPoint.lat(), endPoint.lat()), Math.max(startPoint.lng(), endPoint.lng()));
-                    let lng_diff = ne.lng() - sw.lng();
-                    if (lng_diff < 0 && lng_diff > -180 || lng_diff > 180) {
-                        mapTiles.setBounds(new google.maps.LatLngBounds(ne, sw));
+                    const south = Math.min(startPoint.lat(), endPoint.lat());
+                    const north = Math.max(startPoint.lat(), endPoint.lat());
+                    const west = Math.min(startPoint.lng(), endPoint.lng());
+                    const east = Math.max(startPoint.lng(), endPoint.lng());
+                    let longitude_diff = east - west;
+                    let south_west = null;
+                    let north_east = null;
+                    if (longitude_diff < 0 && longitude_diff > -180 || longitude_diff > 180) {
+                        south_west = new google.maps.LatLng(south, east);
+                        north_east = new google.maps.LatLng(north, west);
                     } else {
-                        mapTiles.setBounds(new google.maps.LatLngBounds(sw, ne));
+                        south_west = new google.maps.LatLng(south, west);
+                        north_east = new google.maps.LatLng(north, east);
                     }
+                    mapTiles.setBounds(new google.maps.LatLngBounds(south_west, north_east));
                 }
             }
         }
