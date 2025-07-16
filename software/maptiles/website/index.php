@@ -34,13 +34,15 @@
             .label-grid{display:flex;align-items:center;justify-content: flex-end;}
             .input-grid{display:flex;align-items:center;justify-content: flex-start;}
             .input,.button{height:40px;padding:0 10px;box-sizing:border-box}
-            .input,.button,.label{font-size:large;font-family:'Roboto',Arial,sans-serif;}
+            .input,.button,.label{font-size:large;font-family:'Roboto',Arial,sans-serif;white-space:nowrap;}
             .title{font-size:large;color:white;font-family:'Roboto',Arial,sans-serif;}
             .button{width:88px}
             .button:hover{background-color:lightblue}
             .left-margin{margin-left:10px;}
-            .link{color: darkblue;text-decoration: none;}
-            .link:hover{color:blue;text-decoration: underline;}
+            .link{color: darkblue;text-decoration:none;white-space:nowrap;}
+            .link:hover{color:blue;text-decoration:underline;}
+            .progress-container{width:100px;background-color:dimgray;border-radius:4px;overflow:hidden;}
+            .progress-bar{height:24px;background-color:#4CAF50;width:0%;text-align:center;line-height:24px;color:white;transition:width 0.5s ease;}
         </style>
         <script type="module" src="./maptiles.js"></script>
     </head>
@@ -129,6 +131,27 @@
                 <div class="footer-bar">
                     <button class="button" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
                     <button class="button left-margin" type="submit"><i class="fa-solid fa-check"></i>&nbsp;注册</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="pop-window" id="task_window" style="visibility:visible;">
+            <div class="title-bar"><span class="title">下载任务列表</span></div>
+            <div class="content">
+                <div class="label-grid"><span class="label">小径湾滑翔伞基地周边OSM地图12-18级</span></div>
+                <div class="input-grid">
+                    <div class="progress-container"><div class="progress-bar" style="width: 75%">75%</div></div>
+                    <span class="label link left-margin"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
+                    <span class="label link left-margin"><i class="fa-solid fa-download"></i>&nbsp;下载</span>
+                </div>
+            </div>
+            <form id="task_form" method="post">
+                <input type="hidden" name="task" value="1">
+                <div class="footer-bar">
+                    <button class="button" type="submit"><i class="fa-solid fa-arrow-left"></i>&nbsp;上页</button>
+                    <button class="button left-margin" type="submit"><i class="fa-solid fa-arrow-right"></i>&nbsp;下页</button>
+                    <button class="button left-margin" type="submit"><i class="fa-solid fa-rotate-right"></i>&nbsp;刷新</button>
+                    <button class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
                 </div>
             </form>
         </div>
