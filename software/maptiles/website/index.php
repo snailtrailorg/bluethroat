@@ -93,7 +93,7 @@
             </form>
         </div>
 
-        <div class="pop-window" id="login_window" style="visibility:visible;">
+        <div class="pop-window" id="login_window">
             <div class="title-bar"><span class="title">登录账号</span></div>
             <form id="login_form" method="post">
                 <input type="hidden" name="login" value="1">
