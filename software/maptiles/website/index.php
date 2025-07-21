@@ -93,7 +93,7 @@
             </form>
         </div>
 
-        <div class="pop-window" id="login_window">
+        <div class="pop-window" id="login_window" style="visibility:visible;">
             <div class="title-bar"><span class="title">登录账号</span></div>
             <form id="login_form" method="post">
                 <input type="hidden" name="login" value="1">
@@ -135,7 +135,7 @@
             </form>
         </div>
 
-        <div class="pop-window" id="task_window" style="visibility:visible;">
+        <div class="pop-window" id="task_window">
             <div class="title-bar"><span class="title">下载任务列表</span></div>
             <div class="content">
                 <div class="label-grid"><span class="label">小径湾滑翔伞基地周边OSM地图12-18级</span></div>

@@ -29,6 +29,38 @@ async function getHomeLocation() {
     });
 }
 
+function showRegisterWindow() {
+    document.getElementById("register_windows").style.visibility = "visible";
+}
+
+function hideRegisterWindow() {
+    document.getElementById("register_windows").style.visibility = "hidden";
+}
+
+function showLoginWindow() {
+    document.getElementById("login_windows").style.visibility = "visible";
+}
+
+function hideLoginWindow() {
+    document.getElementById("login_windows").style.visibility = "hidden";
+}
+
+function showDownloadWindow() {
+    document.getElementById("download_window").style.visibility = "visible";
+}
+
+function hideDownloadWindow() {
+    document.getElementById("download_window").style.visibility = "hidden";
+}
+
+function showTaskWindow() {
+    document.getElementById("task_window").style.visibility = "visible";
+}
+
+function hideTaskWindow() {
+    document.getElementById("task_window").style.visibility = "hidden";
+}
+
 // Initialize the map
 async function initMap() {
     // The home location
@@ -228,7 +260,15 @@ async function initMap() {
         }
     });
 
-    //map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(document.getElementById("download_window"));
+    document.getElementById("maptiles_download_button").addEventListener("click", () => {
+        if (user_id == null) {
+            alert("");
+            showLoginWindow();
+            return;
+        } else {
+            showDownloadWindow();
+        }
+    });
 }
 
 initMap();
