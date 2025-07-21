@@ -30,19 +30,19 @@ async function getHomeLocation() {
 }
 
 function showRegisterWindow() {
-    document.getElementById("register_windows").style.visibility = "visible";
+    document.getElementById("register_window").style.visibility = "visible";
 }
 
 function hideRegisterWindow() {
-    document.getElementById("register_windows").style.visibility = "hidden";
+    document.getElementById("register_window").style.visibility = "hidden";
 }
 
 function showLoginWindow() {
-    document.getElementById("login_windows").style.visibility = "visible";
+    document.getElementById("login_window").style.visibility = "visible";
 }
 
 function hideLoginWindow() {
-    document.getElementById("login_windows").style.visibility = "hidden";
+    document.getElementById("login_window").style.visibility = "hidden";
 }
 
 function showDownloadWindow() {
