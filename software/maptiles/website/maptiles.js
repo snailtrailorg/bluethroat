@@ -278,7 +278,6 @@ async function initMap() {
 
     document.getElementById("login_window").addEventListener("show", () => {
         const loginForm = document.getElementById("login_form");
-        loginForm.reset();
         loginForm.reset.disabled = false;
         loginForm.submit.disabled = false;
         loginForm.submit.value = '<i class="fa-solid fa-check"></i>&nbsp;登录';
