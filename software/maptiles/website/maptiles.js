@@ -29,36 +29,23 @@ async function getHomeLocation() {
     });
 }
 
-function showRegisterWindow() {
-    document.getElementById("register_window").style.visibility = "visible";
+var current_window = null;
+
+function hideWindow(window_id) {
+    const window = document.getElementById(window_id);
+    window.style.visibility = "hidden";
+    window.dispatchEvent(new Event("hide"));
+    current_window = null;
 }
 
-function hideRegisterWindow() {
-    document.getElementById("register_window").style.visibility = "hidden";
-}
-
-function showLoginWindow() {
-    document.getElementById("login_window").style.visibility = "visible";
-}
-
-function hideLoginWindow() {
-    document.getElementById("login_window").style.visibility = "hidden";
-}
-
-function showDownloadWindow() {
-    document.getElementById("download_window").style.visibility = "visible";
-}
-
-function hideDownloadWindow() {
-    document.getElementById("download_window").style.visibility = "hidden";
-}
-
-function showTaskWindow() {
-    document.getElementById("task_window").style.visibility = "visible";
-}
-
-function hideTaskWindow() {
-    document.getElementById("task_window").style.visibility = "hidden";
+function showWindow(window_id) {
+    if (current_window) {
+        hideWindow(current_window);
+    }
+    const window = document.getElementById(window_id);
+    window.style.visibility = "visible";
+    window.dispatchEvent(new Event("show"));
+    current_window = window_id;
 }
 
 // Initialize the map
@@ -260,14 +247,71 @@ async function initMap() {
         }
     });
 
+    document.getElementById("maptiles_account_button").addEventListener("click", () => {
+        if (user_id == null) {
+            showWindow("login_window");
+        } else {
+            alert("profile_window还没有实现")
+            //showWindow("profile_window");
+        }
+    });
+
     document.getElementById("maptiles_download_button").addEventListener("click", () => {
         if (user_id == null) {
-            alert("");
-            showLoginWindow();
+            alert("因为下载任务是异步的，并且耗时较长，所以必须先登录，才能启动并保存下载任务。");
+            showWindow("login_window");
             return;
         } else {
-            showDownloadWindow();
+            showWindow("download_window");
         }
+    });
+
+    document.getElementById("maptiles_task_button").addEventListener("click", () => {
+        if (user_id == null) {
+            alert("必须先登录才能查看下载任务列表。");
+            showWindow("login_window");
+            return;
+        } else {
+            showWindow("task_window");
+        }
+    });
+
+    document.getElementById("login_window").addEventListener("show", () => {
+        const loginForm = document.getElementById("login_form");
+        loginForm.reset();
+        loginForm.reset.disabled = false;
+        loginForm.submit.disabled = false;
+        loginForm.submit.value = '<i class="fa-solid fa-check"></i>&nbsp;登录';
+    });
+
+    document.getElementById("login_form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        this.reset.disabled = true;
+        this.submit.disabled = true;
+        this.submit.value = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;登录中...'
+
+        const data = new FormData(this);
+    
+        try {
+            const response = await fetch("", {method: "POST", body: data});
+            if (response.status == 200) {
+                user_id = response.data.user_id;
+                hideWindow("login_window");
+            } else {
+                alert("登录失败：" + response.data.message);
+            }
+        } catch (error) {
+            alert("登录失败：" + error.message);
+        }
+
+        this.submit.disabled = false;
+        this.submit.value = '<i class="fa-solid fa-check"></i>&nbsp;登录';
+        this.reset.disabled = false;
+    });
+
+    document.getElementById("login_form").addEventListener("reset", (event) => {
+        event.preventDefault();
+        hideWindow("login_window");
     });
 }
 

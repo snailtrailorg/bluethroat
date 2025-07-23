@@ -93,6 +93,27 @@
             </form>
         </div>
 
+        <div class="pop-window" id="task_window">
+            <div class="title-bar"><span class="title">下载任务列表</span></div>
+            <div class="content">
+                <div class="label-grid"><span class="label">小径湾滑翔伞基地周边OSM地图12-18级</span></div>
+                <div class="input-grid">
+                    <div class="progress-container"><div class="progress-bar" style="width: 75%">75%</div></div>
+                    <span class="label link left-margin"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
+                    <span class="label link left-margin"><i class="fa-solid fa-download"></i>&nbsp;下载</span>
+                </div>
+            </div>
+            <form id="task_form" method="post">
+                <input type="hidden" name="task" value="1">
+                <div class="footer-bar">
+                    <button class="button" type="submit"><i class="fa-solid fa-arrow-left"></i>&nbsp;上页</button>
+                    <button class="button left-margin" type="submit"><i class="fa-solid fa-arrow-right"></i>&nbsp;下页</button>
+                    <button class="button left-margin" type="submit"><i class="fa-solid fa-rotate-right"></i>&nbsp;刷新</button>
+                    <button class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
+                </div>
+            </form>
+        </div>
+
         <div class="pop-window" id="login_window">
             <div class="title-bar"><span class="title">登录账号</span></div>
             <form id="login_form" method="post">
@@ -135,23 +156,21 @@
             </form>
         </div>
 
-        <div class="pop-window" id="task_window">
-            <div class="title-bar"><span class="title">下载任务列表</span></div>
-            <div class="content">
-                <div class="label-grid"><span class="label">小径湾滑翔伞基地周边OSM地图12-18级</span></div>
-                <div class="input-grid">
-                    <div class="progress-container"><div class="progress-bar" style="width: 75%">75%</div></div>
-                    <span class="label link left-margin"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
-                    <span class="label link left-margin"><i class="fa-solid fa-download"></i>&nbsp;下载</span>
+        <div class="pop-window" id="profile_window">
+            <div class="title-bar"><span class="title">账号信息</span></div>
+            <form id="profile_form" method="post">
+                <input type="hidden" name="profile" value="1">
+                <div class="content">
+                    <div class="label-grid"><span class="label">E-MAIL地址：</span></div>
+                    <div class="input-grid"><span class="label" name="email">someone@example.com</span></div>
+                    <div class="label-grid"><span class="label">注册时间</span></div>
+                    <div class="input-grid"><span class="label" name="register_time">2025-07-25 08:00:00</span></div>
+                    <div class="label-grid"><span class="label">上次登录时间</span></div>
+                    <div class="input-grid"><span class="label" name="last_login_time">2025-07-25 08:00:00</span></div>
                 </div>
-            </div>
-            <form id="task_form" method="post">
-                <input type="hidden" name="task" value="1">
                 <div class="footer-bar">
-                    <button class="button" type="submit"><i class="fa-solid fa-arrow-left"></i>&nbsp;上页</button>
-                    <button class="button left-margin" type="submit"><i class="fa-solid fa-arrow-right"></i>&nbsp;下页</button>
-                    <button class="button left-margin" type="submit"><i class="fa-solid fa-rotate-right"></i>&nbsp;刷新</button>
-                    <button class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
+                    <button class="button" type="reset"><i class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;登出</button>
+                    <button class="button left-margin" type="submit"><i class="fa-solid fa-xmark"></i>&nbsp;关闭</button>
                 </div>
             </form>
         </div>
