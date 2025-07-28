@@ -277,17 +277,20 @@ async function initMap() {
     });
 
     document.getElementById("login_window").addEventListener("show", () => {
-        const loginForm = document.getElementById("login_form");
-        loginForm.reset.disabled = false;
-        loginForm.submit.disabled = false;
-        loginForm.submit.value = '<i class="fa-solid fa-check"></i>&nbsp;登录';
+        const cancelButton = document.getElementById("login_form_cancel");
+        const submitButton = document.getElementById("login_form_submit");
+        cancelButton.disabled = false;
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fa-solid fa-check"></i>&nbsp;登录';
     });
 
     document.getElementById("login_form").addEventListener("submit", async function(event) {
         event.preventDefault();
-        this.reset.disabled = true;
-        this.submit.disabled = true;
-        this.submit.value = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;登录中...'
+        const cancelButton = document.getElementById("login_form_cancel");
+        const submitButton = document.getElementById("login_form_submit");
+        cancelButton.disabled = true;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;登录中...'
 
         const data = new FormData(this);
     
@@ -303,14 +306,72 @@ async function initMap() {
             alert("登录失败：" + error.message);
         }
 
-        this.submit.disabled = false;
-        this.submit.value = '<i class="fa-solid fa-check"></i>&nbsp;登录';
-        this.reset.disabled = false;
+        cancelButton.disabled = false;
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fa-solid fa-check"></i>&nbsp;登录';
     });
 
     document.getElementById("login_form").addEventListener("reset", (event) => {
         event.preventDefault();
         hideWindow("login_window");
+    });
+
+    document.getElementById("register_link").addEventListener("click", () => {
+        hideWindow("login_window");
+        showWindow("register_window");
+    });
+
+    document.getElementById("reset_password_link").addEventListener("click", () => {
+        hideWindow("login_window");
+        showWindow("reset_password_window");
+    });
+
+    document.getElementById("register_form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const cancelButton = document.getElementById("register_form_cancel");
+        const submitButton = document.getElementById("register_form_submit");
+        cancelButton.disabled = true;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;注册中...'
+
+        const data = new FormData(this);
+        const password =data.get("password");
+        const password_confirm =data.get("password_confirm");
+
+        if (password === password_confirm) {
+            showLoading("正在注册...");
+            try {
+                const password_buffer = new TextEncoder().encode(password);
+                const password_encrypt = await window.crypto.subtle.encrypt("RSA-OAEP", public_key, password_buffer);
+                const password_encrypt_base64 = btoa(String.fromCharCode(...new Uint8Array(password_encrypt)));
+                data.set("password", password_encrypt_base64);
+                data.delete("password_confirm");
+
+                const response = await fetch("/", { method: "POST", body: data});
+                if (response.status == 200) {
+                    const result = await response.json();
+                    if (result.code === 0) {
+                        alert("注册成功，请登录...");
+                        hideWindow("register_window");
+                        showWindow("login_window");
+                    } else {
+                        alert("注册失败：" + result.message);
+                    }
+                } else {
+                    alert("注册失败：" + response.status + " " + response.statusText);
+                }
+            } catch (error) {
+                alert("注册失败：" + error.message);
+            } finally {
+                hideLoading();
+            }
+        } else {
+            alert("两次输入的密码不一致，请重新输入！");
+        }
+
+        cancelButton.disabled = false;
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fa-solid fa-check"></i>&nbsp;注册';
     });
 }
 
