@@ -19,13 +19,13 @@ class Database {
             self::$conn = new mysqli($config['host'], $config['user'], $config['pass'], $config['name']);
             
             if (self::$conn->connect_errno) {
-                die(json_encode(['code' => __LINE__, 'message' => '数据库连接失败']));
                 error_log("数据库连接失败: " . self::$conn->connect_error);
+                die(json_encode(['code' => __LINE__, 'message' => '数据库连接失败']));
             }
             
             if (!self::$conn->set_charset($config['charset'] ?? 'utf8mb4')) {
-                die(json_encode(['code' => __LINE__, 'message' => '数据库字符集设置失败']));
                 error_log("字符集设置失败: " . self::$conn->error);
+                die(json_encode(['code' => __LINE__, 'message' => '数据库字符集设置失败']));
             }
         }
         

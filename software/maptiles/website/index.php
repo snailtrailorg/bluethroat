@@ -25,14 +25,17 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Content-Type: application/json");
 
-        if (file_exists(__DIR__ . '/database.php')) {
-            require_once __DIR__ . '/database.php';
-        } else {
-            error_log('数据库连接模块缺失');
-            die(json_encode(['code' => __LINE__, 'message' => '数据库连接模块缺失']));
-        }
-
         if (isset($_POST) && isset($_POST['action'])) {
+
+            if (file_exists(__DIR__ . '/database.php')) {
+                require_once __DIR__ . '/database.php';
+            } else {
+                error_log('数据库连接模块缺失');
+                die(json_encode(['code' => __LINE__, 'message' => '数据库连接模块缺失']));
+            }
+
+            $conn = Database::getConnection();
+
             switch ($_POST['action']) {
             case 'register':
                 if (!isset($_POST['email']) || !isset($_POST['password'])) {

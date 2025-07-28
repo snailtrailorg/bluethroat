@@ -339,7 +339,6 @@ async function initMap() {
         const password_confirm =data.get("password_confirm");
 
         if (password === password_confirm) {
-            showLoading("正在注册...");
             try {
                 const password_buffer = new TextEncoder().encode(password);
                 const password_encrypt = await window.crypto.subtle.encrypt("RSA-OAEP", public_key, password_buffer);
@@ -362,8 +361,6 @@ async function initMap() {
                 }
             } catch (error) {
                 alert("注册失败：" + error.message);
-            } finally {
-                hideLoading();
             }
         } else {
             alert("两次输入的密码不一致，请重新输入！");
