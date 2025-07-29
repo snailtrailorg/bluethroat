@@ -16,7 +16,12 @@ class Database {
                 $config = include __DIR__ . '/config/db_config.php';
             }
 
-            self::$conn = new mysqli($config['host'], $config['user'], $config['pass'], $config['name']);
+            try {
+                self::$conn = new mysqli($config['host'], $config['user'], $config['pass'], $config['name']);
+            } catch (mysqli_sql_exception $e) {
+                error_log("数据库连接失败: " . $e->getMessage());
+                die(json_encode(['code' => __LINE__, 'message' => '数据库连接失败']));
+            }
             
             if (self::$conn->connect_errno) {
                 error_log("数据库连接失败: " . self::$conn->connect_error);

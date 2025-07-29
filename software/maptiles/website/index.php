@@ -1,9 +1,8 @@
 <?php
-    function rsa_private_decrypt($password_encrypt_base64) {
-        $private_key = file_get_contents('rsakeys/privatekey.pem');
-        $password_encrypt = base64_decode($password_encrypt_base64);
-        
-        if (openssl_private_decrypt($password_encrypt, $decrypted, $private_key, OPENSSL_PKCS1_OAEP_PADDING)) {
+    function rsa_private_decrypt($encrypted_base64) {
+        $private_key = openssl_pkey_get_private(file_get_contents(__DIR__ . '/rsakeys/privatekey.pem'));
+        $encrypted = base64_decode($encrypted_base64);
+        if (openssl_private_decrypt($encrypted, $decrypted, $private_key, OPENSSL_PKCS1_OAEP_PADDING)) {
             return $decrypted;
         } else {
             return null;
@@ -20,7 +19,7 @@
         update_challenge();
     }
 
-    $public_key = preg_replace('/-----(BEGIN|END)\s+(.*?)\s+KEY-----|\s/', '', file_get_contents('rsakeys/publickey.pem'));
+    $public_key = preg_replace('/-----(BEGIN|END)\s+(.*?)\s+KEY-----|\s/', '', file_get_contents(__DIR__ . '/rsakeys/publickey.pem'));
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Content-Type: application/json");
@@ -256,6 +255,8 @@
                 </div>
 
                 <script>
+                    var user_id = null;
+                    var public_key = null;
                     <?php if (isset($_SESSION['user_id'])) { ?>
                         user_id = <?php echo $_SESSION['user_id']; ?>;
                     <?php } ?>
