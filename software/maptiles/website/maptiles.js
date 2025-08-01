@@ -2,6 +2,36 @@
 let map;
 let geocoder;
 
+// Calculate SHA-256 hash with Web Crypto API
+async function sha256(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// RSA-OAEP encrypt with Web Crypto API
+async function rsaOaepEncrypt(plaintext) {
+    if (public_key) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(plaintext);
+        const encrypted = await window.crypto.subtle.encrypt(
+            { name: 'RSA-OAEP', hash: { name: 'SHA-256' } },
+            public_key,
+            data
+        );
+        return btoa(String.fromCharCode(...new Uint8Array(encrypted)));
+    } else {
+        throw {
+            message: "public_key not set",
+        };
+    }
+}
+
 // Get the user's current location or use a default location
 //@ts-ignore
 async function getHomeLocation() {
@@ -289,6 +319,14 @@ async function initMap() {
         submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;登录中...'
 
         const data = new FormData(this);
+        const email = data.get("email").trim().toLowerCase();
+        const password =data.get("password").trim();
+        const password_digest = await sha256(password + email);
+        const password_hex = await sha256(password_digest);
+        const password_encrypt = await rsaOaepEncrypt(password_digest);
+        data.set("email", email);
+        data.set("password", password_encrypt);
+        data.delete("password_confirm");
     
         try {
             const response = await fetch("", {method: "POST", body: data});
@@ -331,15 +369,16 @@ async function initMap() {
         submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;注册中...'
 
         const data = new FormData(this);
-        const password =data.get("password");
-        const password_confirm =data.get("password_confirm");
+        const email = data.get("email").trim().toLowerCase();
+        const password =data.get("password").trim();
+        const password_confirm =data.get("password_confirm").trim();
 
         if (password === password_confirm) {
             try {
-                const password_buffer = new TextEncoder().encode(password);
-                const password_encrypt = await window.crypto.subtle.encrypt({name:'RSA-OAEP', hash:{name:'SHA-256'}}, public_key, password_buffer);
-                const password_encrypt_base64 = btoa(String.fromCharCode(...new Uint8Array(password_encrypt)));
-                data.set("password", password_encrypt_base64);
+                const password_digest = await sha256(email + ":" + password + "@snailtrail.org");
+                const password_encrypt = await rsaOaepEncrypt(password_digest);
+                data.set("email", email);
+                data.set("password", password_encrypt);
                 data.delete("password_confirm");
 
                 const response = await fetch("/", { method: "POST", body: data});
@@ -365,6 +404,11 @@ async function initMap() {
         cancelButton.disabled = false;
         submitButton.disabled = false;
         submitButton.innerHTML = '<i class="fa-solid fa-check"></i>&nbsp;注册';
+    });
+
+    document.getElementById("register_form").addEventListener("reset", (event) => {
+        event.preventDefault();
+        hideWindow("register_window");
     });
 }
 

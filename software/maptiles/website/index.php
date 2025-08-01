@@ -1,6 +1,6 @@
 <?php
     require_once __DIR__ . '/utils/phpseclib/vendor/autoload.php';
-    require_once __DIR__ . '/config/database.php';
+    require_once __DIR__ . '/database.php';
 
     use phpseclib3\Crypt\PublicKeyLoader;
     use phpseclib3\Crypt\RSA;
@@ -9,11 +9,10 @@
         try {
             $private_key = PublicKeyLoader::load(file_get_contents(__DIR__ . '/config/rsakeys/privatekey.pem'))->withHash('sha256')->withMGFHash('sha256')->withPadding(RSA::ENCRYPTION_OAEP);
             $decrypted = $private_key->decrypt(base64_decode($encrypted));
-            error_log('解密成功:' . $decrypted);
             return $decrypted;
         } catch (Exception $e) {
-            error_log("RSA-OAEP解密错误: " . $e->getMessage());
-            die(json_encode(['code' => __LINE__, 'message' => 'RSA-OAEP解密错误: ' . $e->getMessage()]));
+            error_log("RSA解密错误：" . $e->getMessage());
+            return null;
         }
     }
 
@@ -38,32 +37,42 @@
             switch ($_POST['action']) {
             case 'register':
                 if (!isset($_POST['email']) || !isset($_POST['password'])) {
-                    echo json_encode(['code' => __LINE__, 'message' => '请求参数错误']);
+                    die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                }
+
+                $email = $_POST['email'];
+                $password = rsa_oaep_decrypt($_POST['password']);
+                if ($email === null || $password === null) {
+                    die(json_encode(['code' => __LINE__, 'message' => '密码解密失败']));
                 } else {
-                    $email = $_POST['email'];
-                    $password = rsa_oaep_decrypt($_POST['password']);
-                    if ($password === null) {
-                        echo json_encode(['code' => __LINE__, 'message' => '密码解密失败：' . openssl_error_string()]);
-                    } else {
-                        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-                        $stmt->bind_param("s", $email);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        if ($result->num_rows > 0) {
-                            echo json_encode(['code' => __LINE__, 'message' => '邮箱已存在']);
-                        } else {
-                            $stmt->close();
-                            $stmt = $conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
-                            $stmt->bind_param("ss", $email, $password);
-                            $stmt->execute();
-                            echo json_encode(['code' => 0, 'message' => '注册成功']);
-                        }
-                    }
+                    $password_digest = hash('sha256', $password . 'maptiles'. $email);
+                }
+
+                $check_stmt = $conn->prepare("SELECT 1 FROM users WHERE email = ? LIMIT 1");
+                $check_stmt->bind_param("s", $email);
+                if (!$check_stmt->execute()) {
+                    die(json_encode(['code' => __LINE__, 'message' => '邮箱查询失败']));
+                } else {
+                    $result = $check_stmt->get_result();
+                }
+
+                if ($result === false) {
+                    die(json_encode(['code' => __LINE__, 'message' => '邮箱查询失败']));
+                } else if ($result->num_rows > 0) {
+                    die(json_encode(['code' => __LINE__, 'message' => '邮箱已存在']));
+                }
+
+                $stmt = $conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+                $stmt->bind_param("ss", $email, $password_digest);
+                if (!$stmt->execute()) {
+                    die(json_encode(['code' => __LINE__, 'message' => '注册失败']));
+                } else {
+                    echo json_encode(['code' => 0, 'message' => '注册成功']);
                 }
                 break;
             }
         } else {
-            echo json_encode(['code' => __LINE__, 'message' => '请求参数错误']);
+            die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
         }
     } else {
 ?>
