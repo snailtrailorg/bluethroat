@@ -337,7 +337,7 @@ async function initMap() {
         if (password === password_confirm) {
             try {
                 const password_buffer = new TextEncoder().encode(password);
-                const password_encrypt = await window.crypto.subtle.encrypt("RSA-OAEP", public_key, password_buffer);
+                const password_encrypt = await window.crypto.subtle.encrypt({name:'RSA-OAEP', hash:{name:'SHA-256'}}, public_key, password_buffer);
                 const password_encrypt_base64 = btoa(String.fromCharCode(...new Uint8Array(password_encrypt)));
                 data.set("password", password_encrypt_base64);
                 data.delete("password_confirm");

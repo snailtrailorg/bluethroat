@@ -1,11 +1,17 @@
 <?php
-    function rsa_private_decrypt($encrypted_base64) {
-        $private_key = openssl_pkey_get_private(file_get_contents(__DIR__ . '/rsakeys/privatekey.pem'));
-        $encrypted = base64_decode($encrypted_base64);
-        if (openssl_private_decrypt($encrypted, $decrypted, $private_key, OPENSSL_PKCS1_OAEP_PADDING)) {
+    require_once 'vendor/autoload.php';
+    use phpseclib3\Crypt\PublicKeyLoader;
+    use phpseclib3\Crypt\RSA;
+
+    function rsa_oaep_decrypt($encrypted) {
+        try {
+            $private_key = PublicKeyLoader::load(file_get_contents(__DIR__ . '/config/rsakeys/privatekey.pem'))->withHash('sha256')->withMGFHash('sha256')->withPadding(RSA::ENCRYPTION_OAEP);
+            $decrypted = $private_key->decrypt(base64_decode($encrypted));
+            error_log('解密成功:' . $decrypted);
             return $decrypted;
-        } else {
-            return null;
+        } catch (Exception $e) {
+            error_log("RSA-OAEP解密错误: " . $e->getMessage());
+            die(json_encode(['code' => __LINE__, 'message' => 'RSA-OAEP解密错误: ' . $e->getMessage()]));
         }
     }
 
@@ -19,7 +25,7 @@
         update_challenge();
     }
 
-    $public_key = preg_replace('/-----(BEGIN|END)\s+(.*?)\s+KEY-----|\s/', '', file_get_contents(__DIR__ . '/rsakeys/publickey.pem'));
+    $public_key = preg_replace('/-----(BEGIN|END)\s+(.*?)\s+KEY-----|\s/', '', file_get_contents(__DIR__ . '/config/rsakeys/publickey.pem'));
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Content-Type: application/json");
@@ -41,10 +47,9 @@
                     echo json_encode(['code' => __LINE__, 'message' => '请求参数错误']);
                 } else {
                     $email = $_POST['email'];
-                    $password_encrypt_base64 = $_POST['password'];
-                    $password = rsa_private_decrypt($password_encrypt_base64);
+                    $password = rsa_oaep_decrypt($_POST['password']);
                     if ($password === null) {
-                        echo json_encode(['code' => __LINE__, 'message' => '密码解密失败']);
+                        echo json_encode(['code' => __LINE__, 'message' => '密码解密失败：' . openssl_error_string()]);
                     } else {
                         $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
                         $stmt->bind_param("s", $email);
@@ -54,7 +59,6 @@
                             echo json_encode(['code' => __LINE__, 'message' => '邮箱已存在']);
                         } else {
                             $stmt->close();
-                            $conn->close();
                             $stmt = $conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
                             $stmt->bind_param("ss", $email, $password);
                             $stmt->execute();
@@ -261,7 +265,7 @@
                         user_id = <?php echo $_SESSION['user_id']; ?>;
                     <?php } ?>
                     <?php if ($public_key != '') { ?>
-                        window.crypto.subtle.importKey('spki', Uint8Array.from(atob('<?php echo addslashes($public_key); ?>'), c => c.charCodeAt(0)), {name:'RSA-OAEP', hash:'SHA-256'}, true, ['encrypt']).then(key => { public_key = key;}).catch(error => { console.error('Error importing public key:', error); public_key = null;});
+                        window.crypto.subtle.importKey('spki', Uint8Array.from(atob('<?php echo addslashes($public_key); ?>'), c => c.charCodeAt(0)), {name:'RSA-OAEP', hash:{name:'SHA-256'}}, true, ['encrypt']).then(key => { public_key = key;}).catch(error => { console.error('Error importing public key:', error); public_key = null;});
                     <?php } ?>
                 </script>
 
