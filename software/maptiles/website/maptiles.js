@@ -11,7 +11,7 @@ async function sha256(str) {
   
   return Array.from(new Uint8Array(hashBuffer))
     .map(byte => byte.toString(16).padStart(2, '0'))
-    .join('');
+    .join('').toLowerCase();
 }
 
 // RSA-OAEP encrypt with Web Crypto API
@@ -321,9 +321,8 @@ async function initMap() {
         const data = new FormData(this);
         const email = data.get("email").trim().toLowerCase();
         const password =data.get("password").trim();
-        const password_digest = await sha256(password + email);
-        const password_hex = await sha256(password_digest);
-        const password_encrypt = await rsaOaepEncrypt(password_digest);
+        const password_pseudo = await sha256(email + ":" + password + "@snailtrail.org");
+        const password_encrypt = await rsaOaepEncrypt(password_pseudo);
         data.set("email", email);
         data.set("password", password_encrypt);
         data.delete("password_confirm");
@@ -331,10 +330,15 @@ async function initMap() {
         try {
             const response = await fetch("", {method: "POST", body: data});
             if (response.status == 200) {
-                user_id = response.data.user_id;
-                hideWindow("login_window");
+                const result = await response.json();
+                if (result.code === 0) {
+                    user_id = result.data.user_id;
+                    hideWindow("login_window");
+                } else {
+                    alert("登录失败：" + result.message);
+                }
             } else {
-                alert("登录失败：" + response.data.message);
+                alert("登录失败：" + response.status + " " + response.statusText);
             }
         } catch (error) {
             alert("登录失败：" + error.message);
@@ -375,8 +379,8 @@ async function initMap() {
 
         if (password === password_confirm) {
             try {
-                const password_digest = await sha256(email + ":" + password + "@snailtrail.org");
-                const password_encrypt = await rsaOaepEncrypt(password_digest);
+                const password_pseudo = await sha256(email + ":" + password + "@snailtrail.org");
+                const password_encrypt = await rsaOaepEncrypt(password_pseudo);
                 data.set("email", email);
                 data.set("password", password_encrypt);
                 data.delete("password_confirm");

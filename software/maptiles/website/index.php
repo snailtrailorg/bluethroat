@@ -16,15 +16,7 @@
         }
     }
 
-    function update_challenge() {
-        $_SESSION['challenge'] = bin2hex(random_bytes(16));
-    }
-
     session_start();
-
-    if (!isset($_SESSION['challenge'])) {
-        update_challenge();
-    }
 
     $public_key = preg_replace('/-----(BEGIN|END)\s+(.*?)\s+KEY-----|\s/', '', file_get_contents(__DIR__ . '/config/rsakeys/publickey.pem'));
 
@@ -35,39 +27,93 @@
             $conn = Database::getConnection();
 
             switch ($_POST['action']) {
+            case 'login':
+                {
+                    if (!isset($_POST['email']) || !isset($_POST['password'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $email = $_POST['email'];
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        die(json_encode(['code' => __LINE__, 'message' => '邮箱格式不合法']));
+                    }
+
+                    $password_pseudo = rsa_oaep_decrypt($_POST['password']);
+                    if (!preg_match('/^[a-f0-9]{64}$/', $password_pseudo)) {
+                        die(json_encode(['code' => __LINE__, 'message' => '密码格式不合法']));
+                    }
+                    
+                    $check_stmt = $conn->prepare("SELECT id, password FROM users WHERE email = ? LIMIT 1");
+                    $check_stmt->bind_param("s", $email);
+                    if (!$check_stmt->execute()) {
+                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
+                    } else {
+                        $result = $check_stmt->get_result();
+                    }
+
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
+                    } else if ($result->num_rows === 0) {
+                        die(json_encode(['code' => __LINE__, 'message' => '用户不存在']));
+                    }
+
+                    $row = $result->fetch_assoc();
+                    $user_id = $row['id'];
+                    $password_digest = $row['password'];
+                    if (!password_verify($password_pseudo, $password_digest)) {
+                        die(json_encode(['code' => __LINE__, 'message' => '密码不匹配']));
+                    }
+
+                    $stmt = $conn->prepare('UPDATE users SET last_login_time = NOW() WHERE id = ?');
+                    $stmt->bind_param('i', $user_id);
+                    if (!$stmt->execute()) {
+                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
+                    }
+
+                    $_SESSION['user_id'] = $user_id;
+                    echo json_encode(['code' => 0, 'message' => '登录成功', 'data' => ['user_id' => $user_id]]);
+                }
+                break;
             case 'register':
-                if (!isset($_POST['email']) || !isset($_POST['password'])) {
-                    die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
-                }
+                {
+                    if (!isset($_POST['email']) || !isset($_POST['password'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
 
-                $email = $_POST['email'];
-                $password = rsa_oaep_decrypt($_POST['password']);
-                if ($email === null || $password === null) {
-                    die(json_encode(['code' => __LINE__, 'message' => '密码解密失败']));
-                } else {
-                    $password_digest = hash('sha256', $password . 'maptiles'. $email);
-                }
+                    $email = $_POST['email'];
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        die(json_encode(['code' => __LINE__, 'message' => '邮箱格式不合法']));
+                    }
 
-                $check_stmt = $conn->prepare("SELECT 1 FROM users WHERE email = ? LIMIT 1");
-                $check_stmt->bind_param("s", $email);
-                if (!$check_stmt->execute()) {
-                    die(json_encode(['code' => __LINE__, 'message' => '邮箱查询失败']));
-                } else {
-                    $result = $check_stmt->get_result();
-                }
+                    $password_pseudo = rsa_oaep_decrypt($_POST['password']);
+                    if (!preg_match('/^[a-f0-9]{64}$/', $password_pseudo)) {
+                        die(json_encode(['code' => __LINE__, 'message' => '密码格式不合法']));
+                    } else {
+                        $password_digest = password_hash($password_pseudo, PASSWORD_BCRYPT);
+                    }
 
-                if ($result === false) {
-                    die(json_encode(['code' => __LINE__, 'message' => '邮箱查询失败']));
-                } else if ($result->num_rows > 0) {
-                    die(json_encode(['code' => __LINE__, 'message' => '邮箱已存在']));
-                }
+                    $check_stmt = $conn->prepare("SELECT 1 FROM users WHERE email = ? LIMIT 1");
+                    $check_stmt->bind_param("s", $email);
+                    if (!$check_stmt->execute()) {
+                        die(json_encode(['code' => __LINE__, 'message' => '邮箱查询失败']));
+                    } else {
+                        $result = $check_stmt->get_result();
+                    }
 
-                $stmt = $conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
-                $stmt->bind_param("ss", $email, $password_digest);
-                if (!$stmt->execute()) {
-                    die(json_encode(['code' => __LINE__, 'message' => '注册失败']));
-                } else {
-                    echo json_encode(['code' => 0, 'message' => '注册成功']);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => '邮箱查询失败']));
+                    } else if ($result->num_rows > 0) {
+                        die(json_encode(['code' => __LINE__, 'message' => '邮箱已存在']));
+                    }
+
+                    $stmt = $conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+                    $stmt->bind_param("ss", $email, $password_digest);
+
+                    if (!$stmt->execute()) {
+                        die(json_encode(['code' => __LINE__, 'message' => '注册失败']));
+                    } else {
+                        echo json_encode(['code' => 0, 'message' => '注册成功', 'data' => ['user_id' => $conn->insert_id]]);
+                    }
                 }
                 break;
             }
@@ -179,7 +225,7 @@
         <div class="pop-window" id="login_window">
             <div class="title-bar"><span class="title">登录账号</span></div>
             <form id="login_form" method="post">
-                <input type="hidden" name="login" value="1">
+                <input type="hidden" name="action" value="login">
                 <div class="content">
                     <div class="label-grid"><span class="label">E-MAIL地址：</span></div>
                     <div class="input-grid">
