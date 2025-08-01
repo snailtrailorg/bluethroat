@@ -1,5 +1,7 @@
 <?php
-    require_once 'vendor/autoload.php';
+    require_once __DIR__ . '/utils/phpseclib/vendor/autoload.php';
+    require_once __DIR__ . '/config/database.php';
+
     use phpseclib3\Crypt\PublicKeyLoader;
     use phpseclib3\Crypt\RSA;
 
@@ -31,14 +33,6 @@
         header("Content-Type: application/json");
 
         if (isset($_POST) && isset($_POST['action'])) {
-
-            if (file_exists(__DIR__ . '/database.php')) {
-                require_once __DIR__ . '/database.php';
-            } else {
-                error_log('数据库连接模块缺失');
-                die(json_encode(['code' => __LINE__, 'message' => '数据库连接模块缺失']));
-            }
-
             $conn = Database::getConnection();
 
             switch ($_POST['action']) {
