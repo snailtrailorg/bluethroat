@@ -288,7 +288,13 @@ async function initMap() {
             showWindow("login_window");
             return;
         } else {
-            showWindow("download_window");
+            if (mapTiles == null || mapTiles.getBounds().isEmpty()) {
+                alert("请先标记地图范围。");
+            } else {
+                const bounds = mapTiles.getBounds();
+                alert("地图范围：" + bounds.getSouthWest().lat() + ", " + bounds.getNorthEast().lng() + ", " + bounds.getNorthEast().lat() + ", " + bounds.getSouthWest().lng());
+                showWindow("download_window");
+            }
         }
     });
 
@@ -318,22 +324,24 @@ async function initMap() {
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;登录中...'
 
-        const data = new FormData(this);
-        const email = data.get("email").trim().toLowerCase();
-        const password =data.get("password").trim();
+        const fomr_data = new FormData(this);
+        const email = fomr_data.get("email").trim().toLowerCase();
+        const password =fomr_data.get("password").trim();
         const password_pseudo = await sha256(email + ":" + password + "@snailtrail.org");
         const password_encrypt = await rsaOaepEncrypt(password_pseudo);
-        data.set("email", email);
-        data.set("password", password_encrypt);
-        data.delete("password_confirm");
+        fomr_data.set("email", email);
+        fomr_data.set("password", password_encrypt);
+        fomr_data.delete("password_confirm");
     
         try {
-            const response = await fetch("", {method: "POST", body: data});
+            const response = await fetch("", {method: "POST", body: fomr_data});
             if (response.status == 200) {
                 const result = await response.json();
                 if (result.code === 0) {
                     user_id = result.data.user_id;
                     hideWindow("login_window");
+                    document.getElementById("maptiles_account_button").innerHTML = '<i class="fa-solid fa-user"></i>&nbsp;详情';
+                    alert("用户" + result.data.email + "登录成功，上一次登录时间：" + result.data.last_login_time + "。");
                 } else {
                     alert("登录失败：" + result.message);
                 }
@@ -372,20 +380,20 @@ async function initMap() {
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;注册中...'
 
-        const data = new FormData(this);
-        const email = data.get("email").trim().toLowerCase();
-        const password =data.get("password").trim();
-        const password_confirm =data.get("password_confirm").trim();
+        const fomr_data = new FormData(this);
+        const email = fomr_data.get("email").trim().toLowerCase();
+        const password =fomr_data.get("password").trim();
+        const password_confirm =fomr_data.get("password_confirm").trim();
 
         if (password === password_confirm) {
             try {
                 const password_pseudo = await sha256(email + ":" + password + "@snailtrail.org");
                 const password_encrypt = await rsaOaepEncrypt(password_pseudo);
-                data.set("email", email);
-                data.set("password", password_encrypt);
-                data.delete("password_confirm");
+                fomr_data.set("email", email);
+                fomr_data.set("password", password_encrypt);
+                fomr_data.delete("password_confirm");
 
-                const response = await fetch("/", { method: "POST", body: data});
+                const response = await fetch("/", { method: "POST", body: fomr_data});
                 if (response.status == 200) {
                     const result = await response.json();
                     if (result.code === 0) {

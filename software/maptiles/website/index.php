@@ -43,7 +43,7 @@
                         die(json_encode(['code' => __LINE__, 'message' => '密码格式不合法']));
                     }
                     
-                    $check_stmt = $conn->prepare("SELECT id, password FROM users WHERE email = ? LIMIT 1");
+                    $check_stmt = $conn->prepare("SELECT id, email, password, last_login_time FROM users WHERE email = ? LIMIT 1");
                     $check_stmt->bind_param("s", $email);
                     if (!$check_stmt->execute()) {
                         die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
@@ -59,6 +59,8 @@
 
                     $row = $result->fetch_assoc();
                     $user_id = $row['id'];
+                    $email = $row['email'];
+                    $last_login_time = $row['last_login_time'];
                     $password_digest = $row['password'];
                     if (!password_verify($password_pseudo, $password_digest)) {
                         die(json_encode(['code' => __LINE__, 'message' => '密码不匹配']));
@@ -71,7 +73,7 @@
                     }
 
                     $_SESSION['user_id'] = $user_id;
-                    echo json_encode(['code' => 0, 'message' => '登录成功', 'data' => ['user_id' => $user_id]]);
+                    echo json_encode(['code' => 0, 'message' => '登录成功', 'data' => ['user_id' => $user_id, 'email' => $email, 'last_login_time' => $last_login_time]]);
                 }
                 break;
             case 'register':
@@ -112,7 +114,7 @@
                     if (!$stmt->execute()) {
                         die(json_encode(['code' => __LINE__, 'message' => '注册失败']));
                     } else {
-                        echo json_encode(['code' => 0, 'message' => '注册成功', 'data' => ['user_id' => $conn->insert_id]]);
+                        echo json_encode(['code' => 0, 'message' => '注册成功', 'data' => ['user_id' => $conn->insert_id, 'email' => $email]]);
                     }
                 }
                 break;
@@ -129,7 +131,12 @@
         <title>地图瓦片标记和下载</title>
         <meta name="robots" content="noindex, nofollow">
         <meta charset="utf-8">
+        <script>
+            var public_key = null;
+            var user_id = null;
+        </script>
         <script src="https://kit.fontawesome.com/d1f7300f56.js" crossorigin="anonymous"></script>
+        <script type="module" src="./maptiles.js"></script>
         <style>
             html,body{height:100%;margin:0;padding:0;}
             #map {height: 100%;}
@@ -152,7 +159,6 @@
             .progress-container{width:100px;background-color:dimgray;border-radius:4px;overflow:hidden;}
             .progress-bar{height:24px;background-color:#4CAF50;width:0%;text-align:center;line-height:24px;color:white;transition:width 0.5s ease;}
         </style>
-        <script type="module" src="./maptiles.js"></script>
     </head>
 
     <body>
@@ -308,10 +314,9 @@
         </div>
 
         <script>
-            var user_id = null;
-            var public_key = null;
             <?php if (isset($_SESSION['user_id'])) { ?>
                 user_id = <?php echo $_SESSION['user_id']; ?>;
+                document.getElementById("maptiles_account_button").innerHTML = '<i class="fa-solid fa-user"></i>&nbsp;详情';
             <?php } ?>
             <?php if ($public_key != '') { ?>
                 window.crypto.subtle.importKey('spki', Uint8Array.from(atob('<?php echo addslashes($public_key); ?>'), c => c.charCodeAt(0)), {name:'RSA-OAEP', hash:{name:'SHA-256'}}, true, ['encrypt']).then(key => { public_key = key;}).catch(error => { console.error('Error importing public key:', error); public_key = null;});
