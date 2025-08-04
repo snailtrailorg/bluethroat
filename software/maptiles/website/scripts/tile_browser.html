@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片网格生成器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.4;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        .container {
+            width: 100%;
+            max-width: none;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin: 0 0 12px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .form-section {
+            max-width: 100%;
+            margin: 0 0 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .ranges-row {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .range-group-wrapper {
+            flex: 1;
+        }
+        @media (max-width: 768px) {
+            .form-section {
+                grid-template-columns: 1fr;
+            }
+            .ranges-row {
+                flex-direction: column;
+            }
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            display: block;
+            margin-bottom: 2px;
+            font-weight: 600;
+            color: #444;
+            font-size: 15px;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 6px 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+            height: 32px;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        .range-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        .range-group input {
+            flex: 1;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 15px;
+            width: 100%;
+            transition: background-color 0.3s;
+            font-weight: 600;
+            height: 32px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        #grid-container {
+            margin-top: 10px;
+            display: grid;
+            gap: 1px;
+            background-color: #ccc;
+            overflow: auto;
+            min-height: 100px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .grid-item {
+            padding: 0;
+            margin: 0;
+            background-color: white;
+        }
+        .grid-item img {
+            display: block;
+        }
+        .missing {
+            background-color: #f0f0f0;
+            min-width: 100px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #95a5a6;
+            font-size: 12px;
+        }
+        .status-message {
+            margin-top: 6px;
+            padding: 6px 10px;
+            border-radius: 3px;
+            display: none;
+            font-size: 15px;
+        }
+        .error {
+            color: #e74c3c;
+            background-color: #fef0f0;
+            border: 1px solid #fcd5d5;
+        }
+        .loading {
+            color: #2980b9;
+            background-color: #f0f7ff;
+            border: 1px solid #d0e5ff;
+            text-align: center;
+        }
+        .info {
+            color: #27ae60;
+            background-color: #f0fff4;
+            border: 1px solid #c8e6c9;
+            text-align: center;
+        }
+        .last-updated {
+            font-size: 13px;
+            color: #7f8c8d;
+            text-align: right;
+            margin-top: 3px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图片网格生成器</h1>
+        
+        <div class="form-section">
+            <div class="form-group">
+                <label for="imageDir">图片目录</label>
+                <input type="text" id="imageDir" placeholder="./images" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="fileExt">扩展名</label>
+                <input type="text" id="fileExt" placeholder="jpg" required>
+            </div>
+            
+            <!-- 子文件夹范围和文件范围放在同一行 -->
+            <div class="ranges-row">
+                <div class="range-group-wrapper">
+                    <label>子文件夹范围</label>
+                    <div class="range-group">
+                        <input type="number" id="subdirMin" placeholder="最小" required>
+                        <input type="number" id="subdirMax" placeholder="最大" required>
+                    </div>
+                </div>
+                
+                <div class="range-group-wrapper">
+                    <label>文件名范围</label>
+                    <div class="range-group">
+                        <input type="number" id="fileMin" placeholder="最小" required>
+                        <input type="number" id="fileMax" placeholder="最大" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group full-width">
+                <button type="submit" id="generateBtn" form="gridForm">生成/更新网格</button>
+            </div>
+            
+            <div class="form-group full-width">
+                <div id="loading-message" class="status-message loading">
+                    <i>生成中...</i>
+                </div>
+                <div id="error-message" class="status-message error"></div>
+                <div id="info-message" class="status-message info"></div>
+                <div id="last-updated" class="last-updated"></div>
+            </div>
+        </div>
+        
+        <form id="gridForm"></form>
+        
+        <div id="grid-container"></div>
+    </div>
+
+    <script>
+        document.getElementById('gridForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateGrid();
+        });
+
+        function generateGrid() {
+            // 获取DOM元素
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingMessage = document.getElementById('loading-message');
+            const errorMessage = document.getElementById('error-message');
+            const infoMessage = document.getElementById('info-message');
+            const gridContainer = document.getElementById('grid-container');
+            const lastUpdated = document.getElementById('last-updated');
+            
+            // 1. 清除之前的内容和状态
+            clearAll();
+            
+            // 2. 显示加载状态
+            generateBtn.disabled = true;
+            loadingMessage.style.display = 'block';
+            
+            // 3. 获取并验证用户输入
+            const imageDir = document.getElementById('imageDir').value.trim();
+            const subdirMin = parseInt(document.getElementById('subdirMin').value);
+            const subdirMax = parseInt(document.getElementById('subdirMax').value);
+            const fileMin = parseInt(document.getElementById('fileMin').value);
+            const fileMax = parseInt(document.getElementById('fileMax').value);
+            const fileExt = document.getElementById('fileExt').value.trim();
+            
+            // 验证输入
+            if (isNaN(subdirMin) || isNaN(subdirMax) || subdirMin > subdirMax) {
+                finishGeneration();
+                showError('子文件夹范围无效（最小≤最大）');
+                return;
+            }
+            
+            if (isNaN(fileMin) || isNaN(fileMax) || fileMin > fileMax) {
+                finishGeneration();
+                showError('文件名范围无效（最小≤最大）');
+                return;
+            }
+            
+            if (!imageDir) {
+                finishGeneration();
+                showError('请输入图片目录');
+                return;
+            }
+            
+            if (!fileExt) {
+                finishGeneration();
+                showError('请输入扩展名');
+                return;
+            }
+            
+            // 4. 计算行列数并设置网格
+            const columns = subdirMax - subdirMin + 1;
+            const rows = fileMax - fileMin + 1;
+            gridContainer.style.gridTemplateColumns = `repeat(${columns}, auto)`;
+            
+            // 5. 生成网格内容
+            setTimeout(() => {
+                for (let fileNum = fileMin; fileNum <= fileMax; fileNum++) {
+                    for (let dirNum = subdirMin; dirNum <= subdirMax; dirNum++) {
+                        // 创建网格项
+                        const gridItem = document.createElement('div');
+                        gridItem.className = 'grid-item';
+                        
+                        // 构建图片路径
+                        const imgPath = `${imageDir}/${dirNum}/${fileNum}.${fileExt}`;
+                        
+                        // 创建图片元素
+                        const img = document.createElement('img');
+                        img.src = imgPath;
+                        img.alt = `文件夹 ${dirNum} 中的文件 ${fileNum}.${fileExt}`;
+                        
+                        // 处理图片加载失败（文件不存在的情况）
+                        img.onerror = function() {
+                            gridItem.classList.add('missing');
+                            gridItem.innerHTML = `${dirNum}/${fileNum}`;
+                        };
+                        
+                        // 添加到网格
+                        gridItem.appendChild(img);
+                        gridContainer.appendChild(gridItem);
+                    }
+                }
+                
+                // 显示成功信息
+                showInfo(`生成成功: ${rows}行 x ${columns}列`);
+                
+                // 更新最后生成时间
+                const now = new Date();
+                lastUpdated.textContent = `最后更新: ${now.toLocaleString()}`;
+                lastUpdated.style.display = 'block';
+                
+                // 6. 完成生成
+                finishGeneration();
+            }, 0);
+            
+            function finishGeneration() {
+                generateBtn.disabled = false;
+                loadingMessage.style.display = 'none';
+            }
+        }
+        
+        function clearAll() {
+            const gridContainer = document.getElementById('grid-container');
+            const errorMessage = document.getElementById('error-message');
+            const infoMessage = document.getElementById('info-message');
+            const lastUpdated = document.getElementById('last-updated');
+            
+            // 移除所有网格子元素
+            while (gridContainer.firstChild) {
+                gridContainer.removeChild(gridContainer.firstChild);
+            }
+            
+            // 重置网格样式
+            gridContainer.style.gridTemplateColumns = '';
+            
+            // 隐藏所有消息
+            errorMessage.style.display = 'none';
+            infoMessage.style.display = 'none';
+            lastUpdated.style.display = 'none';
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        function showInfo(message) {
+            const infoElement = document.getElementById('info-message');
+            infoElement.textContent = message;
+            infoElement.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
