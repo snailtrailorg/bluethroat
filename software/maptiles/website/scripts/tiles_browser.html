@@ -180,12 +180,12 @@
         
         <div class="form-section">
             <div class="form-group">
-                <label for="imageDir">Map tiles directory</label>
-                <input type="text" id="imageDir" placeholder="./images" required>
+                <label for="maptilesDir">Map tiles directory</label>
+                <input type="text" id="maptilesDir" placeholder="./maptiles/16" required>
             </div>
             
             <div class="form-group">
-                <label for="fileExt">扩展名</label>
+                <label for="fileExt">Map tiles file extension</label>
                 <input type="text" id="fileExt" placeholder="jpg" required>
             </div>
             
@@ -245,26 +245,26 @@
             generateBtn.disabled = true;
             loadingMessage.style.display = 'block';
             
-            const imageDir = document.getElementById('imageDir').value.trim();
-            const subdirMin = parseInt(document.getElementById('subdirMin').value);
-            const subdirMax = parseInt(document.getElementById('subdirMax').value);
-            const fileMin = parseInt(document.getElementById('fileMin').value);
-            const fileMax = parseInt(document.getElementById('fileMax').value);
+            const maptilesDir = document.getElementById('maptilesDir').value.trim();
+            const xMin = parseInt(document.getElementById('xMin').value);
+            const xMax = parseInt(document.getElementById('xMax').value);
+            const yMin = parseInt(document.getElementById('yMin').value);
+            const yMax = parseInt(document.getElementById('yMax').value);
             const fileExt = document.getElementById('fileExt').value.trim();
             
-            if (isNaN(subdirMin) || isNaN(subdirMax) || subdirMin > subdirMax) {
+            if (isNaN(xMin) || isNaN(xMax) || xMin > xMax) {
                 finishGeneration();
                 showError('Map tiles X coordinate range is invalid (min <= max)');
                 return;
             }
             
-            if (isNaN(fileMin) || isNaN(fileMax) || fileMin > fileMax) {
+            if (isNaN(yMin) || isNaN(yMax) || yMin > yMax) {
                 finishGeneration();
                 showError('Map tiles Y coordinate range is invalid (min <= max)');
                 return;
             }
             
-            if (!imageDir) {
+            if (!maptilesDir) {
                 finishGeneration();
                 showError('Map tiles directory is empty');
                 return;
@@ -276,25 +276,25 @@
                 return;
             }
             
-            const columns = subdirMax - subdirMin + 1;
-            const rows = fileMax - fileMin + 1;
+            const columns = xMax - xMin + 1;
+            const rows = yMax - yMin + 1;
             gridContainer.style.gridTemplateColumns = `repeat(${columns}, auto)`;
             
             setTimeout(() => {
-                for (let fileNum = fileMin; fileNum <= fileMax; fileNum++) {
-                    for (let dirNum = subdirMin; dirNum <= subdirMax; dirNum++) {
+                for (let y = yMin; y <= yMax; y++) {
+                    for (let x = xMin; x <= xMax; x++) {
                         const gridItem = document.createElement('div');
                         gridItem.className = 'grid-item';
                         
-                        const imgPath = `${imageDir}/${dirNum}/${fileNum}.${fileExt}`;
+                        const imgPath = `${maptilesDir}/${x}/${y}.${fileExt}`;
                         
                         const img = document.createElement('img');
                         img.src = imgPath;
-                        img.alt = `Map tile ${dirNum}/${fileNum}.${fileExt}`;
+                        img.alt = `Map tile ${x}/${y}.${fileExt}`;
                         
                         img.onerror = function() {
                             gridItem.classList.add('missing');
-                            gridItem.innerHTML = `${dirNum}/${fileNum}.${fileExt}`;
+                            gridItem.innerHTML = `${x}/${y}.${fileExt}`;
                         };
                         
                         gridItem.appendChild(img);

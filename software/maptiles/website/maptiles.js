@@ -292,7 +292,7 @@ async function initMap() {
                 alert("请先标记地图范围。");
             } else {
                 const bounds = mapTiles.getBounds();
-                alert("地图范围：" + bounds.getSouthWest().lat() + ", " + bounds.getNorthEast().lng() + ", " + bounds.getNorthEast().lat() + ", " + bounds.getSouthWest().lng());
+                alert("地图范围：" + bounds.getSouthWest().lng() + " " + bounds.getNorthEast().lat() + " " + bounds.getNorthEast().lng() + " " + bounds.getSouthWest().lat());
                 showWindow("download_window");
             }
         }
