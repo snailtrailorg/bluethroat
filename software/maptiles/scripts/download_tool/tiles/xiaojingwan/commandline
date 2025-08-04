@@ -1,2 +1,0 @@
-../../download_tiles.py 114.66916308831647 22.88274956396375 114.81799350213483 22.788458247727863 -u https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=`cat ../../apikey.thunderfotest`
-
