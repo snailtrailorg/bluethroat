@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片网格生成器</title>
+    <title>map tiles viewer</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -177,11 +176,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>图片网格生成器</h1>
+        <h1>Map Tiles Viewer</h1>
         
         <div class="form-section">
             <div class="form-group">
-                <label for="imageDir">图片目录</label>
+                <label for="imageDir">Map tiles directory</label>
                 <input type="text" id="imageDir" placeholder="./images" required>
             </div>
             
@@ -190,32 +189,31 @@
                 <input type="text" id="fileExt" placeholder="jpg" required>
             </div>
             
-            <!-- 子文件夹范围和文件范围放在同一行 -->
             <div class="ranges-row">
                 <div class="range-group-wrapper">
-                    <label>子文件夹范围</label>
+                    <label>Map tiles X coordinate range</label>
                     <div class="range-group">
-                        <input type="number" id="subdirMin" placeholder="最小" required>
-                        <input type="number" id="subdirMax" placeholder="最大" required>
+                        <input type="number" id="xMin" placeholder="Minimum" required>
+                        <input type="number" id="xMax" placeholder="Maximum" required>
                     </div>
                 </div>
                 
                 <div class="range-group-wrapper">
-                    <label>文件名范围</label>
+                    <label>Map tiles Y coordinate range</label>
                     <div class="range-group">
-                        <input type="number" id="fileMin" placeholder="最小" required>
-                        <input type="number" id="fileMax" placeholder="最大" required>
+                        <input type="number" id="yMin" placeholder="Minimum" required>
+                        <input type="number" id="yMax" placeholder="Maximum" required>
                     </div>
                 </div>
             </div>
             
             <div class="form-group full-width">
-                <button type="submit" id="generateBtn" form="gridForm">生成/更新网格</button>
+                <button type="submit" id="generateBtn" form="gridForm">Generate/Update map tiles grid</button>
             </div>
             
             <div class="form-group full-width">
                 <div id="loading-message" class="status-message loading">
-                    <i>生成中...</i>
+                    <i>Generating/Updating map tiles grid...</i>
                 </div>
                 <div id="error-message" class="status-message error"></div>
                 <div id="info-message" class="status-message info"></div>
@@ -235,7 +233,6 @@
         });
 
         function generateGrid() {
-            // 获取DOM元素
             const generateBtn = document.getElementById('generateBtn');
             const loadingMessage = document.getElementById('loading-message');
             const errorMessage = document.getElementById('error-message');
@@ -243,14 +240,11 @@
             const gridContainer = document.getElementById('grid-container');
             const lastUpdated = document.getElementById('last-updated');
             
-            // 1. 清除之前的内容和状态
             clearAll();
             
-            // 2. 显示加载状态
             generateBtn.disabled = true;
             loadingMessage.style.display = 'block';
             
-            // 3. 获取并验证用户输入
             const imageDir = document.getElementById('imageDir').value.trim();
             const subdirMin = parseInt(document.getElementById('subdirMin').value);
             const subdirMax = parseInt(document.getElementById('subdirMax').value);
@@ -258,73 +252,62 @@
             const fileMax = parseInt(document.getElementById('fileMax').value);
             const fileExt = document.getElementById('fileExt').value.trim();
             
-            // 验证输入
             if (isNaN(subdirMin) || isNaN(subdirMax) || subdirMin > subdirMax) {
                 finishGeneration();
-                showError('子文件夹范围无效（最小≤最大）');
+                showError('Map tiles X coordinate range is invalid (min <= max)');
                 return;
             }
             
             if (isNaN(fileMin) || isNaN(fileMax) || fileMin > fileMax) {
                 finishGeneration();
-                showError('文件名范围无效（最小≤最大）');
+                showError('Map tiles Y coordinate range is invalid (min <= max)');
                 return;
             }
             
             if (!imageDir) {
                 finishGeneration();
-                showError('请输入图片目录');
+                showError('Map tiles directory is empty');
                 return;
             }
             
             if (!fileExt) {
                 finishGeneration();
-                showError('请输入扩展名');
+                showError('Map tiles file extension is empty');
                 return;
             }
             
-            // 4. 计算行列数并设置网格
             const columns = subdirMax - subdirMin + 1;
             const rows = fileMax - fileMin + 1;
             gridContainer.style.gridTemplateColumns = `repeat(${columns}, auto)`;
             
-            // 5. 生成网格内容
             setTimeout(() => {
                 for (let fileNum = fileMin; fileNum <= fileMax; fileNum++) {
                     for (let dirNum = subdirMin; dirNum <= subdirMax; dirNum++) {
-                        // 创建网格项
                         const gridItem = document.createElement('div');
                         gridItem.className = 'grid-item';
                         
-                        // 构建图片路径
                         const imgPath = `${imageDir}/${dirNum}/${fileNum}.${fileExt}`;
                         
-                        // 创建图片元素
                         const img = document.createElement('img');
                         img.src = imgPath;
-                        img.alt = `文件夹 ${dirNum} 中的文件 ${fileNum}.${fileExt}`;
+                        img.alt = `Map tile ${dirNum}/${fileNum}.${fileExt}`;
                         
-                        // 处理图片加载失败（文件不存在的情况）
                         img.onerror = function() {
                             gridItem.classList.add('missing');
-                            gridItem.innerHTML = `${dirNum}/${fileNum}`;
+                            gridItem.innerHTML = `${dirNum}/${fileNum}.${fileExt}`;
                         };
                         
-                        // 添加到网格
                         gridItem.appendChild(img);
                         gridContainer.appendChild(gridItem);
                     }
                 }
                 
-                // 显示成功信息
-                showInfo(`生成成功: ${rows}行 x ${columns}列`);
+                showInfo(`Generated: ${rows} rows * ${columns} columns`);
                 
-                // 更新最后生成时间
                 const now = new Date();
-                lastUpdated.textContent = `最后更新: ${now.toLocaleString()}`;
+                lastUpdated.textContent = `Last updated: ${now.toLocaleString()}`;
                 lastUpdated.style.display = 'block';
                 
-                // 6. 完成生成
                 finishGeneration();
             }, 0);
             
@@ -340,15 +323,12 @@
             const infoMessage = document.getElementById('info-message');
             const lastUpdated = document.getElementById('last-updated');
             
-            // 移除所有网格子元素
             while (gridContainer.firstChild) {
                 gridContainer.removeChild(gridContainer.firstChild);
             }
             
-            // 重置网格样式
             gridContainer.style.gridTemplateColumns = '';
             
-            // 隐藏所有消息
             errorMessage.style.display = 'none';
             infoMessage.style.display = 'none';
             lastUpdated.style.display = 'none';
