@@ -50,7 +50,8 @@ if [ -z "$INPUT_DIR" ] || [ -z "$EXTENSION" ] || [ -z "$OUTPUT_FILE" ]; then
     echo "  -e, --extension      图片文件扩展名（必需，不带点）"
     echo "  -o, --output-file    输出HTML文件名（必需）"
     echo "示例:"
-    echo "  $0 -i ./tiles -e jpg -o grid_map.html"
+    echo "  $0 -i ./tiles/15 -e jpg -o grid_map.html"
+    echo "  $0 --input-dir ./tiles/15 --extension png --output-file grid_map.html"
     exit 1
 fi
 
