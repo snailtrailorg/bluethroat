@@ -1,10 +1,16 @@
+# 1. Disable directory listing
 Options -Indexes
 
-<FilesMatch "\.(php|html|htm|css|js|png|jpg|jpeg|gif)$">
-    Order deny,allow
-    Allow from all
+# 2. Set default index files (priority order)
+DirectoryIndex index.php index.html
+
+# 3. Block access to sensitive file types
+<FilesMatch "\.(log|sh|sql|save|swp|conf|config|key|pem)$">
+    Require all denied
 </FilesMatch>
 
-Order allow,deny
-Deny from all
-
+# 4. Block all hidden files and directories
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule "/\." - [F]
+</IfModule>
