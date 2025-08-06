@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compact Tile Viewer</title>
+    <title>Advanced Tile Viewer</title>
     <style>
         * {
             margin: 0;
@@ -54,7 +54,7 @@
             justify-content: center;
             box-shadow: 3px 0 8px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
             color: #3498db;
             transition: all 0.25s ease;
         }
@@ -81,7 +81,7 @@
             margin-bottom: 3px;
             font-weight: 600;
             color: #2c3e50;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         .input-group input {
@@ -89,9 +89,10 @@
             padding: 8px;
             border: 1px solid #d1d9e0;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 14px;
             transition: all 0.2s;
             background-color: #f9fbfd;
+            resize: vertical;
         }
 
         .input-group input:focus {
@@ -164,7 +165,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             background-color: #fff;
             border: none;
             cursor: pointer;
@@ -216,7 +217,7 @@
             padding: 12px 24px;
             border-radius: 6px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-            font-size: 16px;
+            font-size: 18px;
             display: none;
             font-weight: 500;
             color: #2c3e50;
@@ -232,7 +233,7 @@
             background-color: rgba(255, 255, 255, 0.85);
             padding: 5px 10px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 500;
             color: #2c3e50;
             box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
@@ -247,7 +248,7 @@
             padding: 10px;
             background: #e8f4ff;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 12px;
             color: #2c3e50;
             border-left: 2px solid #3498db;
             line-height: 1.4;
@@ -264,7 +265,7 @@
         .instructions h3::before {
             content: "ℹ️";
             margin-right: 6px;
-            font-size: 10px;
+            font-size: 12px;
         }
         
         .instructions ul {
@@ -274,36 +275,39 @@
         .instructions li {
             margin-bottom: 4px;
         }
+        
     </style>
 </head>
 <body>
     <!-- Compact control panel -->
     <div class="control-panel">
         <h2>Tile Viewer</h2>
+        
+        <!-- Multi-line directory input -->
         <div class="input-group">
             <label for="basePath">Base Path/URL:</label>
-            <input type="text" id="basePath" placeholder="e.g., /tiles or https://example.com/tiles">
+            <input type="text" id="basePath" placeholder="Local path or URL to tile folder">
         </div>
         
         <div class="row">
             <div class="input-group">
                 <label for="xMin">X Min:</label>
-                <input type="number" id="xMin" placeholder="Min X">
+                <input type="number" id="xMin" placeholder="Min X tile index">
             </div>
             <div class="input-group">
                 <label for="xMax">X Max:</label>
-                <input type="number" id="xMax" placeholder="Max X">
+                <input type="number" id="xMax" placeholder="Max X tile index">
             </div>
         </div>
         
         <div class="row">
             <div class="input-group">
                 <label for="yMin">Y Min:</label>
-                <input type="number" id="yMin" placeholder="Min Y">
+                <input type="number" id="yMin" placeholder="Min Y tile index">
             </div>
             <div class="input-group">
                 <label for="yMax">Y Max:</label>
-                <input type="number" id="yMax" placeholder="Max Y">
+                <input type="number" id="yMax" placeholder="Max Y tile index">
             </div>
         </div>
         
@@ -328,7 +332,6 @@
                 <li>Enter tile directory/URL and parameters</li>
                 <li>Drag to navigate the map</li>
                 <li>Use +/- buttons or mouse wheel to zoom</li>
-                <li>Zoom centers on screen or cursor position</li>
                 <li>Mouse over tiles to see coordinates</li>
             </ul>
         </div>
@@ -372,21 +375,23 @@
         let tileSize = 256;
         let currentTiles = [];
         let minScale = 1;
-        let xMin, yMin;
+        let xMin, yMin, xMax, yMax;
+        let gridWidth = 0;
+        let gridHeight = 0;
 
         // Set default values for extension and tile size
         document.getElementById('extension').value = 'png';
         document.getElementById('tileSize').value = '256';
 
         // Generate map function
-        async function generateMap() {
+        function generateMap() {
             // Get input values
-            const basePath = document.getElementById('basePath').value;
+            const basePath = document.getElementById('basePath').value.trim();
             tileSize = parseInt(document.getElementById('tileSize').value) || 256;
             xMin = parseInt(document.getElementById('xMin').value);
-            const xMax = parseInt(document.getElementById('xMax').value);
+            xMax = parseInt(document.getElementById('xMax').value);
             yMin = parseInt(document.getElementById('yMin').value);
-            const yMax = parseInt(document.getElementById('yMax').value);
+            yMax = parseInt(document.getElementById('yMax').value);
             const extension = document.getElementById('extension').value;
             
             // Validate inputs
@@ -403,85 +408,65 @@
             // Clear previous tiles
             clearTiles();
             
-            // Show loading status
-            statusMessage.textContent = 'Loading tiles...';
+            // Show loading status briefly
+            statusMessage.textContent = 'Generating map...';
             statusMessage.style.display = 'block';
             
             // Calculate grid dimensions
             const cols = xMax - xMin + 1;
             const rows = yMax - yMin + 1;
+            gridWidth = cols * tileSize;
+            gridHeight = rows * tileSize;
             
-            // Create all tiles
-            const tilePromises = [];
-            const tiles = [];
+            // Set container size immediately
+            tilesContainer.style.width = `${gridWidth}px`;
+            tilesContainer.style.height = `${gridHeight}px`;
+            
+            // Create all tiles without waiting for loading
+            createTiles(basePath, xMin, xMax, yMin, yMax, extension);
+            
+            // Reset view immediately using calculated dimensions
+            resetView();
+            
+            // Hide status message after a short delay
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 300);
+        }
+
+        // Create tiles without waiting for loading
+        function createTiles(basePath, xMin, xMax, yMin, yMax, extension) {
+            // Clean up base path - remove trailing slash
+            const cleanBasePath = basePath.replace(/\/+$/, '');
             
             for (let x = xMin; x <= xMax; x++) {
                 for (let y = yMin; y <= yMax; y++) {
-                    const tilePromise = createTile(basePath, x, y, extension);
-                    tilePromises.push(tilePromise);
-                    tiles.push({ tile: tilePromise, x, y });
+                    createTile(cleanBasePath, x, y, extension);
                 }
             }
-            
-            // Wait for all tiles to be created
-            await Promise.all(tilePromises);
-            
-            // Hide status message
-            statusMessage.style.display = 'none';
-            
-            // Store current tiles
-            currentTiles = tiles;
-            
-            // Position tiles
-            positionTiles();
-            
-            // Reset view
-            resetView();
         }
 
-        // Create a single tile
+        // Create a single tile (non-blocking)
         function createTile(basePath, x, y, extension) {
-            return new Promise((resolve) => {
-                const tile = document.createElement('img');
-                tile.className = 'tile';
-                tile.src = `${basePath}/${x}/${y}.${extension}`;
-                tile.dataset.x = x;
-                tile.dataset.y = y;
-                tile.style.width = `${tileSize}px`;
-                tile.style.height = `${tileSize}px`;
-                
-                tile.onload = () => resolve(tile);
-                tile.onerror = () => {
-                    // Create error placeholder
-                    tile.style.backgroundColor = '#f8d7da';
-                    tile.style.display = 'flex';
-                    tile.style.alignItems = 'center';
-                    tile.style.justifyContent = 'center';
-                    tile.innerHTML = `<div style="color:#721c24;font-size:11px;text-align:center;">Error<br>${x},${y}</div>`;
-                    resolve(tile);
-                };
-                
-                tilesContainer.appendChild(tile);
-            });
-        }
-
-        // Position tiles in the grid
-        function positionTiles() {
-            currentTiles.forEach(({ tile, x, y }) => {
-                tile.then(t => {
-                    const posX = (x - xMin) * tileSize;
-                    const posY = (y - yMin) * tileSize;
-                    t.style.left = `${posX}px`;
-                    t.style.top = `${posY}px`;
-                });
-            });
+            const tile = document.createElement('img');
+            tile.className = 'tile';
+            tile.src = `${basePath}/${x}/${y}.${extension}`;
+            tile.dataset.x = x;
+            tile.dataset.y = y;
+            tile.style.width = `${tileSize}px`;
+            tile.style.height = `${tileSize}px`;
             
-            // Set container size
-            const cols = xMax - xMin + 1;
-            const rows = yMax - yMin + 1;
+            // Position tile immediately based on coordinates
+            const posX = (x - xMin) * tileSize;
+            const posY = (y - yMin) * tileSize;
+            tile.style.left = `${posX}px`;
+            tile.style.top = `${posY}px`;
             
-            tilesContainer.style.width = `${cols * tileSize}px`;
-            tilesContainer.style.height = `${rows * tileSize}px`;
+            // Store tile reference
+            currentTiles.push(tile);
+            
+            // Add to container
+            tilesContainer.appendChild(tile);
         }
 
         // Clear all tiles
@@ -495,22 +480,20 @@
 
         // Reset view to initial state
         function resetView() {
-            const containerWidth = tilesContainer.offsetWidth;
-            const containerHeight = tilesContainer.offsetHeight;
             const viewportWidth = mainContent.clientWidth;
             const viewportHeight = mainContent.clientHeight;
             
             // Calculate min scale to fit the grid in viewport
-            const minScaleX = viewportWidth / containerWidth;
-            const minScaleY = viewportHeight / containerHeight;
+            const minScaleX = viewportWidth / gridWidth;
+            const minScaleY = viewportHeight / gridHeight;
             minScale = Math.min(minScaleX, minScaleY) * 0.9;
             
             // Set initial scale to fit the entire grid
             scale = minScale;
             
             // Center the grid
-            offsetX = (viewportWidth - containerWidth * scale) / 2;
-            offsetY = (viewportHeight - containerHeight * scale) / 2;
+            offsetX = (viewportWidth - gridWidth * scale) / 2;
+            offsetY = (viewportHeight - gridHeight * scale) / 2;
             
             applyTransform();
         }
