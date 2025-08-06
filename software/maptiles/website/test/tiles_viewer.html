@@ -1,350 +1,672 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>map tiles viewer</title>
+    <title>Compact Tile Viewer</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        * {
             margin: 0;
-            padding: 10px;
-            line-height: 1.4;
-            color: #333;
-            background-color: #f9f9f9;
-        }
-        .container {
-            width: 100%;
-            max-width: none;
-            margin: 0 auto;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 6px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin: 0 0 12px;
-            font-size: 22px;
-            font-weight: 600;
-        }
-        .form-section {
-            max-width: 100%;
-            margin: 0 0 15px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .ranges-row {
-            grid-column: 1 / -1;
-            display: flex;
-            gap: 10px;
-            width: 100%;
-        }
-        .range-group-wrapper {
-            flex: 1;
-        }
-        @media (max-width: 768px) {
-            .form-section {
-                grid-template-columns: 1fr;
-            }
-            .ranges-row {
-                flex-direction: column;
-            }
-        }
-        .full-width {
-            grid-column: 1 / -1;
-        }
-        .form-group {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            display: block;
-            margin-bottom: 2px;
-            font-weight: 600;
-            color: #444;
-            font-size: 15px;
-        }
-        input[type="text"],
-        input[type="number"] {
-            width: 100%;
-            padding: 6px 8px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-            height: 32px;
-        }
-        input[type="text"]:focus,
-        input[type="number"]:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-        .range-group {
-            display: flex;
-            gap: 8px;
-            width: 100%;
-        }
-        .range-group input {
-            flex: 1;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 15px;
-            width: 100%;
-            transition: background-color 0.3s;
-            font-weight: 600;
-            height: 32px;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        button:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-        #grid-container {
-            margin-top: 10px;
-            display: grid;
-            gap: 1px;
-            background-color: #ccc;
-            overflow: auto;
-            min-height: 100px;
-            padding: 5px;
-            border-radius: 4px;
-        }
-        .grid-item {
             padding: 0;
-            margin: 0;
-            background-color: white;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .grid-item img {
-            display: block;
+
+        body {
+            background: #f0f5ff;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
         }
-        .missing {
-            background-color: #f0f0f0;
-            min-width: 100px;
-            min-height: 100px;
+
+        /* Ultra-compact control panel */
+        .control-panel {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 300px;
+            height: auto;
+            background: #fff;
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.12);
+            padding: 10px;
+            z-index: 100;
+            transition: left 0.25s ease;
+            border-right: 1px solid #d0dae5;
+            border-bottom-right-radius: 8px;
+        }
+
+        .control-panel:hover {
+            left: 0;
+        }
+
+        .control-panel::before {
+            content: '⚙️';
+            position: absolute;
+            right: -36px;
+            top: 18px;
+            width: 36px;
+            height: 50px;
+            background: #fff;
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #95a5a6;
+            box-shadow: 3px 0 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            font-size: 18px;
+            color: #3498db;
+            transition: all 0.25s ease;
+        }
+
+        .control-panel:hover::before {
+            color: #e74c3c;
+        }
+
+        .control-panel h2 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 1.4rem;
+            padding-bottom: 8px;
+            text-align: center;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .input-group {
+            margin-bottom: 8px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 600;
+            color: #2c3e50;
             font-size: 12px;
         }
-        .status-message {
-            margin-top: 6px;
-            padding: 6px 10px;
-            border-radius: 3px;
-            display: none;
-            font-size: 15px;
-        }
-        .error {
-            color: #e74c3c;
-            background-color: #fef0f0;
-            border: 1px solid #fcd5d5;
-        }
-        .loading {
-            color: #2980b9;
-            background-color: #f0f7ff;
-            border: 1px solid #d0e5ff;
-            text-align: center;
-        }
-        .info {
-            color: #27ae60;
-            background-color: #f0fff4;
-            border: 1px solid #c8e6c9;
-            text-align: center;
-        }
-        .last-updated {
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d9e0;
+            border-radius: 4px;
             font-size: 13px;
-            color: #7f8c8d;
-            text-align: right;
-            margin-top: 3px;
-            font-style: italic;
+            transition: all 0.2s;
+            background-color: #f9fbfd;
+        }
+
+        .input-group input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .row .input-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .generate-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 9px;
+            width: 100%;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 5px;
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+        }
+
+        .generate-btn:hover {
+            background: #2980b9;
+            box-shadow: 0 3px 6px rgba(52, 152, 219, 0.25);
+        }
+
+        /* Main content area */
+        .main-content {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e6f0ff, #f0f5ff);
+            cursor: grab;
+        }
+
+        .main-content.grabbing {
+            cursor: grabbing;
+        }
+
+        /* Compact zoom controls */
+        .zoom-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 50;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background-color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #2c3e50;
+        }
+
+        .zoom-btn:hover {
+            background-color: #f0f7ff;
+            color: #3498db;
+        }
+
+        .zoom-btn:first-child {
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Tiles container */
+        .tiles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: top left;
+            display: grid;
+            grid-auto-flow: dense;
+        }
+
+        .tile {
+            position: absolute;
+            display: block;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+            transition: transform 0.2s;
+        }
+
+        .tile:hover {
+            transform: scale(1.02);
+            z-index: 10;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Status message */
+        .status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 12px 24px;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+            font-size: 16px;
+            display: none;
+            font-weight: 500;
+            color: #2c3e50;
+            text-align: center;
+            border: 1px solid #e1e5e9;
+        }
+
+        /* Compact coordinates display */
+        .coordinates {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #2c3e50;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+            z-index: 40;
+            display: none;
+            border: 1px solid #e1e5e9;
+        }
+        
+        /* Ultra-compact instructions */
+        .instructions {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f4ff;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #2c3e50;
+            border-left: 2px solid #3498db;
+            line-height: 1.4;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 6px;
+            color: #2980b9;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instructions h3::before {
+            content: "ℹ️";
+            margin-right: 6px;
+            font-size: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 16px;
+        }
+        
+        .instructions li {
+            margin-bottom: 4px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Map Tiles Viewer</h1>
+    <!-- Compact control panel -->
+    <div class="control-panel">
+        <h2>Tile Viewer</h2>
+        <div class="input-group">
+            <label for="basePath">Base Path/URL:</label>
+            <input type="text" id="basePath" placeholder="e.g., /tiles or https://example.com/tiles">
+        </div>
         
-        <div class="form-section">
-            <div class="form-group">
-                <label for="maptilesDir">Map tiles directory</label>
-                <input type="text" id="maptilesDir" placeholder="./maptiles/16" required>
+        <div class="row">
+            <div class="input-group">
+                <label for="xMin">X Min:</label>
+                <input type="number" id="xMin" placeholder="Min X">
             </div>
-            
-            <div class="form-group">
-                <label for="fileExt">Map tiles file extension</label>
-                <input type="text" id="fileExt" placeholder="jpg" required>
-            </div>
-            
-            <div class="ranges-row">
-                <div class="range-group-wrapper">
-                    <label>Map tiles X coordinate range</label>
-                    <div class="range-group">
-                        <input type="number" id="xMin" placeholder="Minimum" required>
-                        <input type="number" id="xMax" placeholder="Maximum" required>
-                    </div>
-                </div>
-                
-                <div class="range-group-wrapper">
-                    <label>Map tiles Y coordinate range</label>
-                    <div class="range-group">
-                        <input type="number" id="yMin" placeholder="Minimum" required>
-                        <input type="number" id="yMax" placeholder="Maximum" required>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-group full-width">
-                <button type="submit" id="generateBtn" form="gridForm">Generate/Update map tiles grid</button>
-            </div>
-            
-            <div class="form-group full-width">
-                <div id="loading-message" class="status-message loading">
-                    <i>Generating/Updating map tiles grid...</i>
-                </div>
-                <div id="error-message" class="status-message error"></div>
-                <div id="info-message" class="status-message info"></div>
-                <div id="last-updated" class="last-updated"></div>
+            <div class="input-group">
+                <label for="xMax">X Max:</label>
+                <input type="number" id="xMax" placeholder="Max X">
             </div>
         </div>
         
-        <form id="gridForm"></form>
+        <div class="row">
+            <div class="input-group">
+                <label for="yMin">Y Min:</label>
+                <input type="number" id="yMin" placeholder="Min Y">
+            </div>
+            <div class="input-group">
+                <label for="yMax">Y Max:</label>
+                <input type="number" id="yMax" placeholder="Max Y">
+            </div>
+        </div>
         
-        <div id="grid-container"></div>
+        <div class="row">
+            <div class="input-group">
+                <label for="extension">File Extension:</label>
+                <input type="text" id="extension" placeholder="png, jpg" value="png">
+            </div>
+            <div class="input-group">
+                <label for="tileSize">Tile Size (px):</label>
+                <input type="number" id="tileSize" placeholder="Size" value="256">
+            </div>
+        </div>
+        
+        <button class="generate-btn" id="generateBtn">Generate Map</button>
+        
+        <!-- Always visible instructions -->
+        <div class="instructions">
+            <h3>Usage Instructions</h3>
+            <ul>
+                <li>Hover left edge to show controls</li>
+                <li>Enter tile directory/URL and parameters</li>
+                <li>Drag to navigate the map</li>
+                <li>Use +/- buttons or mouse wheel to zoom</li>
+                <li>Zoom centers on screen or cursor position</li>
+                <li>Mouse over tiles to see coordinates</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main content area -->
+    <div class="main-content">
+        <!-- Zoom controls -->
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoomIn">+</button>
+            <button class="zoom-btn" id="zoomOut">-</button>
+        </div>
+        
+        <!-- Coordinates display -->
+        <div class="coordinates" id="coordinates"></div>
+        
+        <!-- Tiles container -->
+        <div class="tiles-container" id="tilesContainer"></div>
+        
+        <!-- Status message -->
+        <div class="status" id="statusMessage">Loading tiles...</div>
     </div>
 
     <script>
-        document.getElementById('gridForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            generateGrid();
-        });
+        // DOM elements
+        const tilesContainer = document.getElementById('tilesContainer');
+        const statusMessage = document.getElementById('statusMessage');
+        const coordinatesDisplay = document.getElementById('coordinates');
+        const generateBtn = document.getElementById('generateBtn');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const mainContent = document.querySelector('.main-content');
 
-        function generateGrid() {
-            const generateBtn = document.getElementById('generateBtn');
-            const loadingMessage = document.getElementById('loading-message');
-            const errorMessage = document.getElementById('error-message');
-            const infoMessage = document.getElementById('info-message');
-            const gridContainer = document.getElementById('grid-container');
-            const lastUpdated = document.getElementById('last-updated');
-            
-            clearAll();
-            
-            generateBtn.disabled = true;
-            loadingMessage.style.display = 'block';
-            
-            const maptilesDir = document.getElementById('maptilesDir').value.trim();
-            const xMin = parseInt(document.getElementById('xMin').value);
+        // State variables
+        let scale = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let startX, startY;
+        let initialOffsetX, initialOffsetY;
+        let tileSize = 256;
+        let currentTiles = [];
+        let minScale = 1;
+        let xMin, yMin;
+
+        // Set default values for extension and tile size
+        document.getElementById('extension').value = 'png';
+        document.getElementById('tileSize').value = '256';
+
+        // Generate map function
+        async function generateMap() {
+            // Get input values
+            const basePath = document.getElementById('basePath').value;
+            tileSize = parseInt(document.getElementById('tileSize').value) || 256;
+            xMin = parseInt(document.getElementById('xMin').value);
             const xMax = parseInt(document.getElementById('xMax').value);
-            const yMin = parseInt(document.getElementById('yMin').value);
+            yMin = parseInt(document.getElementById('yMin').value);
             const yMax = parseInt(document.getElementById('yMax').value);
-            const fileExt = document.getElementById('fileExt').value.trim();
+            const extension = document.getElementById('extension').value;
             
-            if (isNaN(xMin) || isNaN(xMax) || xMin > xMax) {
-                finishGeneration();
-                showError('Map tiles X coordinate range is invalid (min <= max)');
+            // Validate inputs
+            if (!basePath || isNaN(xMin) || isNaN(xMax) || isNaN(yMin) || isNaN(yMax) || !extension) {
+                alert('Please fill all fields with valid values');
                 return;
             }
             
-            if (isNaN(yMin) || isNaN(yMax) || yMin > yMax) {
-                finishGeneration();
-                showError('Map tiles Y coordinate range is invalid (min <= max)');
+            if (tileSize < 32 || tileSize > 1024) {
+                alert('Tile size must be between 32 and 1024 pixels');
                 return;
             }
             
-            if (!maptilesDir) {
-                finishGeneration();
-                showError('Map tiles directory is empty');
-                return;
-            }
+            // Clear previous tiles
+            clearTiles();
             
-            if (!fileExt) {
-                finishGeneration();
-                showError('Map tiles file extension is empty');
-                return;
-            }
+            // Show loading status
+            statusMessage.textContent = 'Loading tiles...';
+            statusMessage.style.display = 'block';
             
-            const columns = xMax - xMin + 1;
+            // Calculate grid dimensions
+            const cols = xMax - xMin + 1;
             const rows = yMax - yMin + 1;
-            gridContainer.style.gridTemplateColumns = `repeat(${columns}, auto)`;
             
-            setTimeout(() => {
+            // Create all tiles
+            const tilePromises = [];
+            const tiles = [];
+            
+            for (let x = xMin; x <= xMax; x++) {
                 for (let y = yMin; y <= yMax; y++) {
-                    for (let x = xMin; x <= xMax; x++) {
-                        const gridItem = document.createElement('div');
-                        gridItem.className = 'grid-item';
-                        
-                        const imgPath = `${maptilesDir}/${x}/${y}.${fileExt}`;
-                        
-                        const img = document.createElement('img');
-                        img.src = imgPath;
-                        img.alt = `Map tile ${x}/${y}.${fileExt}`;
-                        
-                        img.onerror = function() {
-                            gridItem.classList.add('missing');
-                            gridItem.innerHTML = `${x}/${y}.${fileExt}`;
-                        };
-                        
-                        gridItem.appendChild(img);
-                        gridContainer.appendChild(gridItem);
-                    }
+                    const tilePromise = createTile(basePath, x, y, extension);
+                    tilePromises.push(tilePromise);
+                    tiles.push({ tile: tilePromise, x, y });
                 }
-                
-                showInfo(`Generated: ${rows} rows * ${columns} columns`);
-                
-                const now = new Date();
-                lastUpdated.textContent = `Last updated: ${now.toLocaleString()}`;
-                lastUpdated.style.display = 'block';
-                
-                finishGeneration();
-            }, 0);
-            
-            function finishGeneration() {
-                generateBtn.disabled = false;
-                loadingMessage.style.display = 'none';
-            }
-        }
-        
-        function clearAll() {
-            const gridContainer = document.getElementById('grid-container');
-            const errorMessage = document.getElementById('error-message');
-            const infoMessage = document.getElementById('info-message');
-            const lastUpdated = document.getElementById('last-updated');
-            
-            while (gridContainer.firstChild) {
-                gridContainer.removeChild(gridContainer.firstChild);
             }
             
-            gridContainer.style.gridTemplateColumns = '';
+            // Wait for all tiles to be created
+            await Promise.all(tilePromises);
             
-            errorMessage.style.display = 'none';
-            infoMessage.style.display = 'none';
-            lastUpdated.style.display = 'none';
+            // Hide status message
+            statusMessage.style.display = 'none';
+            
+            // Store current tiles
+            currentTiles = tiles;
+            
+            // Position tiles
+            positionTiles();
+            
+            // Reset view
+            resetView();
+        }
+
+        // Create a single tile
+        function createTile(basePath, x, y, extension) {
+            return new Promise((resolve) => {
+                const tile = document.createElement('img');
+                tile.className = 'tile';
+                tile.src = `${basePath}/${x}/${y}.${extension}`;
+                tile.dataset.x = x;
+                tile.dataset.y = y;
+                tile.style.width = `${tileSize}px`;
+                tile.style.height = `${tileSize}px`;
+                
+                tile.onload = () => resolve(tile);
+                tile.onerror = () => {
+                    // Create error placeholder
+                    tile.style.backgroundColor = '#f8d7da';
+                    tile.style.display = 'flex';
+                    tile.style.alignItems = 'center';
+                    tile.style.justifyContent = 'center';
+                    tile.innerHTML = `<div style="color:#721c24;font-size:11px;text-align:center;">Error<br>${x},${y}</div>`;
+                    resolve(tile);
+                };
+                
+                tilesContainer.appendChild(tile);
+            });
+        }
+
+        // Position tiles in the grid
+        function positionTiles() {
+            currentTiles.forEach(({ tile, x, y }) => {
+                tile.then(t => {
+                    const posX = (x - xMin) * tileSize;
+                    const posY = (y - yMin) * tileSize;
+                    t.style.left = `${posX}px`;
+                    t.style.top = `${posY}px`;
+                });
+            });
+            
+            // Set container size
+            const cols = xMax - xMin + 1;
+            const rows = yMax - yMin + 1;
+            
+            tilesContainer.style.width = `${cols * tileSize}px`;
+            tilesContainer.style.height = `${rows * tileSize}px`;
+        }
+
+        // Clear all tiles
+        function clearTiles() {
+            while (tilesContainer.firstChild) {
+                tilesContainer.removeChild(tilesContainer.firstChild);
+            }
+            currentTiles = [];
+            coordinatesDisplay.style.display = 'none';
+        }
+
+        // Reset view to initial state
+        function resetView() {
+            const containerWidth = tilesContainer.offsetWidth;
+            const containerHeight = tilesContainer.offsetHeight;
+            const viewportWidth = mainContent.clientWidth;
+            const viewportHeight = mainContent.clientHeight;
+            
+            // Calculate min scale to fit the grid in viewport
+            const minScaleX = viewportWidth / containerWidth;
+            const minScaleY = viewportHeight / containerHeight;
+            minScale = Math.min(minScaleX, minScaleY) * 0.9;
+            
+            // Set initial scale to fit the entire grid
+            scale = minScale;
+            
+            // Center the grid
+            offsetX = (viewportWidth - containerWidth * scale) / 2;
+            offsetY = (viewportHeight - containerHeight * scale) / 2;
+            
+            applyTransform();
+        }
+
+        // Apply current transform to tiles container
+        function applyTransform() {
+            tilesContainer.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+        }
+
+        // Zoom function with center anchor
+        function zoom(direction) {
+            const zoomFactor = direction === 'in' ? 1.2 : 1/1.2;
+            
+            // Calculate viewport center
+            const viewportCenterX = mainContent.clientWidth / 2;
+            const viewportCenterY = mainContent.clientHeight / 2;
+            
+            // Calculate the current center point in the tile container
+            const containerCenterX = (viewportCenterX - offsetX) / scale;
+            const containerCenterY = (viewportCenterY - offsetY) / scale;
+            
+            // Calculate new scale
+            let newScale = scale * zoomFactor;
+            
+            // Apply scale limits
+            if (newScale < minScale) {
+                newScale = minScale;
+            } else if (newScale > 4) {
+                newScale = 4;
+            }
+            
+            // Calculate new offset to keep the center point fixed
+            offsetX = viewportCenterX - containerCenterX * newScale;
+            offsetY = viewportCenterY - containerCenterY * newScale;
+            
+            scale = newScale;
+            applyTransform();
+        }
+
+        // Zoom with mouse anchor (for wheel zoom)
+        function zoomAtMouse(direction, mouseX, mouseY) {
+            const zoomFactor = direction === 'in' ? 1.2 : 1/1.2;
+            
+            // Calculate the current mouse position in the tile container
+            const containerX = (mouseX - offsetX) / scale;
+            const containerY = (mouseY - offsetY) / scale;
+            
+            // Calculate new scale
+            let newScale = scale * zoomFactor;
+            
+            // Apply scale limits
+            if (newScale < minScale) {
+                newScale = minScale;
+            } else if (newScale > 4) {
+                newScale = 4;
+            }
+            
+            // Calculate new offset to keep the mouse point fixed
+            offsetX = mouseX - containerX * newScale;
+            offsetY = mouseY - containerY * newScale;
+            
+            scale = newScale;
+            applyTransform();
+        }
+
+        // Initialize dragging functionality
+        function initDragging() {
+            mainContent.addEventListener('mousedown', (e) => {
+                if (e.button !== 0 || !currentTiles.length) return;
+                
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialOffsetX = offsetX;
+                initialOffsetY = offsetY;
+                mainContent.classList.add('grabbing');
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                offsetX = initialOffsetX + dx;
+                offsetY = initialOffsetY + dy;
+                
+                applyTransform();
+                e.preventDefault();
+                
+                // Update coordinates display
+                updateCoordinates(e);
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                mainContent.classList.remove('grabbing');
+            });
+            
+            // Mouse position tracking for coordinates
+            tilesContainer.addEventListener('mousemove', (e) => {
+                if (!currentTiles.length) return;
+                updateCoordinates(e);
+            });
+            
+            tilesContainer.addEventListener('mouseleave', () => {
+                coordinatesDisplay.style.display = 'none';
+            });
         }
         
-        function showError(message) {
-            const errorElement = document.getElementById('error-message');
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
+        // Update coordinates display
+        function updateCoordinates(e) {
+            if (!currentTiles.length || !xMin || !yMin) return;
+            
+            const rect = tilesContainer.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / (tileSize * scale));
+            const y = Math.floor((e.clientY - rect.top) / (tileSize * scale));
+            
+            const tileX = xMin + x;
+            const tileY = yMin + y;
+            
+            coordinatesDisplay.textContent = `X: ${tileX}, Y: ${tileY}`;
+            coordinatesDisplay.style.display = 'block';
         }
-        
-        function showInfo(message) {
-            const infoElement = document.getElementById('info-message');
-            infoElement.textContent = message;
-            infoElement.style.display = 'block';
+
+        // Initialize event listeners
+        function initEventListeners() {
+            generateBtn.addEventListener('click', generateMap);
+            
+            // Button zoom
+            zoomInBtn.addEventListener('click', () => zoom('in'));
+            zoomOutBtn.addEventListener('click', () => zoom('out'));
+            
+            // Wheel zoom with mouse anchor
+            mainContent.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const direction = e.deltaY < 0 ? 'in' : 'out';
+                zoomAtMouse(direction, e.clientX, e.clientY);
+            }, { passive: false });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '+' || e.key === '=') zoom('in');
+                if (e.key === '-' || e.key === '_') zoom('out');
+            });
         }
+
+        // Initialize the application
+        function init() {
+            initEventListeners();
+            initDragging();
+        }
+
+        // Start the application
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
