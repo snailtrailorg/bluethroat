@@ -59,9 +59,9 @@ var current_window = null;
 
 function hideWindow(window_id) {
     const window = document.getElementById(window_id);
-    window.style.visibility = "hidden";
     window.dispatchEvent(new Event("hide"));
     current_window = null;
+    window.style.visibility = "hidden";
 }
 
 function showWindow(window_id) {
@@ -70,8 +70,8 @@ function showWindow(window_id) {
     }
     const window = document.getElementById(window_id);
     window.style.visibility = "visible";
-    window.dispatchEvent(new Event("show"));
     current_window = window_id;
+    window.dispatchEvent(new Event("show"));
 }
 
 // Initialize the map
@@ -277,8 +277,7 @@ async function initMap() {
         if (user_id == null) {
             showWindow("login_window");
         } else {
-            alert("profile_window还没有实现")
-            //showWindow("profile_window");
+            showWindow("profile_window");
         }
     });
 
@@ -341,6 +340,9 @@ async function initMap() {
                     user_id = result.data.user_id;
                     hideWindow("login_window");
                     document.getElementById("maptiles_account_button").innerHTML = '<i class="fa-solid fa-user"></i>&nbsp;详情';
+                    document.getElementById("profile_email").innerHTML = result.data.email;
+                    document.getElementById("profile_register_time").innerHTML = result.data.register_time;
+                    document.getElementById("profile_last_login_time").innerHTML = result.data.last_login_time;
                     alert("用户" + result.data.email + "登录成功，上一次登录时间：" + result.data.last_login_time + "。");
                 } else {
                     alert("登录失败：" + result.message);
@@ -421,6 +423,92 @@ async function initMap() {
     document.getElementById("register_form").addEventListener("reset", (event) => {
         event.preventDefault();
         hideWindow("register_window");
+    });
+
+    document.getElementById("reset_password_form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const cancelButton = document.getElementById("reset_password_form_cancel");
+        const submitButton = document.getElementById("reset_password_form_submit");
+        cancelButton.disabled = true;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;重置中...'
+    });
+
+    document.getElementById("reset_password_form").addEventListener("reset", (event) => {
+        event.preventDefault();
+        hideWindow("reset_password_window");
+    });
+
+    document.getElementById("profile_window").addEventListener("show", async function() {
+        if (user_id === null) {
+            hideWindow("profile_window");
+            alert("用户未登录，请先登录");
+            showWindow("login_window");
+        } else {
+            const form_data = new FormData();
+            form_data.set("action", "get_profile");
+            form_data.set("user_id", user_id);
+            try {
+                const response = await fetch("/", { method: "POST", body: form_data});
+                if (response.status == 200) {
+                    const result = await response.json();
+                    if (result.code === 0) {
+                        document.getElementById("profile_email").innerHTML = result.data.email;
+                        document.getElementById("profile_register_time").innerHTML = result.data.register_time;
+                        document.getElementById("profile_last_login_time").innerHTML = result.data.last_login_time;
+                    } else {
+                        alert("获取用户信息失败：" + result.message);
+                    }
+                } else {
+                    alert("获取用户信息失败：" + response.status + " " + response.statusText);
+                }
+            } catch (error) {
+                alert("获取用户信息失败：" + error.message);
+            }
+        }
+    });
+
+    document.getElementById("logout_form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const cancelButton = document.getElementById("logout_form_cancel");
+        const submitButton = document.getElementById("logout_form_submit");
+        cancelButton.disabled = true;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;登出中...'
+
+        const form_data = new FormData(this);
+        form_data.set("user_id", user_id);
+
+        try {
+            const response = await fetch("/", { method: "POST", body: form_data});
+            if (response.status == 200) {
+                const result = await response.json();
+                if (result.code === 0) {
+                    user_id = null;
+                    document.getElementById("maptiles_account_button").innerHTML = '<i class="fa-solid fa-user"></i>&nbsp;登录';
+                    hideWindow("profile_window");
+                    document.getElementById("profile_email").innerHTML = "";
+                    document.getElementById("profile_register_time").innerHTML = "";
+                    document.getElementById("profile_last_login_time").innerHTML = "";
+                    alert("登出成功，欢迎下次登录！");
+                } else {
+                    alert("登出失败：" + result.message);
+                }
+            } else {
+                alert("登出失败：" + response.status + " " + response.statusText);
+            }
+        } catch (error) {
+            alert("登出失败：" + error.message);
+        }
+
+        cancelButton.disabled = false;
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i>&nbsp;登出';
+    });
+
+    document.getElementById("logout_form").addEventListener("reset", (event) => {
+        event.preventDefault();
+        hideWindow("profile_window");
     });
 }
 

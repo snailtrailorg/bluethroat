@@ -7,6 +7,7 @@
 
     function rsa_oaep_decrypt($encrypted) {
         try {
+            // Suppress editor warnings for dynamic type inference
             /** @var \phpseclib3\Crypt\RSA\PrivateKey $rsaKey */
             $rsaKey = PublicKeyLoader::load(file_get_contents(__DIR__ . '/config/rsakeys/privatekey.pem'));
             $private_key = $rsaKey->withHash('sha256')->withMGFHash('sha256')->withPadding(RSA::ENCRYPTION_OAEP);
@@ -119,6 +120,51 @@
                         echo json_encode(['code' => 0, 'message' => '注册成功', 'data' => ['user_id' => $conn->insert_id, 'email' => $email]]);
                     }
                 }
+                break;
+            case 'get_profile':
+                {
+                    if (!isset($_POST['user_id'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $_POST['user_id']) {
+                        die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
+                    }
+
+                    $stmt = $conn->prepare("SELECT id, email, register_time, last_login_time FROM users WHERE id = ? LIMIT 1");
+                    $stmt->bind_param("i", $_POST['user_id']);
+                    if (!$stmt->execute()) {
+                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
+                    } else {
+                        $result = $stmt->get_result();
+                    }
+
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
+                    } else if ($result->num_rows === 0) {
+                        die(json_encode(['code' => __LINE__, 'message' => '用户不存在']));
+                    } else {
+                        $row = $result->fetch_assoc();
+                        echo json_encode(['code' => 0, 'message' => '获取用户信息成功', 'data' => $row]);
+                    }
+                }
+                break;
+            case 'logout':
+                {
+                    if (!isset($_POST['user_id'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $_POST['user_id']) {
+                        die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
+                    }
+
+                    $_SESSION['user_id'] = null;
+                    echo json_encode(['code' => 0, 'message' => '登出成功']);
+                }
+                break;
+            default:
+                die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
                 break;
             }
         } else {
@@ -298,21 +344,21 @@
 
         <div class="pop-window" id="profile_window">
             <div class="title-bar"><span class="title">账号信息</span></div>
-            <form id="profile_form" method="post">
-                <input type="hidden" name="profile" value="1">
-                <div class="content">
-                    <div class="label-grid"><span class="label">E-MAIL地址：</span></div>
-                    <div class="input-grid"><span class="label" name="email">someone@example.com</span></div>
-                    <div class="label-grid"><span class="label">注册时间</span></div>
-                    <div class="input-grid"><span class="label" name="register_time">2025-07-25 08:00:00</span></div>
-                    <div class="label-grid"><span class="label">上次登录时间</span></div>
-                    <div class="input-grid"><span class="label" name="last_login_time">2025-07-25 08:00:00</span></div>
-                </div>
-                <div class="footer-bar">
-                    <button id="profile_form_logout" class="button" type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;登出</button>
-                    <button id="profile_form_close" class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;关闭</button>
-                </div>
-            </form>
+            <div class="content">
+                <div class="label-grid"><span class="label">E-MAIL地址：</span></div>
+                <div class="input-grid"><span class="label" id="profile_email"></span></div>
+                <div class="label-grid"><span class="label">注册时间</span></div>
+                <div class="input-grid"><span class="label" id="profile_register_time"></span></div>
+                <div class="label-grid"><span class="label">上次登录时间</span></div>
+                <div class="input-grid"><span class="label" id="profile_last_login_time"></span></div>
+            </div>
+            <div class="footer-bar">
+                <form id="logout_form" method="post">
+                    <input type="hidden" name="action" value="logout">
+                    <button id="logout_form_submit" class="button" type="submit"><i class="fa-solid fa-right-from-bracket"></i>&nbsp;登出</button>
+                    <button id="logout_form_cancel" class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;关闭</button>
+                </form>
+            </div>
         </div>
 
         <script>

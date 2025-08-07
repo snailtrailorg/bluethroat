@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Tile Viewer</title>
+    <title>Map Tile Viewer</title>
     <style>
         * {
             margin: 0;
@@ -281,44 +281,44 @@
 <body>
     <!-- Compact control panel -->
     <div class="control-panel">
-        <h2>Tile Viewer</h2>
+        <h2>Settings</h2>
         
         <!-- Multi-line directory input -->
         <div class="input-group">
-            <label for="basePath">Base Path/URL:</label>
-            <input type="text" id="basePath" placeholder="Local path or URL to tile folder">
+            <label for="tilePath">Tile Path/URL:</label>
+            <input type="text" id="tilePath" placeholder="Local path or URL to tile file" autocomplete="on" value="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png">
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label for="tileSize">Tile Size (px):</label>
+                <input type="number" id="tileSize" placeholder="Size" value="256" min="32" max="1024" autocomplete="on">
+            </div>
+            <div class="input-group">
+                <label for="ZoomLevel">Zoom Level:</label>
+                <input type="number" id="ZoomLevel" placeholder="Zoom level" value="16" min="0" max="20" autocomplete="on">
+            </div>
         </div>
         
         <div class="row">
             <div class="input-group">
                 <label for="xMin">X Min:</label>
-                <input type="number" id="xMin" placeholder="Min X tile index">
+                <input type="number" id="xMin" placeholder="Min X tile index" min="0" autocomplete="on">
             </div>
             <div class="input-group">
                 <label for="xMax">X Max:</label>
-                <input type="number" id="xMax" placeholder="Max X tile index">
+                <input type="number" id="xMax" placeholder="Max X tile index" min="0" autocomplete="on">
             </div>
         </div>
         
         <div class="row">
             <div class="input-group">
                 <label for="yMin">Y Min:</label>
-                <input type="number" id="yMin" placeholder="Min Y tile index">
+                <input type="number" id="yMin" placeholder="Min Y tile index" min="0" autocomplete="on">
             </div>
             <div class="input-group">
                 <label for="yMax">Y Max:</label>
-                <input type="number" id="yMax" placeholder="Max Y tile index">
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="input-group">
-                <label for="extension">File Extension:</label>
-                <input type="text" id="extension" placeholder="png, jpg" value="png">
-            </div>
-            <div class="input-group">
-                <label for="tileSize">Tile Size (px):</label>
-                <input type="number" id="tileSize" placeholder="Size" value="256">
+                <input type="number" id="yMax" placeholder="Max Y tile index" min="0" autocomplete="on">
             </div>
         </div>
         
@@ -373,31 +373,41 @@
         let startX, startY;
         let initialOffsetX, initialOffsetY;
         let tileSize = 256;
+        let zoomLevel = 16;
         let currentTiles = [];
         let minScale = 1;
         let xMin, yMin, xMax, yMax;
         let gridWidth = 0;
         let gridHeight = 0;
-
-        // Set default values for extension and tile size
-        document.getElementById('extension').value = 'png';
-        document.getElementById('tileSize').value = '256';
+        let tilePath = '';
 
         // Generate map function
         function generateMap() {
             // Get input values
-            const basePath = document.getElementById('basePath').value.trim();
-            tileSize = parseInt(document.getElementById('tileSize').value) || 256;
+            tilePath = document.getElementById('tilePath').value.replace(/\/+$/, '');
+            tileSize = parseInt(document.getElementById('tileSize').value);
+            zoomLevel = parseInt(document.getElementById('ZoomLevel').value);
             xMin = parseInt(document.getElementById('xMin').value);
             xMax = parseInt(document.getElementById('xMax').value);
             yMin = parseInt(document.getElementById('yMin').value);
             yMax = parseInt(document.getElementById('yMax').value);
-            const extension = document.getElementById('extension').value;
-            
+
             // Validate inputs
-            if (!basePath || isNaN(xMin) || isNaN(xMax) || isNaN(yMin) || isNaN(yMax) || !extension) {
+            if (!tilePath || isNaN(tileSize) || isNaN(zoomLevel) || isNaN(xMin) || isNaN(xMax) || isNaN(yMin) || isNaN(yMax)) {
                 alert('Please fill all fields with valid values');
                 return;
+            }
+            
+            if (xMin > xMax) {
+                const temp = xMin;
+                xMin = xMax;
+                xMax = temp;
+            }
+            
+            if (yMin > yMax) {
+                const temp = yMin;
+                yMin = yMax;
+                yMax = temp;
             }
             
             if (tileSize < 32 || tileSize > 1024) {
@@ -423,7 +433,7 @@
             tilesContainer.style.height = `${gridHeight}px`;
             
             // Create all tiles without waiting for loading
-            createTiles(basePath, xMin, xMax, yMin, yMax, extension);
+            createTiles(tilePath, zoomLevel, xMin, xMax, yMin, yMax);    
             
             // Reset view immediately using calculated dimensions
             resetView();
@@ -435,22 +445,22 @@
         }
 
         // Create tiles without waiting for loading
-        function createTiles(basePath, xMin, xMax, yMin, yMax, extension) {
-            // Clean up base path - remove trailing slash
-            const cleanBasePath = basePath.replace(/\/+$/, '');
+        function createTiles(path, zoomLevel, xMin, xMax, yMin, yMax) {
+            // Replace {z} with zoom level in path
+            const zoomLevelPath = path.replace(/\{z\}/g, zoomLevel);
             
             for (let x = xMin; x <= xMax; x++) {
                 for (let y = yMin; y <= yMax; y++) {
-                    createTile(cleanBasePath, x, y, extension);
+                    createTile(zoomLevelPath, x, y);
                 }
             }
         }
 
         // Create a single tile (non-blocking)
-        function createTile(basePath, x, y, extension) {
+        function createTile(path, x, y) {
             const tile = document.createElement('img');
             tile.className = 'tile';
-            tile.src = `${basePath}/${x}/${y}.${extension}`;
+            tile.src = path.replace(/\{(x|y)\}/g, (_, value) => ({x, y})[value]);
             tile.dataset.x = x;
             tile.dataset.y = y;
             tile.style.width = `${tileSize}px`;
@@ -521,8 +531,8 @@
             // Apply scale limits
             if (newScale < minScale) {
                 newScale = minScale;
-            } else if (newScale > 4) {
-                newScale = 4;
+            } else if (newScale > 1) {
+                newScale = 1;
             }
             
             // Calculate new offset to keep the center point fixed
