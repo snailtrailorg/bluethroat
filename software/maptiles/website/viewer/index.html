@@ -253,11 +253,11 @@
             border-left: 2px solid #3498db;
             line-height: 1.4;
         }
-        
+
         .instructions h3 {
             margin-bottom: 6px;
             color: #2980b9;
-            font-size: 12px;
+            font-size: 14px;
             display: flex;
             align-items: center;
         }
@@ -265,7 +265,7 @@
         .instructions h3::before {
             content: "ℹ️";
             margin-right: 6px;
-            font-size: 12px;
+            font-size: 14px;
         }
         
         .instructions ul {
@@ -275,7 +275,43 @@
         .instructions li {
             margin-bottom: 4px;
         }
-        
+
+        .help-link-wrapper {
+            margin-top: 8px;
+            padding: 12px 10px;
+            border-top: 1px solid rgba(52, 152, 219, 0.1);
+        }
+
+        .help-link {
+            display: block;
+            color: #3498db;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-left: 22px;
+            position: relative;
+        }
+
+        .help-link::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #3498db;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .help-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+            text-decoration-thickness: 1.5px;
+            text-underline-offset: 3px;
+        }
+
+        .help-link:hover::before {
+            color: #1a5a8c;
+            transform: translateX(3px);
+        }
     </style>
 </head>
 <body>
@@ -326,7 +362,7 @@
         
         <!-- Always visible instructions -->
         <div class="instructions">
-            <h3>Usage Instructions</h3>
+            <h3>Brief Usage Instructions</h3>
             <ul>
                 <li>Hover left edge to show controls</li>
                 <li>Enter tile directory/URL and parameters</li>
@@ -334,6 +370,9 @@
                 <li>Use +/- buttons or mouse wheel to zoom</li>
                 <li>Mouse over tiles to see coordinates</li>
             </ul>
+        </div>
+        <div class="instructions help-link-wrapper">
+            <a href="help.html" target="_blank" class="help-link">Open Full Documentation</a>
         </div>
     </div>
 
