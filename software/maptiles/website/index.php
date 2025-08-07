@@ -7,7 +7,9 @@
 
     function rsa_oaep_decrypt($encrypted) {
         try {
-            $private_key = PublicKeyLoader::load(file_get_contents(__DIR__ . '/config/rsakeys/privatekey.pem'))->withHash('sha256')->withMGFHash('sha256')->withPadding(RSA::ENCRYPTION_OAEP);
+            /** @var \phpseclib3\Crypt\RSA\PrivateKey $rsaKey */
+            $rsaKey = PublicKeyLoader::load(file_get_contents(__DIR__ . '/config/rsakeys/privatekey.pem'));
+            $private_key = $rsaKey->withHash('sha256')->withMGFHash('sha256')->withPadding(RSA::ENCRYPTION_OAEP);
             $decrypted = $private_key->decrypt(base64_decode($encrypted));
             return $decrypted;
         } catch (Exception $e) {
