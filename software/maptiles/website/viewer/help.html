@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Tile Viewer - Help</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f5f9ff;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: #2980b9;
+            margin: 25px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        h3 {
+            color: #3498db;
+            margin: 20px 0 10px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .content-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .feature-card {
+            background: #f8fafc;
+            border-left: 3px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .parameter-table th, .parameter-table td {
+            border: 1px solid #e1e5e9;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .parameter-table th {
+            background-color: #f0f7ff;
+            font-weight: 600;
+        }
+        
+        .parameter-table tr:nth-child(even) {
+            background-color: #f9fbfd;
+        }
+        
+        code {
+            background: #f0f5ff;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #2980b9;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .note {
+            background: #e8f4ff;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 3px solid #3498db;
+        }
+        
+        .warning {
+            background: #fff3e0;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .screenshot {
+            max-width: 100%;
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            margin: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .toc {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .toc li {
+            margin-bottom: 8px;
+        }
+        
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .keyboard-shortcut {
+            display: inline-block;
+            background: #e1e5e9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Map Tile Viewer Help</h1>
+        <p class="subtitle">Interactive tool for viewing map tile sets</p>
+    </header>
+    
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#getting-started">2. Getting Started</a></li>
+            <li><a href="#interface-overview">3. Interface Overview</a></li>
+            <li><a href="#parameters">4. Parameters Explained</a></li>
+            <li><a href="#navigation">5. Navigation Controls</a></li>
+            <li><a href="#tile-urls">6. Tile URL Patterns</a></li>
+            <li><a href="#troubleshooting">7. Troubleshooting</a></li>
+            <li><a href="#faq">8. FAQ</a></li>
+        </ul>
+    </div>
+    
+    <div class="content-section" id="introduction">
+        <h2>1. Introduction</h2>
+        <p>The Map Tile Viewer is a web-based tool designed to visualize map tiles from various sources. It allows you to:</p>
+        <ul>
+            <li>Load and display map tiles from local or remote sources</li>
+            <li>Navigate through tile sets at different zoom levels</li>
+            <li>Inspect individual tile coordinates</li>
+            <li>Adjust viewing parameters in real-time</li>
+        </ul>
+        
+        <div class="feature-card">
+            <h3>Key Features</h3>
+            <ul>
+                <li>Interactive pan and zoom navigation</li>
+                <li>Support for standard tile URL patterns</li>
+                <li>Adjustable tile size and zoom level</li>
+                <li>Coordinate display for tile inspection</li>
+                <li>Compact, hover-activated control panel</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="content-section" id="getting-started">
+        <h2>2. Getting Started</h2>
+        <h3>Basic Usage</h3>
+        <ol>
+            <li>Hover over the left edge of the screen to reveal the control panel</li>
+            <li>Enter your tile path/URL in the "Tile Path/URL" field</li>
+            <li>Set the desired zoom level and tile coordinates</li>
+            <li>Click "Generate Map" to load the tiles</li>
+            <li>Use mouse drag to pan and mouse wheel to zoom</li>
+        </ol>
+        
+        <div class="note">
+            <p><strong>Tip:</strong> The tool comes pre-configured with OpenStreetMap's tile URL pattern as a default example.</p>
+        </div>
+    </div>
+    
+    <div class="content-section" id="interface-overview">
+        <h2>3. Interface Overview</h2>
+        
+        <h3>Control Panel</h3>
+        <p>The collapsible control panel on the left contains all configuration options:</p>
+        <ul>
+            <li><strong>Tile Path/URL:</strong> The base path to your tile images</li>
+            <li><strong>Tile Size:</strong> Pixel dimensions of each tile (typically 256 or 512)</li>
+            <li><strong>Zoom Level:</strong> The map zoom level to display</li>
+            <li><strong>X/Y Min/Max:</strong> The range of tile coordinates to load</li>
+            <li><strong>Generate Map:</strong> Button to load tiles with current settings</li>
+        </ul>
+        
+        <h3>Main View Area</h3>
+        <p>The main display area shows the loaded tiles with these interactive elements:</p>
+        <ul>
+            <li><strong>Zoom Controls:</strong> +/- buttons in the top-right corner</li>
+            <li><strong>Coordinates Display:</strong> Shows current tile coordinates when hovering</li>
+            <li><strong>Status Message:</strong> Temporary loading/status notifications</li>
+        </ul>
+    </div>
+    
+    <div class="content-section" id="parameters">
+        <h2>4. Parameters Explained</h2>
+        
+        <table class="parameter-table">
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+                <th>Default/Example</th>
+            </tr>
+            <tr>
+                <td>Tile Path/URL</td>
+                <td>Base URL or path to your tile images. Can include {z}, {x}, {y} placeholders.</td>
+                <td><code>https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png</code></td>
+            </tr>
+            <tr>
+                <td>Tile Size</td>
+                <td>Pixel dimensions of each square tile (width and height)</td>
+                <td>256</td>
+            </tr>
+            <tr>
+                <td>Zoom Level</td>
+                <td>Map zoom level (higher numbers show more detail)</td>
+                <td>16</td>
+            </tr>
+            <tr>
+                <td>X Min/Max</td>
+                <td>Range of tile column indices to load</td>
+                <td>Varies by location</td>
+            </tr>
+            <tr>
+                <td>Y Min/Max</td>
+                <td>Range of tile row indices to load</td>
+                <td>Varies by location</td>
+            </tr>
+        </table>
+        
+        <div class="note">
+            <p><strong>Note:</strong> X and Y coordinates follow the <a href="https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames" target="_blank">Slippy Map</a> tile naming convention.</p>
+        </div>
+    </div>
+    
+    <div class="content-section" id="navigation">
+        <h2>5. Navigation Controls</h2>
+        
+        <h3>Mouse Controls</h3>
+        <ul>
+            <li><strong>Pan:</strong> Click and drag with left mouse button</li>
+            <li><strong>Zoom In:</strong> Mouse wheel up or double-click</li>
+            <li><strong>Zoom Out:</strong> Mouse wheel down or shift+double-click</li>
+            <li><strong>Coordinates:</strong> Hover over tiles to see their X/Y indices</li>
+        </ul>
+        
+        <h3>Button Controls</h3>
+        <ul>
+            <li><strong>Zoom In (+):</strong> Top-right button or <span class="keyboard-shortcut">+</span> key</li>
+            <li><strong>Zoom Out (-):</strong> Bottom-right button or <span class="keyboard-shortcut">-</span> key</li>
+        </ul>
+        
+        <h3>Keyboard Shortcuts</h3>
+        <ul>
+            <li><span class="keyboard-shortcut">+</span> - Zoom in</li>
+            <li><span class="keyboard-shortcut">-</span> - Zoom out</li>
+        </ul>
+    </div>
+    
+    <div class="content-section" id="tile-urls">
+        <h2>6. Tile URL Patterns</h2>
+        <p>The tool supports standard tile URL patterns with these placeholders:</p>
+        
+        <table class="parameter-table">
+            <tr>
+                <th>Placeholder</th>
+                <th>Description</th>
+                <th>Example Replacement</th>
+            </tr>
+            <tr>
+                <td><code>{z}</code></td>
+                <td>Zoom level</td>
+                <td>16</td>
+            </tr>
+            <tr>
+                <td><code>{x}</code></td>
+                <td>Tile column index</td>
+                <td>12345</td>
+            </tr>
+            <tr>
+                <td><code>{y}</code></td>
+                <td>Tile row index</td>
+                <td>9876</td>
+            </tr>
+            <tr>
+                <td><code>{s}</code></td>
+                <td>Subdomain (for load balancing)</td>
+                <td>a, b, or c</td>
+            </tr>
+        </table>
+        
+        <h3>Example URL Patterns</h3>
+        <ul>
+            <li><strong>OpenStreetMap:</strong> <code>https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png</code></li>
+            <li><strong>Local files:</strong> <code>./tiles/{z}/{x}/{y}.jpg</code></li>
+            <li><strong>Custom server:</strong> <code>https://maps.example.com/{zoom}/{col}/{row}.png</code></li>
+        </ul>
+        
+        <div class="warning">
+            <p><strong>Important:</strong> When using local files, you may need to run a local web server due to browser security restrictions.</p>
+        </div>
+    </div>
+    
+    <div class="content-section" id="troubleshooting">
+        <h2>7. Troubleshooting</h2>
+        
+        <h3>Common Issues</h3>
+        <ul>
+            <li><strong>Tiles not loading:</strong>
+                <ul>
+                    <li>Check your URL pattern is correct</li>
+                    <li>Verify the server allows cross-origin requests (CORS)</li>
+                    <li>Ensure the zoom level and coordinates exist</li>
+                </ul>
+            </li>
+            <li><strong>Blank tiles:</strong>
+                <ul>
+                    <li>Check if the coordinates are valid for the zoom level</li>
+                    <li>Verify the tile images exist at the specified path</li>
+                </ul>
+            </li>
+            <li><strong>Performance issues:</strong>
+                <ul>
+                    <li>Reduce the number of tiles loaded at once</li>
+                    <li>Use smaller tile sizes if possible</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="content-section" id="faq">
+        <h2>8. Frequently Asked Questions</h2>
+        
+        <h3>How do I find the correct tile coordinates?</h3>
+        <p>You can use online tools like <a href="https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/" target="_blank">MapTiler's coordinate calculator</a> or convert from latitude/longitude using slippy map formulas.</p>
+        
+        <h3>Can I use this with my own tile server?</h3>
+        <p>Yes, as long as your server provides tiles in the standard {z}/{x}/{y} format or a similar pattern you can adapt in the URL field.</p>
+        
+        <h3>Why can't I load local tile files directly?</h3>
+        <p>Modern browsers restrict local file access for security. You'll need to either:
+        <ul>
+            <li>Run a local web server (like Python's <code>python -m http.server</code>)</li>
+            <li>Use browser extensions that relax these restrictions (not recommended for production)</li>
+        </ul>
+        
+        <h3>What's the maximum number of tiles I can load?</h3>
+        <p>There's no hard limit in the tool, but loading thousands of tiles may impact performance. For large areas, consider loading smaller ranges sequentially.</p>
+    </div>
+    
+    <footer style="text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 0.9rem;">
+        <p>Map Tile Viewer Help | Last updated: August 2023</p>
+    </footer>
+</body>
+</html>
