@@ -212,7 +212,7 @@
         <ol>
             <li>Hover over the left edge of the screen to reveal the control panel</li>
             <li>Enter your tile path/URL in the "Tile Path/URL" field</li>
-            <li>Set the desired zoom level and tile coordinates</li>
+            <li>Set the desired map tiles zoom level and tile coordinates</li>
             <li>Click "Generate Map" to load the tiles</li>
             <li>Use mouse drag to pan and mouse wheel to zoom</li>
         </ol>
@@ -230,7 +230,7 @@
         <ul>
             <li><strong>Tile Path/URL:</strong> The base path to your tile images</li>
             <li><strong>Tile Size:</strong> Pixel dimensions of each tile (typically 256 or 512)</li>
-            <li><strong>Zoom Level:</strong> The map zoom level to display</li>
+            <li><strong>Zoom Level:</strong> The zoom level of the map tiles themselves</li>
             <li><strong>X/Y Min/Max:</strong> The range of tile coordinates to load</li>
             <li><strong>Generate Map:</strong> Button to load tiles with current settings</li>
         </ul>
@@ -256,7 +256,7 @@
             <tr>
                 <td>Tile Path/URL</td>
                 <td>Base URL or path to your tile images. Can include {z}, {x}, {y} placeholders.</td>
-                <td><code>https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png</code></td>
+                <td><code>https://tile.openstreetmap.org/{z}/{x}/{y}.png</code></td>
             </tr>
             <tr>
                 <td>Tile Size</td>
@@ -265,7 +265,7 @@
             </tr>
             <tr>
                 <td>Zoom Level</td>
-                <td>Map zoom level (higher numbers show more detail)</td>
+                <td>Map tiles zoom level (higher numbers show more detail)</td>
                 <td>16</td>
             </tr>
             <tr>
@@ -334,22 +334,17 @@
                 <td>Tile row index</td>
                 <td>9876</td>
             </tr>
-            <tr>
-                <td><code>{s}</code></td>
-                <td>Subdomain (for load balancing)</td>
-                <td>a, b, or c</td>
-            </tr>
         </table>
         
         <h3>Example URL Patterns</h3>
         <ul>
-            <li><strong>OpenStreetMap:</strong> <code>https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png</code></li>
+            <li><strong>OpenStreetMap:</strong> <code>https://tile.openstreetmap.org/{z}/{x}/{y}.png</code></li>
             <li><strong>Local files:</strong> <code>./tiles/{z}/{x}/{y}.jpg</code></li>
-            <li><strong>Custom server:</strong> <code>https://maps.example.com/{zoom}/{col}/{row}.png</code></li>
+            <li><strong>Custom server:</strong> <code>https://maps.example.com/{z}/{x}/{y}.png</code></li>
         </ul>
         
         <div class="warning">
-            <p><strong>Important:</strong> When using local files, you may need to run a local web server due to browser security restrictions.</p>
+            <p><strong>Important:</strong> Please ensure that the Map Tiles Viewer's page file and Tiles data file are stored on the same server or local host to avoid triggering the browser's CORS (Cross-Origin Resource Sharing) restriction mechanism.</p>
         </div>
     </div>
     
@@ -401,7 +396,7 @@
     </div>
     
     <footer style="text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 0.9rem;">
-        <p>Map Tile Viewer Help | Last updated: August 2023</p>
+        <p>Map Tile Viewer 1.00 | Powered by SnailTrail.ORG | Last updated: August 2023</p>
     </footer>
 </body>
 </html>

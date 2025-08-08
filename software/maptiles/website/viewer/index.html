@@ -322,39 +322,39 @@
         <!-- Multi-line directory input -->
         <div class="input-group">
             <label for="tilePath">Tile Path/URL:</label>
-            <input type="text" id="tilePath" placeholder="https://tile.openstreetmap.org/{z}/{x}/{y}.png">
+            <input type="text" id="tilePath" placeholder="https://tile.openstreetmap.org/{z}/{x}/{y}.png" value="https://tile.openstreetmap.org/{z}/{x}/{y}.png" required>
         </div>
 
         <div class="row">
             <div class="input-group">
                 <label for="tileSize">Tile Size (px):</label>
-                <input type="number" id="tileSize" placeholder="Size" value="256" min="32" max="1024">
+                <input type="number" id="tileSize" placeholder="Tile size" value="256" min="32" max="1024">
             </div>
             <div class="input-group">
-                <label for="ZoomLevel">Zoom Level:</label>
-                <input type="number" id="ZoomLevel" placeholder="Zoom level" value="16" min="0" max="20">
+                <label for="ZoomLevel">Tile Zoom Level:</label>
+                <input type="number" id="ZoomLevel" placeholder="Tile zoom level" value="2" min="0" max="20">
             </div>
         </div>
 
         <div class="row">
             <div class="input-group">
                 <label for="xMin">X Min:</label>
-                <input type="number" id="xMin" placeholder="Min X tile index" min="0">
+                <input type="number" id="xMin" placeholder="Min X tile index" min="0" value="0">
             </div>
             <div class="input-group">
                 <label for="xMax">X Max:</label>
-                <input type="number" id="xMax" placeholder="Max X tile index" min="0">
+                <input type="number" id="xMax" placeholder="Max X tile index" min="0" value="3">
             </div>
         </div>
 
         <div class="row">
             <div class="input-group">
                 <label for="yMin">Y Min:</label>
-                <input type="number" id="yMin" placeholder="Min Y tile index" min="0">
+                <input type="number" id="yMin" placeholder="Min Y tile index" min="0" value="0">
             </div>
             <div class="input-group">
                 <label for="yMax">Y Max:</label>
-                <input type="number" id="yMax" placeholder="Max Y tile index" min="0">
+                <input type="number" id="yMax" placeholder="Max Y tile index" min="0" value="3">
             </div>
         </div>
 
