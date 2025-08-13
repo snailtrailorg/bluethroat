@@ -7,6 +7,7 @@ import urllib.request
 import os
 import urllib.parse
 import shutil
+import json
 
 def get_extension_from_url(url):
     temp_url = url.format(x=0, y=0, z=0)
@@ -42,12 +43,40 @@ if __name__ == '__main__':
 
     print(args)
 
+    progress = {
+        'total': 0,
+        'processed': 0,
+        'failed': [],
+        'success': 0,
+        'z': {
+            'min': args.zoom[0],
+            'max': args.zoom[1],
+        }
+    }
+
     for zoom in range(args.zoom[0], args.zoom[1]+1):
         west, north = get_tile_index(args.coordinates[0], args.coordinates[1], zoom)
         east, south = get_tile_index(args.coordinates[2], args.coordinates[3], zoom)
-        print("Proccessing zoom level: %d, x range from %d to %d, y range from %d to %d." % (zoom, west, east, north, south))
-        for x in range(west, east+1):
-            for y in range(north, south+1):
+        progress['total'] += (east - west + 1) * (south - north + 1)
+        progress['z'][zoom] = {
+            'x': {
+                'min': west,
+                'max': east,
+            },
+            'y': {
+                'min': north,
+                'max': south,
+            },
+            'total': (east - west + 1) * (south - north + 1),
+            'processed': 0,
+            'failed': [],
+            'success': 0,
+        }
+        print(progress)
+
+    for zoom in range(args.zoom[0], args.zoom[1]+1):
+        for x in range(progress['z'][zoom]['x']['min'], progress['z'][zoom]['x']['max']+1):
+            for y in range(progress['z'][zoom]['y']['min'], progress['z'][zoom]['y']['max']+1):
                 url = args.url.format(x=x, y=y, z=zoom)
                 destination = '%s/%d/%d/%d.%s' % (args.output_folder, zoom, x, y, args.extension)
                 if not os.path.exists('%s/%d/%d' % (args.output_folder, zoom, x)):
@@ -56,6 +85,20 @@ if __name__ == '__main__':
                     download_file(url, destination)
                 else:
                     print("File %s already exists." % destination)
+                progress['processed'] += 1
+                progress['z'][zoom]['processed'] += 1
+                if os.path.exists(destination):
+                    progress['success'] += 1
+                    progress['z'][zoom]['success'] += 1
+                else:
+                    progress['failed'].append(z + '/' + x + "/" + y + "." + args.extension)
+                    progress['z'][zoom]['failed'].append(z + '/' + x + "/" + y + "." + args.extension)
+                with open(args.output_folder + '/.progress', 'w') as f_progress:
+                    percentage = (progress['success'] / progress['total'] * 100) if progress['total'] else 0
+                    f_progress.write(f"{(f'{percentage:.2f}'.rstrip('0').rstrip('.') or '0')}%")
+
+            with open(args.output_folder + '/.detail.json', 'w') as f_detail:
+                json.dump(progress, f_detail, indent=4)
 
     print("All map tiles processed.")
 
