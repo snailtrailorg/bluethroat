@@ -2,12 +2,77 @@
 # Description: This script downloads map tiles of a specified area from a specified server.
 
 import argparse
-import math
-import urllib.request
-import os
-import urllib.parse
-import shutil
 import json
+import logging
+import math
+import mysql.connector
+import os
+import shutil
+import tarfile
+import urllib.request
+import urllib.parse
+
+from logging.handlers import RotatingFileHandler
+from mysql.connector import Error
+from ..config.db_config import DB_CONFIG
+
+def initLogger(logFile, maxBytes, backupCount, encoding, logLevel):
+    os.makedirs(os.path.dirname(logFile), exist_ok=True)
+    
+    logger = logging.getLogger()
+    logger.setLevel(logLevel)
+    
+    if not logger.handlers:
+        file_handler = RotatingFileHandler(filename=logFile, maxBytes=maxBytes, backupCount=backupCount, encoding=encoding)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+class maptilesDB:
+    def __init__(self):
+        self.config = DB_CONFIG
+        self.connection = None
+        self.cursor = None
+
+    def update_progress(self, task_id: int, percentage: float) -> bool:
+        if not (self.connection and self.connection.is_connected()):
+            try:
+                self.connection = mysql.connector.connect(** self.config)
+                self.cursor = self.connection.cursor()
+                logging.info("Database connection established.")
+            except Error as e:
+                logging.error(f"Database connection failed: {str(e)}")
+                return False
+
+        percentage_str = f"{(f'{percentage:.2f}'.rstrip('0').rstrip('.') or '0')}%"
+
+        try:
+            sql = """
+                UPDATE tasks 
+                SET progress = %s, last_update = CURRENT_TIMESTAMP 
+                WHERE task_id = %s
+            """
+            self.cursor.execute(sql, (percentage_str, task_id))
+            self.connection.commit()
+            
+            if self.cursor.rowcount == 0:
+                logging.debug(f"Task {task_id} does not exist, no update performed.")
+                return False
+                
+            logging.debug(f"Task {task_id} progress updated to {percentage_str}")
+            return True
+        except Error as e:
+            logging.error(f"Task {task_id} update failed: {str(e)}")
+            self.connection.rollback()
+            return False
+
+    def __del__(self):
+        if self.connection and self.connection.is_connected():
+            try:
+                self.cursor.close()
+                self.connection.close()
+            except Error as e:
+                logging.error(f"Close connection failed: {str(e)}")
 
 def get_extension_from_url(url):
     temp_url = url.format(x=0, y=0, z=0)
@@ -30,76 +95,79 @@ def get_tile_index(longitude:float, latitude:float, zoom:int) -> list[int]:
     return [x_index, y_index]
 
 if __name__ == '__main__':
+    initLogger('logs/download_tiles.log', 1024*1024*10, 10, 'utf-8', logging.WARNING)
+
     parser = argparse.ArgumentParser(description='Download map tiles of a specified area.')
+
     parser.add_argument('coordinates', type=float, nargs=4, help='Coordinates of the boundary of area (order: west, south, east, north)')
     parser.add_argument('-z', '--zoom', type=int, nargs=2, help='Zoom level range of the map tiles (min, max)', default=[12, 17])
     parser.add_argument('-u', '--url', type=str, help='Server URL ({x}, {y} and {z} will be replaced with the tile index), e.g.: https://tile.example.org/{z}/{x}/{y}.png?key=12345')
     parser.add_argument('-o', '--output-folder', type=str, help='Destination folder to save map tiles', default='.')
     parser.add_argument('-e', '--extension', type=str, help='File extension of the map tiles', default='')
+    parser.add_argument('-t','--task-id', type=int, help='Task ID in the database', default=-1)
     parser.add_argument('--overwrite', action='store_true', help='Overwrite existing files', default=False)
+
     args = parser.parse_args()
+
     if args.extension == '':
         args.extension = get_extension_from_url(args.url)
 
-    print(args)
+    logging.info(args)
 
-    progress = {
-        'total': 0,
-        'processed': 0,
-        'failed': [],
-        'success': 0,
-        'z': {
-            'min': args.zoom[0],
-            'max': args.zoom[1],
-        }
-    }
+    tasks = {'total': 0, 'donwloaded': 0, 'tiles': {}}
+    db = None
+
+    if args.task_id >= 0:
+        db = maptilesDB()
+    else:
+        logging.warning("No task ID specified, database progress will not be updated.")
 
     for zoom in range(args.zoom[0], args.zoom[1]+1):
         west, north = get_tile_index(args.coordinates[0], args.coordinates[1], zoom)
         east, south = get_tile_index(args.coordinates[2], args.coordinates[3], zoom)
-        progress['total'] += (east - west + 1) * (south - north + 1)
-        progress['z'][zoom] = {
-            'x': {
-                'min': west,
-                'max': east,
-            },
-            'y': {
-                'min': north,
-                'max': south,
-            },
-            'total': (east - west + 1) * (south - north + 1),
-            'processed': 0,
-            'failed': [],
-            'success': 0,
-        }
-        print(progress)
-
-    for zoom in range(args.zoom[0], args.zoom[1]+1):
-        for x in range(progress['z'][zoom]['x']['min'], progress['z'][zoom]['x']['max']+1):
-            for y in range(progress['z'][zoom]['y']['min'], progress['z'][zoom]['y']['max']+1):
-                url = args.url.format(x=x, y=y, z=zoom)
+        tasks['total'] += (east - west + 1) * (south - north + 1)
+        tasks['tiles'][f'{zoom}'] = {}
+        url_zoom = args.url.format(z=zoom)
+        for x in range(west, east+1):
+            os.makedirs('%s/%d/%d' % (args.output_folder, zoom, x), exist_ok=True)
+            url_x = url_zoom.format(x=x)
+            tasks['tiles'][zoom][f'{x}'] = {}
+            for y in range(north, south+1):
+                url = url_x.format(y=y)
                 destination = '%s/%d/%d/%d.%s' % (args.output_folder, zoom, x, y, args.extension)
-                if not os.path.exists('%s/%d/%d' % (args.output_folder, zoom, x)):
-                    os.makedirs('%s/%d/%d' % (args.output_folder, zoom, x))
-                if args.overwrite or not os.path.exists(destination):
-                    download_file(url, destination)
+                status = 0 if (args.overwrite or not os.path.exists(destination)) else 1
+                tasks['downloaded'] += status
+                tasks['tiles'][zoom][f'{x}'][f'{y}'] = {
+                    'url': url,
+                    'destination': destination,
+                    'status': status,
+                }
+
+    for zoom in tasks['tiles']:
+        for x in tasks['tiles'][zoom]:
+            for y in tasks['tiles'][zoom][x]:
+                if tasks['tiles'][zoom][x][y]['status'] == 0:
+                    download_file(tasks['tiles'][zoom][x][y]['url'], tasks['tiles'][zoom][x][y]['destination'])
+                    if os.path.exists(tasks['tiles'][zoom][x][y]['destination']):
+                        tasks['tiles'][zoom][x][y]['status'] = 1
+                        tasks['downloaded'] += 1
+                        if (args.task_id > 0 and db):
+                            percentage = (tasks['downloaded'] / tasks['total'] * 100) if tasks['total'] else 0
+                            db.update_task_progress(args.task_id, percentage)
+                    else:
+                        logging.error(f"Download {tasks['tiles'][zoom][x][y]['url']} to {tasks['tiles'][zoom][x][y]['destination']} failed")
                 else:
-                    print("File %s already exists." % destination)
-                progress['processed'] += 1
-                progress['z'][zoom]['processed'] += 1
-                if os.path.exists(destination):
-                    progress['success'] += 1
-                    progress['z'][zoom]['success'] += 1
-                else:
-                    progress['failed'].append(z + '/' + x + "/" + y + "." + args.extension)
-                    progress['z'][zoom]['failed'].append(z + '/' + x + "/" + y + "." + args.extension)
-                with open(args.output_folder + '/.progress', 'w') as f_progress:
-                    percentage = (progress['success'] / progress['total'] * 100) if progress['total'] else 0
-                    f_progress.write(f"{(f'{percentage:.2f}'.rstrip('0').rstrip('.') or '0')}%")
+                    logging.debug(f"Tile {zoom}/{x}/{y} already exists, skip.")
 
-            with open(args.output_folder + '/.detail.json', 'w') as f_detail:
-                json.dump(progress, f_detail, indent=4)
+    if (tasks['downloaded'] == tasks['total']):
+        tgz_file = f'{args.output_folder}/tiles.tar.gz'
+        with tarfile.open(tgz_file, 'w:gz') as tar:
+            for zoom in tasks['tiles']:
+                tar.add(f'{args.output_folder}/{zoom}', f'{zoom}')
+        logging.info(f"All map tiles downloaded. Tar file: {tgz_file}")
+    else:
+        logging.warning(f"Not all map tiles downloaded. {tasks['downloaded']} of {tasks['total']} tiles downloaded.")
 
-    print("All map tiles processed.")
-
+    if (args.task_id > 0 and db):
+        del db
 # End of download_tiles.py
