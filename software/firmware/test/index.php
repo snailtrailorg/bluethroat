@@ -173,7 +173,7 @@
     } else {
 ?>
 <!DOCTYPE html>
-<html>
+<html
 
     <head>
         <title>地图瓦片标记和下载</title>
@@ -381,3 +381,97 @@
 <?php
     }
 ?>
+
+### 2. 修改 index.php 调用专用方法
+
+
+```php
+case 'login':
+    $username = $_POST['username'] ?? '';
+    $encryptedPassword = $_POST['password'] ?? '';
+
+    // RSA解密密码（业务逻辑保留在index.php）
+    $privateKey = file_get_contents('private_key.pem');
+    $rsa = new RSA();
+    $rsa->loadPrivateKey($privateKey);
+    $password = $rsa->decrypt(base64_decode($encryptedPassword));
+
+    // 调用数据库层专用方法
+    $result = Database::getUserByUsername($username);
+
+    if ($result['status'] !== 'success') {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Database error: ' . $result['message']
+        ]);
+        Database::closeConnection();
+        exit();
+    }
+
+    if (empty($result['data'])) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'User not found'
+        ]);
+        Database::closeConnection();
+        exit();
+    }
+
+    $user = $result['data'][0];
+    // 密码验证（业务逻辑保留在index.php）
+    if (!password_verify($password, $user['password'])) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Incorrect password'
+        ]);
+        Database::closeConnection();
+        exit();
+    }
+
+    // 更新最后登录时间
+    Database::updateUserLastLogin($user['id']);
+
+    $_SESSION['user_id'] = $user['id'];
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Login successful',
+        'data' => [
+            'user_id' => $user['id'],
+            'username' => $user['username'],
+            'email' => $user['email']
+        ]
+    ]);
+    Database::closeConnection();
+    exit();
+
+case 'register':
+    $username = $_POST['username'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $encryptedPassword = $_POST['password'] ?? '';
+
+    // RSA解密密码（业务逻辑）
+    $privateKey = file_get_contents('private_key.pem');
+    $rsa = new RSA();
+    $rsa->loadPrivateKey($privateKey);
+    $password = $rsa->decrypt(base64_decode($encryptedPassword));
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    // 调用数据库层专用方法
+    $result = Database::addUser($username, $email, $hashedPassword);
+
+    if ($result['status'] !== 'success') {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Registration failed: ' . $result['message']
+        ]);
+        Database::closeConnection();
+        exit();
+    }
+
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Registration successful',
+        'data' => ['user_id' => $result['data']['insert_id']]
+    ]);
+    Database::closeConnection();
+    exit();

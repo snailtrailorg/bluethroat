@@ -170,4 +170,5 @@ if __name__ == '__main__':
 
     if (args.task_id > 0 and db):
         del db
+
 # End of download_tiles.py
