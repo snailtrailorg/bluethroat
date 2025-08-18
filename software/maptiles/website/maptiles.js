@@ -55,6 +55,123 @@ async function getHomeLocation() {
     });
 }
 
+/**
+ * Converts geographic coordinates to tile indices at a specific zoom level
+ * @param {number} lng Longitude (-180 to 180)
+ * @param {number} lat Latitude (-85.05112878 to 85.05112878)
+ * @param {number} zoom Zoom level (0 to 30)
+ * @returns {number[]} Tile indices [x, y]
+ */
+function coodinateToTileIndex(lng, lat, zoom) {
+    // Validate input parameters
+    if (lng < -180 || lng > 180 || lat < -85.05112878 || lat > 85.05112878 || 
+        zoom < 0 || zoom > 30) {
+        return [NaN, NaN];  // Invalid parameters
+    }
+    
+    const n = Math.pow(2, zoom);  // Number of tiles along each axis
+    const epsilon = 1e-10;        // Floating-point precision tolerance
+    
+    // Calculate X index (longitude component)
+    let x = ((lng + 180) / 360) * n;
+    if (x >= n) x = n - epsilon;  // Handle 180° longitude edge case
+    const xIndex = Math.min(Math.floor(x), n - 1);
+    
+    // Calculate Y index (latitude component using Mercator projection)
+    const latRad = lat * Math.PI / 180;  // Convert to radians
+    // Mercator projection formula
+    const y = n * (0.5 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / (2 * Math.PI));
+    let yIndex;
+    if (y < 0) {
+        yIndex = 0;                // North pole
+    } else if (y >= n) {
+        yIndex = n - 1;             // South pole
+    } else {
+        yIndex = Math.min(Math.floor(y), n - 1);
+    }
+    
+    return [xIndex, yIndex];
+}
+
+/**
+ * Calculates the total number of map tiles covering a geographic area across zoom levels
+ * @param {number} left Left boundary longitude (-180 to 180)
+ * @param {number} top Top boundary latitude (-85.05112878 to 85.05112878)
+ * @param {number} right Right boundary longitude (-180 to 180)
+ * @param {number} bottom Bottom boundary latitude (-85.05112878 to 85.05112878)
+ * @param {number} zoom_min Minimum zoom level (0 to 30)
+ * @param {number} zoom_max Maximum zoom level (0 to 30)
+ * @returns {number} Total tile count (negative values indicate errors)
+ */
+function calculateTileCount(left, top, right, bottom, zoom_min, zoom_max) {
+    // Validate longitude parameters
+    if (left < -180 || left > 180 || right < -180 || right > 180) {
+        return -1;  // Longitude out of range
+    }
+    // Validate latitude parameters
+    if (top < -85.05112878 || top > 85.05112878 || 
+        bottom < -85.05112878 || bottom > 85.05112878) {
+        return -2;  // Latitude out of range
+    }
+    // Validate zoom range
+    if (zoom_min < 0 || zoom_max < 0 || zoom_min > 25 || zoom_max > 25 || zoom_min > zoom_max) {
+        return -3;  // Invalid zoom range
+    }
+    // Validate latitude order
+    if (top < bottom) {
+        return -4;  // Top latitude must be greater than bottom latitude
+    }
+    
+    // Handle International Date Line crossing (recursive split)
+    if (left > right) {
+        // Split into two regions: [left, 180] and [-180, right]
+        const part1 = calculateTileCount(left, top, 180, bottom, zoom_min, zoom_max);
+        const part2 = calculateTileCount(-180, top, right, bottom, zoom_min, zoom_max);
+        
+        // Propagate errors from recursive calls
+        if (part1 < 0) return part1;
+        if (part2 < 0) return part2;
+        return part1 + part2;
+    }
+    
+    let totalTiles = 0;  // Accumulator for total tile count
+    
+    // Process each zoom level in the specified range
+    for (let z = zoom_min; z <= zoom_max; z++) {
+        const n = Math.pow(2, z);  // Tiles per dimension at current zoom
+        
+        // Calculate tile indices for area corners
+        const [x1, y1] = coodinateToTileIndex(left, top, z);      // Top-left corner
+        const [x2, y2] = coodinateToTileIndex(right, bottom, z);  // Bottom-right corner
+        
+        // Check for calculation errors
+        if (isNaN(x1) || isNaN(y1) || isNaN(x2) || isNaN(y2)) {
+            return -5;  // Tile index calculation error
+        }
+        
+        // Determine tile range boundaries with safe ordering
+        const xStart = Math.min(x1, x2);
+        const xEnd = Math.max(x1, x2);
+        const yStart = Math.min(y1, y2);
+        const yEnd = Math.max(y1, y2);
+        
+        // Clamp values to valid tile index range [0, n-1]
+        const clampedXStart = Math.max(0, Math.min(xStart, n - 1));
+        const clampedXEnd = Math.max(0, Math.min(xEnd, n - 1));
+        const clampedYStart = Math.max(0, Math.min(yStart, n - 1));
+        const clampedYEnd = Math.max(0, Math.min(yEnd, n - 1));
+        
+        // Calculate tile counts in both dimensions
+        const xCount = Math.max(0, clampedXEnd - clampedXStart + 1);
+        const yCount = Math.max(0, clampedYEnd - clampedYStart + 1);
+        
+        // Add tiles for current zoom level to total
+        totalTiles += xCount * yCount;
+    }
+    
+    return totalTiles;
+}
+
 var current_window = null;
 
 function hideWindow(window_id) {
@@ -290,8 +407,6 @@ async function initMap() {
             if (mapTiles == null || mapTiles.getBounds().isEmpty()) {
                 alert("请先标记地图范围。");
             } else {
-                const bounds = mapTiles.getBounds();
-                alert("地图范围：" + bounds.getSouthWest().lng() + " " + bounds.getNorthEast().lat() + " " + bounds.getNorthEast().lng() + " " + bounds.getSouthWest().lat());
                 showWindow("download_window");
             }
         }
@@ -305,6 +420,96 @@ async function initMap() {
         } else {
             showWindow("task_window");
         }
+    });
+
+    function updateTileCount() {
+        const bounds = mapTiles.getBounds();
+        const west = bounds.getSouthWest().lng();
+        const east = bounds.getNorthEast().lng();
+        const north = bounds.getNorthEast().lat();
+        const south = bounds.getSouthWest().lat();
+        const zoom_min = document.getElementById("download_form_zoom_min").value;
+        const zoom_max = document.getElementById("download_form_zoom_max").value;
+        const tile_count = calculateTileCount(west, north, east, south, parseInt(zoom_min), parseInt(zoom_max));
+
+        let seconds = Math.ceil(tile_count / 10);
+        let minuts = Math.floor(seconds / 60); let hours = Math.floor(minuts / 60); let days = Math.floor(hours / 24);
+        seconds = seconds % 60; minuts = minuts % 60; hours = hours % 24;
+        const elapsed = (days > 0 ? days + "天" : "") + (hours > 0 ? hours + "小时" : "") + (minuts > 0 ? minuts + "分钟" : "") + (seconds > 0 ? seconds + "秒" : "");
+
+        const tile_count_element = document.getElementById("download_form_tile_count");
+        if (tile_count > 0) {
+            tile_count_element.innerHTML = "需下载 " + tile_count + " 张瓦片，预计耗时:" + elapsed;
+        } else {
+            tile_count_element.innerHTML = "计算出错，请检查地图范围和缩放级别。";
+        }
+    }
+
+    document.getElementById("download_window").addEventListener("show", () => {
+        const cancelButton = document.getElementById("download_form_cancel");
+        const submitButton = document.getElementById("download_form_submit");
+        cancelButton.disabled = false;
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fa-solid fa-check"></i>&nbsp;提交';
+
+        const bounds = mapTiles.getBounds();
+        const west = bounds.getSouthWest().lng();
+        const north = bounds.getNorthEast().lat();
+        const east = bounds.getNorthEast().lng();
+        const south = bounds.getSouthWest().lat();
+
+        document.getElementById("download_form_west").value = west;
+        document.getElementById("download_form_east").value = east;
+        document.getElementById("download_form_north").value = north;
+        document.getElementById("download_form_south").value = south;
+        document.getElementById("download_form_bounds").innerHTML = "[" + west.toFixed(6) + ", " + south.toFixed(6) + ", " + east.toFixed(6) + ", " + north.toFixed(6) + "]";
+        updateTileCount();
+    });
+
+    document.getElementById("download_form_zoom_min").addEventListener("input", () => {
+        updateTileCount();
+    });
+
+    document.getElementById("download_form_zoom_max").addEventListener("input", () => {
+        updateTileCount();
+    });
+
+    document.getElementById("download_form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const cancelButton = document.getElementById("download_form_cancel");
+        const submitButton = document.getElementById("download_form_submit");
+        cancelButton.disabled = true;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fa-solid fa-hourglass-half"></i>&nbsp;提交中...';
+
+        const form_data = new FormData(this);
+        form_data.append("user_id", user_id);
+
+        try {
+            const response = await fetch("", {method: "POST", body: form_data});
+            if (response.status == 200) {
+                const result = await response.json();
+                if (result.code === 0) {
+                    alert("下载任务已提交，任务ID：" + result.data.task_id + "。");
+                    hideWindow("download_window");
+                } else {
+                    alert("下载任务提交失败：" + result.message);
+                }
+            } else {
+                alert("下载任务提交失败：" + response.status + " " + response.statusText);
+            }
+        } catch (error) {
+            alert("下载任务提交失败：" + error.message);
+        }
+
+        cancelButton.disabled = false;
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fa-solid fa-check"></i>&nbsp;提交';
+    });
+
+    document.getElementById("download_form").addEventListener("reset", (event) => {
+        event.preventDefault();
+        hideWindow("download_window");
     });
 
     document.getElementById("login_window").addEventListener("show", () => {
@@ -331,7 +536,7 @@ async function initMap() {
         fomr_data.set("email", email);
         fomr_data.set("password", password_encrypt);
         fomr_data.delete("password_confirm");
-    
+
         try {
             const response = await fetch("", {method: "POST", body: fomr_data});
             if (response.status == 200) {
@@ -340,9 +545,6 @@ async function initMap() {
                     user_id = result.data.user_id;
                     hideWindow("login_window");
                     document.getElementById("maptiles_account_button").innerHTML = '<i class="fa-solid fa-user"></i>&nbsp;详情';
-                    document.getElementById("profile_email").innerHTML = result.data.email;
-                    document.getElementById("profile_register_time").innerHTML = result.data.register_time;
-                    document.getElementById("profile_last_login_time").innerHTML = result.data.last_login_time;
                     alert("用户" + result.data.email + "登录成功，上一次登录时间：" + result.data.last_login_time + "。");
                 } else {
                     alert("登录失败：" + result.message);
@@ -455,7 +657,7 @@ async function initMap() {
                     if (result.code === 0) {
                         document.getElementById("profile_email").innerHTML = result.data.email;
                         document.getElementById("profile_register_time").innerHTML = result.data.register_time;
-                        document.getElementById("profile_last_login_time").innerHTML = result.data.last_login_time;
+                        document.getElementById("profile_running_task_count").innerHTML = result.data.running_task_count;
                     } else {
                         alert("获取用户信息失败：" + result.message);
                     }
@@ -466,6 +668,10 @@ async function initMap() {
                 alert("获取用户信息失败：" + error.message);
             }
         }
+    });
+
+    document.getElementById("profile_task_link").addEventListener("click", () => {
+        showWindow("task_window");
     });
 
     document.getElementById("logout_form").addEventListener("submit", async function(event) {
@@ -489,7 +695,7 @@ async function initMap() {
                     hideWindow("profile_window");
                     document.getElementById("profile_email").innerHTML = "";
                     document.getElementById("profile_register_time").innerHTML = "";
-                    document.getElementById("profile_last_login_time").innerHTML = "";
+                    document.getElementById("profile_running_task_count").innerHTML = "";
                     alert("登出成功，欢迎下次登录！");
                 } else {
                     alert("登出失败：" + result.message);

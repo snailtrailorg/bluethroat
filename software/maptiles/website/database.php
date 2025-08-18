@@ -1,161 +1,127 @@
 <?php
-class Database {
-    private static $connection = null;
-    private static $host;
-    private static $dbname;
-    private static $username;
-    private static $password;
+    class Database {
+        private static $m_connection = null;
+        private static $m_error_message = '';
 
-    private function __construct() {}
-    private function __clone() {}
-    private function __wakeup() {}
+        private function __construct() {}
+        private function __destruct() {}
+        private function __clone() {}
 
-    public static function getConnection(): mysqli {
-        if (self::$connection === null) {
+        public static function getErrorMessage(): string {
+            $temp_string = self::$m_error_message;
+            self::$m_error_message = '';
+            return $temp_string;
+        }
+
+        private static function set_error_message(string $error_message): void {
+            self::$m_error_message = $error_message;
+        }
+
+        private static function connect(): bool {
             $config = [];
             if (!file_exists(__DIR__ . '/config/db_config.php')) {
-                error_log('数据库配置文件缺失');
-                die(json_encode(['code' => __LINE__, 'message' => '数据库配置文件缺失']));
+                self::set_error_message("Missing database configuration file");
+                return false;
             } else {
                 $config = include __DIR__ . '/config/db_config.php';
             }
 
             try {
-                self::$connection = new mysqli($config['host'], $config['user'], $config['pass'], $config['name']);
+                self::$m_connection = new mysqli('p:'.$config['host'], $config['user'], $config['pass'], $config['name']);
             } catch (mysqli_sql_exception $e) {
-                error_log("数据库连接失败: " . $e->getMessage());
-                die(json_encode(['code' => __LINE__, 'message' => '数据库连接失败']));
+                self::set_error_message("Connect database failed: " . $e->getMessage());
+                self::$m_connection = null;
+                return false;
+            }
+
+            if (self::$m_connection->connect_errno) {
+                self::set_error_message("Connect database failed: " . self::$m_connection->connect_error);
+                self::$m_connection->close();
+                self::$m_connection = null;
+                return false;
             }
             
-            if (self::$connection->connect_errno) {
-                error_log("数据库连接失败: " . self::$connection->connect_error);
-                die(json_encode(['code' => __LINE__, 'message' => '数据库连接失败']));
+            if (!self::$m_connection->set_charset($config['charset'] ?? 'utf8mb4')) {
+                self::set_error_message("Set database charset failed: " . self::$m_connection->error);
+                self::$m_connection->close();
+                self::$m_connection = null;
+                return false;
             }
-            
-            if (!self::$connection->set_charset($config['charset'] ?? 'utf8mb4')) {
-                error_log("字符集设置失败: " . self::$connection->error);
-                die(json_encode(['code' => __LINE__, 'message' => '数据库字符集设置失败']));
+
+            try {
+                if (!self::$m_connection->query("SELECT 1")) {
+                    throw new mysqli_sql_exception("Query SELECT 1 failed: " . self::$m_connection->error);
+                }
+            } catch (mysqli_sql_exception $e) {
+                self::set_error_message("Check database connection failed: " . $e->getMessage());
+                self::$m_connection->close();
+                self::$m_connection = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        public static function getUserByEmail($email) {
+            $sql = "SELECT id, email, password, role, register_time, last_login_time FROM users WHERE email = ?";
+            return self::query($sql, 's', [$email]);
+        }
+
+        public static function getUserById($userId) {
+            $sql = "SELECT id, email, role, register_time, last_login_time FROM users WHERE id = ?";
+            return self::query($sql, 'i', [$userId]);
+        }
+
+        public static function addUser($email, $password) {
+            $sql = "INSERT INTO users (email, password) VALUES (?, ?)";
+            return self::query($sql, 'ss', [$email, $password]);
+        }
+
+        public static function updateUser($userId) {
+            $sql = "UPDATE users SET last_login_time = CURRENT_TIMESTAMP WHERE id = ?";
+            return self::query($sql, 'i', [$userId]);
+        }
+
+        private static function query($sql, $types, $params = []) {
+            if (self::$m_connection === null) {
+                if (!self::connect()) {
+                    return false;
+                }
+            }
+            $stmt = self::$m_connection->prepare($sql);
+
+            if (!$stmt) {
+                self::set_error_message("Prepare statement failed: " . self::$m_connection->errno . self::$m_connection->error);
+                return false;
+            }
+
+            if (!empty($params)) {
+                if (!$stmt->bind_param($types, ...$params)) {
+                    self::set_error_message("Bind parameters failed: " . $stmt->errno . self::$m_connection->error);
+                    return false;
+                }
+            }
+
+            $result = $stmt->execute();
+            if (!$result) {
+                self::set_error_message("Query failed: " . $stmt->errno . self::$m_connection->error);
+                return false;
+            }
+
+            if (stripos($sql, 'SELECT') === 0) {
+                $result = $stmt->get_result();
+                $data = $result->fetch_all(MYSQLI_ASSOC);
+                $stmt->close();
+                return $data;
+            } else if (stripos($sql, 'INSERT') === 0) {
+                $insertId = self::$m_connection->insert_id;
+                $stmt->close();
+                return ['insert_id' => $insertId, 'affected_rows' => $stmt->affected_rows];
+            } else {
+                $affectedRows = $stmt->affected_rows;
+                $stmt->close();
+                return ['affected_rows' => $affectedRows];
             }
         }
-        
-        if (!self::$connection->ping()) {
-            self::$connection->close();
-            self::$connection = null;
-            return self::getConnection();
-        }
-        
-        return self::$connection;
     }
-
-    /**
-     * 根据用户名查询用户
-     * @param string $username 用户名
-     * @return array 用户数据或错误信息
-     */
-    public static function getUserByUsername($username) {
-        $sql = "SELECT id, username, password, email, created_at FROM users WHERE username = ?";
-        return self::executeQuery($sql, [$username]);
-    }
-
-    /**
-     * 添加新用户
-     * @param string $username 用户名
-     * @param string $email 邮箱
-     * @param string $password 加密后的密码
-     * @return array 操作结果
-     */
-    public static function addUser($username, $email, $password) {
-        $sql = "INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, NOW())";
-        return self::executeQuery($sql, [$username, $email, $password]);
-    }
-
-    /**
-     * 更新用户最后登录时间
-     * @param int $userId 用户ID
-     * @return array 操作结果
-     */
-    public static function updateUserLastLogin($userId) {
-        // 保留您特意使用的空SET语法
-        $sql = "UPDATE users WHERE id = ?";
-        return self::executeQuery($sql, [$userId]);
-    }
-
-    /**
-     * 获取用户资料
-     * @param int $userId 用户ID
-     * @return array 用户资料
-     */
-    public static function getUserProfile($userId) {
-        $sql = "SELECT id, username, email, created_at FROM users WHERE id = ?";
-        return self::executeQuery($sql, [$userId]);
-    }
-
-    /**
-     * 执行查询并返回标准化结果
-     * @param string $sql SQL语句
-     * @param array $params 参数数组
-     * @return array 标准化结果
-     */
-    private static function executeQuery($sql, $params = []) {
-        $connection = self::getConnection();
-        $stmt = $connection->prepare($sql);
-
-        if (!$stmt) {
-            return [
-                'status' => 'error',
-                'code' => $connection->errno,
-                'message' => 'Prepare failed: ' . $connection->error
-            ];
-        }
-
-        if (!empty($params)) {
-            $types = str_repeat('s', count($params));
-            $stmt->bind_param($types, ...$params);
-        }
-
-        $result = $stmt->execute();
-        if (!$result) {
-            return [
-                'status' => 'error',
-                'code' => $stmt->errno,
-                'message' => 'Execute failed: ' . $stmt->error
-            ];
-        }
-
-        // 根据SQL类型处理结果
-        if (stripos($sql, 'SELECT') === 0) {
-            $result = $stmt->get_result();
-            $data = $result->fetch_all(MYSQLI_ASSOC);
-            $stmt->close();
-            return [
-                'status' => 'success',
-                'data' => $data
-            ];
-        } elseif (stripos($sql, 'INSERT') === 0) {
-            $insertId = $connection->insert_id;
-            $stmt->close();
-            return [
-                'status' => 'success',
-                'data' => ['insert_id' => $insertId, 'affected_rows' => $stmt->affected_rows]
-            ];
-        } else {
-            $affectedRows = $stmt->affected_rows;
-            $stmt->close();
-            return [
-                'status' => 'success',
-                'data' => ['affected_rows' => $affectedRows]
-            ];
-        }
-    }
-
-    /**
-     * 关闭数据库连接
-     */
-    public static function closeConnection() {
-        if (self::$connection !== null) {
-            self::$connection->close();
-            self::$connection = null;
-        }
-    }
-}
 ?>

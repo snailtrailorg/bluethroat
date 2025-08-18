@@ -27,8 +27,6 @@
         header("Content-Type: application/json");
 
         if (isset($_POST) && isset($_POST['action'])) {
-            $conn = Database::getConnection();
-
             switch ($_POST['action']) {
             case 'login':
                 {
@@ -45,38 +43,32 @@
                     if (!preg_match('/^[a-f0-9]{64}$/', $password_pseudo)) {
                         die(json_encode(['code' => __LINE__, 'message' => '密码格式不合法']));
                     }
-                    
-                    $check_stmt = $conn->prepare("SELECT id, email, password, last_login_time FROM users WHERE email = ? LIMIT 1");
-                    $check_stmt->bind_param("s", $email);
-                    if (!$check_stmt->execute()) {
-                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
-                    } else {
-                        $result = $check_stmt->get_result();
-                    }
 
+                    $result = Database::getUserByEmail($email);
                     if ($result === false) {
-                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
-                    } else if ($result->num_rows === 0) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else if (count($result) === 0) {
                         die(json_encode(['code' => __LINE__, 'message' => '用户不存在']));
                     }
-
-                    $row = $result->fetch_assoc();
-                    $user_id = $row['id'];
-                    $email = $row['email'];
-                    $last_login_time = $row['last_login_time'];
-                    $password_digest = $row['password'];
-                    if (!password_verify($password_pseudo, $password_digest)) {
-                        die(json_encode(['code' => __LINE__, 'message' => '密码不匹配']));
+                    else {
+                        $user_id = $result[0]['id'];
+                        $email = $result[0]['email'];
+                        $role = $result[0]['role'];
+                        $register_time = $result[0]['register_time'];
+                        $last_login_time = $result[0]['last_login_time'];
+                        $password_digest = $result[0]['password'];
+                        if (!password_verify($password_pseudo, $password_digest)) {
+                            die(json_encode(['code' => __LINE__, 'message' => '密码不匹配']));
+                        }
                     }
 
-                    $stmt = $conn->prepare('UPDATE users WHERE id = ?');
-                    $stmt->bind_param('i', $user_id);
-                    if (!$stmt->execute()) {
-                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
+                    $result = Database::updateUser($user_id);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
                     }
 
                     $_SESSION['user_id'] = $user_id;
-                    echo json_encode(['code' => 0, 'message' => '登录成功', 'data' => ['user_id' => $user_id, 'email' => $email, 'last_login_time' => $last_login_time]]);
+                    echo json_encode(['code' => 0, 'message' => '登录成功', 'data' => ['user_id' => $user_id, 'email' => $email, 'role' => $role, 'register_time' => $register_time, 'last_login_time' => $last_login_time]]);
                 }
                 break;
             case 'register':
@@ -97,25 +89,16 @@
                         $password_digest = password_hash($password_pseudo, PASSWORD_BCRYPT);
                     }
 
-                    $check_stmt = $conn->prepare("SELECT 1 FROM users WHERE email = ? LIMIT 1");
-                    $check_stmt->bind_param("s", $email);
-                    if (!$check_stmt->execute()) {
-                        die(json_encode(['code' => __LINE__, 'message' => '邮箱查询失败']));
-                    } else {
-                        $result = $check_stmt->get_result();
-                    }
-
+                    $result = Database::getUserByEmail($email);
                     if ($result === false) {
-                        die(json_encode(['code' => __LINE__, 'message' => '邮箱查询失败']));
-                    } else if ($result->num_rows > 0) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else if (count($result) > 0) {
                         die(json_encode(['code' => __LINE__, 'message' => '邮箱已存在']));
                     }
 
-                    $stmt = $conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
-                    $stmt->bind_param("ss", $email, $password_digest);
-
-                    if (!$stmt->execute()) {
-                        die(json_encode(['code' => __LINE__, 'message' => '注册失败']));
+                    $result = Database::addUser($email, $password_digest);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
                     } else {
                         echo json_encode(['code' => 0, 'message' => '注册成功', 'data' => ['user_id' => $conn->insert_id, 'email' => $email]]);
                     }
@@ -131,21 +114,13 @@
                         die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
                     }
 
-                    $stmt = $conn->prepare("SELECT id, email, register_time, last_login_time FROM users WHERE id = ? LIMIT 1");
-                    $stmt->bind_param("i", $_POST['user_id']);
-                    if (!$stmt->execute()) {
-                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
-                    } else {
-                        $result = $stmt->get_result();
-                    }
-
+                    $result = Database::getUserById($_POST['user_id']);
                     if ($result === false) {
-                        die(json_encode(['code' => __LINE__, 'message' => '数据库错误']));
-                    } else if ($result->num_rows === 0) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else if (count($result) === 0) {
                         die(json_encode(['code' => __LINE__, 'message' => '用户不存在']));
                     } else {
-                        $row = $result->fetch_assoc();
-                        echo json_encode(['code' => 0, 'message' => '获取用户信息成功', 'data' => $row]);
+                        echo json_encode(['code' => 0, 'message' => '获取用户信息成功', 'data' => $result[0]]);
                     }
                 }
                 break;
@@ -163,6 +138,41 @@
                     echo json_encode(['code' => 0, 'message' => '登出成功']);
                 }
                 break;
+            case 'download':
+                {
+                    if (!isset($_POST['user_id']) || !isset($_SESSION['user_id']) || $_SESSION['user_id'] != $_POST['user_id']) {
+                        die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
+                    }
+
+                    if (!isset($_POST['west']) || !isset($_POST['north']) || !isset($_POST['east']) || !isset($_POST['south']) || !isset($_POST['task_name']) || !isset($_POST['zoom_min']) || !isset($_POST['zoom_max']) || !isset($_POST['url'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $west = floatval($_POST['west']);
+                    $north = floatval($_POST['north']);
+                    $east = floatval($_POST['east']);
+                    $south = floatval($_POST['south']);
+                    if ($west < -180 || $west > 180 || $north < -85.05112878 || $north > 85.05112878 || $east < -180 || $east > 180 || $south < -85.05112878 || $south > 85.05112878) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $zoom_min = intval($_POST['zoom_min']);
+                    $zoom_max = intval($_POST['zoom_max']);
+                    if ($zoom_min < 1 || $zoom_min > 25 || $zoom_max < 1 || $zoom_max > 25 || $zoom_min > $zoom_max) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $task_name = htmlspecialchars($_POST['task_name'], ENT_QUOTES, 'UTF-8');
+                    if ($task_name === '') {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $url = escapeshellarg($_POST['url']);
+                    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+                }
+                break;
             default:
                 die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
                 break;
@@ -173,8 +183,7 @@
     } else {
 ?>
 <!DOCTYPE html>
-<html
-
+<html>
     <head>
         <title>地图瓦片标记和下载</title>
         <meta name="robots" content="noindex, nofollow">
@@ -231,26 +240,30 @@
             <div class="title-bar"><span class="title">下载地图瓦片</span></div>
             <form id="download_form" method="post">
                 <input type="hidden" name="download" value="1">
+                <input type="hidden" id="download_form_west" name="west" value="114.90398307">
+                <input type="hidden" id="download_form_north" name="north" value="22.67742356">
+                <input type="hidden" id="download_form_east" name="east" value="114.96930022">
+                <input type="hidden" id="download_form_south" name="south" value="22.63853325">
                 <div class="content">
+                    <div class="label-grid"><span class="label" title="格式：[左侧经度, 顶部纬度, 右侧经度, 底部纬度]，根据选择区域自动计算，用户不可修改">地图区域坐标<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span></div>
+                    <div class="input-grid"><span class="label" id="download_form_bounds">[114.903983, 22.677423, 114.969300, 22.638533]</span></div>
+                    <div class="label-grid"><span class="label">下载工作量：</span></div>
+                    <div class="input-grid"><span class="label" id="download_form_tile_count">计算中...</span></div>
                     <div class="label-grid"><span class="label">下载任务名称：</span></div>
-                    <div class="input-grid"><input class="input" style="width:218px" type="text" name="task_name" placeholder="输入名称以区分不同任务..." required></div>
+                    <div class="input-grid"><input class="input" style="width:218px" type="text" name="task_name" placeholder="输入名称以区分不同任务..." maxlength="63" required></div>
                     <div class="label-grid"><span class="label">地图瓦片级别：</span></div>
                     <div class="input-grid">
                         <span class="label">从</span>
-                        <input class="input left-margin" name="min_zoom" type="number" value="12" min="1" max="20" aria-label="Minimum zoom level">
+                        <input class="input left-margin" id="download_form_zoom_min" name="zoom_min" type="number" value="12" min="1" max="20" aria-label="Minimum zoom level">
                         <span class="label left-margin">至</span>
-                        <input class="input left-margin" name="max_zoom" type="number" value="18" min="1" max="20" aria-label="Maximum zoom level">
+                        <input class="input left-margin" id="download_form_zoom_max" name="zoom_max" type="number" value="15" min="1" max="20" aria-label="Maximum zoom level">
                     </div>
-                    <div class="label-grid"><span class="label" title="URL中必须包含{x}，{y}和{z}，下载过程中将被分别&#10;替换为地图瓦片的列序号，行序号和缩放级别。">瓦片服务器URL<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span></div>
-                    <div class="input-grid"><input class="input" style="width:500px" type="text" name="url" list="url_list" placeholder="https://tile.server.com/{z}/{x}/{y}.png?key=SERVER_KEY" required></div>
-                    <datalist id="url_list">
-                        <option value="https://tile.openstreetmap.org/{z}/{x}/{y}.png"></option>
-                        <option value="https://tileserver.com/{z}/{x}/{y}.png"></option>
-                    </datalist>
+                    <div class="label-grid"><span class="label" title="URL中必须包含{x}，{y}和{z}，下载过程中将被分别替换为地图瓦片的列序号，行序号和缩放级别。">瓦片服务器URL<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span></div>
+                    <div class="input-grid"><input class="input" style="width:500px" type="text" name="url" placeholder="https://tile.server.com/{z}/{x}/{y}.png?key=SERVER_KEY" maxlength="511" required></div>
                 </div>
                 <div class="footer-bar">
                     <button id="download_form_cancel" class="button" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
-                    <button id="download_form_submit" class="button left-margin" type="submit"><i class="fa-solid fa-check"></i>&nbsp;确定</button>
+                    <button id="download_form_submit" class="button left-margin" type="submit"><i class="fa-solid fa-check"></i>&nbsp;提交</button>
                 </div>
             </form>
         </div>
@@ -262,7 +275,7 @@
                 <div class="input-grid">
                     <div class="progress-container"><div class="progress-bar" style="width: 75%">75%</div></div>
                     <span class="label link left-margin"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
-                    <span class="label link left-margin"><i class="fa-solid fa-download"></i>&nbsp;下载</span>
+                    <span class="label link left-margin"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</span>
                 </div>
             </div>
             <form id="task_form" method="post">
@@ -305,7 +318,7 @@
                 <input type="hidden" name="action" value="register">
                 <div class="content">
                     <div class="label-grid"><span class="label">E-MAIL地址：</span></div>
-                    <div class="input-grid"><input class="input" style="width:300px" type="email" name="email" placeholder="输入E-MAIL地址作为登录名..." required></div>
+                    <div class="input-grid"><input class="input" style="width:300px" type="email" name="email" placeholder="输入E-MAIL地址作为登录名..." maxlength="63" required></div>
                     <div class="label-grid"><span class="label" title="密码必须包含至少8个字符，包括大小写字母、数字和特殊字符，&#10;并且不能包含123、abc这类简单连续的数字或字母。">密码<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span></div>
                     <div class="input-grid"><input class="input" style="width:300px" type="password" name="password" pattern="^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\s])(?!.*(123|abc|ABC|Abc)).{10,}$" required></div>
                     <div class="label-grid"><span class="label">确认密码：</span></div>
@@ -347,10 +360,13 @@
             <div class="content">
                 <div class="label-grid"><span class="label">E-MAIL地址：</span></div>
                 <div class="input-grid"><span class="label" id="profile_email"></span></div>
-                <div class="label-grid"><span class="label">注册时间</span></div>
+                <div class="label-grid"><span class="label">注册时间：</span></div>
                 <div class="input-grid"><span class="label" id="profile_register_time"></span></div>
-                <div class="label-grid"><span class="label">上次登录时间</span></div>
-                <div class="input-grid"><span class="label" id="profile_last_login_time"></span></div>
+                <div class="label-grid"><span class="label">运行中的任务数：</span></div>
+                <div class="input-grid">
+                    <span class="label" id="profile_running_task_count">0</span>
+                    <span class="label link left-margin" id="profile_task_link"><i class="fa-solid fa-list-check"></i>&nbsp;任务详情</span>
+                </div>
             </div>
             <div class="footer-bar">
                 <form id="logout_form" method="post">
@@ -381,97 +397,3 @@
 <?php
     }
 ?>
-
-### 2. 修改 index.php 调用专用方法
-
-
-```php
-case 'login':
-    $username = $_POST['username'] ?? '';
-    $encryptedPassword = $_POST['password'] ?? '';
-
-    // RSA解密密码（业务逻辑保留在index.php）
-    $privateKey = file_get_contents('private_key.pem');
-    $rsa = new RSA();
-    $rsa->loadPrivateKey($privateKey);
-    $password = $rsa->decrypt(base64_decode($encryptedPassword));
-
-    // 调用数据库层专用方法
-    $result = Database::getUserByUsername($username);
-
-    if ($result['status'] !== 'success') {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Database error: ' . $result['message']
-        ]);
-        Database::closeConnection();
-        exit();
-    }
-
-    if (empty($result['data'])) {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'User not found'
-        ]);
-        Database::closeConnection();
-        exit();
-    }
-
-    $user = $result['data'][0];
-    // 密码验证（业务逻辑保留在index.php）
-    if (!password_verify($password, $user['password'])) {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Incorrect password'
-        ]);
-        Database::closeConnection();
-        exit();
-    }
-
-    // 更新最后登录时间
-    Database::updateUserLastLogin($user['id']);
-
-    $_SESSION['user_id'] = $user['id'];
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Login successful',
-        'data' => [
-            'user_id' => $user['id'],
-            'username' => $user['username'],
-            'email' => $user['email']
-        ]
-    ]);
-    Database::closeConnection();
-    exit();
-
-case 'register':
-    $username = $_POST['username'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $encryptedPassword = $_POST['password'] ?? '';
-
-    // RSA解密密码（业务逻辑）
-    $privateKey = file_get_contents('private_key.pem');
-    $rsa = new RSA();
-    $rsa->loadPrivateKey($privateKey);
-    $password = $rsa->decrypt(base64_decode($encryptedPassword));
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    // 调用数据库层专用方法
-    $result = Database::addUser($username, $email, $hashedPassword);
-
-    if ($result['status'] !== 'success') {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Registration failed: ' . $result['message']
-        ]);
-        Database::closeConnection();
-        exit();
-    }
-
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Registration successful',
-        'data' => ['user_id' => $result['data']['insert_id']]
-    ]);
-    Database::closeConnection();
-    exit();
