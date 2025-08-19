@@ -1,5 +1,6 @@
 <?php
     require_once __DIR__ . '/modules/phpseclib/vendor/autoload.php';
+    require_once __DIR__ . '/config/config.php';
     require_once __DIR__ . '/database.php';
 
     use phpseclib3\Crypt\PublicKeyLoader;
@@ -16,6 +17,56 @@
         } catch (Exception $e) {
             error_log("RSA解密错误：" . $e->getMessage());
             return null;
+        }
+    }
+
+    function runTask($taskId) {
+        $task = Database::getTaskById($taskId);
+
+        if ($task === false) {
+            error_log("获取任务失败：" . Database::getErrorMessage());
+            return false;
+        }
+
+        if (count($task) === 0) {
+            error_log("任务不存在");
+            return false;
+        }
+
+        $task = $task[0];
+
+        $uid = $task['uid'];
+        if ($uid !== $_SESSION['user_id']) {
+            error_log("用户ID不匹配");
+            return false;
+        }
+
+        $tid = $task['tid'];
+        $west = $task['west'];
+        $north = $task['north'];
+        $east = $task['east'];
+        $south = $task['south'];
+        $zoom_min = $task['zoom_min'];
+        $zoom_max = $task['zoom_max'];
+        $url = $task['url'];
+        $folder = $task['folder'] . '/' . $uid . '/' . $tid;
+        if (!isset($west) || !isset($north) || !isset($east) || !isset($south) || !isset($zoom_min) || !isset($zoom_max) || !isset($url) || !isset($folder)) {
+            error_log("任务参数不完整");
+            return false;
+        } else {
+            global $DOWNLOAD_SCRIPT;
+            global $SETSID;
+            $command = sprintf('%s -z %d %d -u %s -o %s -t %d %f %f %f %f', $DOWNLOAD_SCRIPT, $zoom_min, $zoom_max, escapeshellarg($url), escapeshellarg($folder), $tid, $west, $north, $east, $south);
+            $dummy = [];
+            $exec_cmd = sprintf('%s %s > /tmp/download.log 2>&1 &', escapeshellcmd($SETSID), escapeshellcmd($command));
+            exec($exec_cmd, $dummy, $code);
+            if ($code !== 0) {
+                error_log("任务执行失败：" . $code);
+                return false;
+            } else {
+                error_log($exec_cmd);
+                return true;
+            }
         }
     }
 
@@ -100,7 +151,7 @@
                     if ($result === false) {
                         die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
                     } else {
-                        echo json_encode(['code' => 0, 'message' => '注册成功', 'data' => ['user_id' => $conn->insert_id, 'email' => $email]]);
+                        echo json_encode(['code' => 0, 'message' => '注册成功', 'data' => ['uid' => $result['insert_id'], 'email' => $email]]);
                     }
                 }
                 break;
@@ -114,7 +165,7 @@
                         die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
                     }
 
-                    $result = Database::getUserById($_POST['user_id']);
+                    $result = Database::getUserProfile($_POST['user_id']);
                     if ($result === false) {
                         die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
                     } else if (count($result) === 0) {
@@ -162,14 +213,25 @@
                         die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
                     }
 
-                    $task_name = htmlspecialchars($_POST['task_name'], ENT_QUOTES, 'UTF-8');
+                    $task_name = $_POST['task_name'];
                     if ($task_name === '') {
                         die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
                     }
 
-                    $url = escapeshellarg($_POST['url']);
+                    $url = $_POST['url'];
                     if (!filter_var($url, FILTER_VALIDATE_URL)) {
                         die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $result = Database::addTask($_POST['user_id'], $task_name, $west, $north, $east, $south, $zoom_min, $zoom_max, $url, $TASK_ROOT_FOLDER);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else {
+                        if (!runTask($result['insert_id'])) {
+                            die(json_encode(['code' => __LINE__, 'message' => '运行任务失败', 'data' => ['task_id' => $result['insert_id']]]));
+                        } else {
+                            echo json_encode(['code' => 0, 'message' => '添加任务成功', 'data' => ['task_id' => $result['insert_id']]]);
+                        }
                     }
                 }
                 break;
@@ -239,7 +301,7 @@
         <div class="pop-window" id="download_window">
             <div class="title-bar"><span class="title">下载地图瓦片</span></div>
             <form id="download_form" method="post">
-                <input type="hidden" name="download" value="1">
+                <input type="hidden" name="action" value="download">
                 <input type="hidden" id="download_form_west" name="west" value="114.90398307">
                 <input type="hidden" id="download_form_north" name="north" value="22.67742356">
                 <input type="hidden" id="download_form_east" name="east" value="114.96930022">
@@ -365,7 +427,7 @@
                 <div class="label-grid"><span class="label">运行中的任务数：</span></div>
                 <div class="input-grid">
                     <span class="label" id="profile_running_task_count">0</span>
-                    <span class="label link left-margin" id="profile_task_link"><i class="fa-solid fa-list-check"></i>&nbsp;任务详情</span>
+                    <span class="label link left-margin" id="profile_task_link"><i class="fa-solid fa-list-check"></i>&nbsp;任务列表</span>
                 </div>
             </div>
             <div class="footer-bar">

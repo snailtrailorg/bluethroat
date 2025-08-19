@@ -274,7 +274,6 @@ async function initMap() {
 
         draw() {
             const bounds = this.rectangle.getBounds();
-            console.log("bounds: " + bounds);
             if (bounds === undefined || bounds.isEmpty()) {
                 this.canvas.style.visibility = 'hidden';
             } else {
@@ -493,7 +492,7 @@ async function initMap() {
                     alert("下载任务已提交，任务ID：" + result.data.task_id + "。");
                     hideWindow("download_window");
                 } else {
-                    alert("下载任务提交失败：" + result.message);
+                    alert("下载任务提交失败：" + result.code + " " + result.message);
                 }
             } else {
                 alert("下载任务提交失败：" + response.status + " " + response.statusText);
@@ -542,7 +541,7 @@ async function initMap() {
             if (response.status == 200) {
                 const result = await response.json();
                 if (result.code === 0) {
-                    user_id = result.data.user_id;
+                    user_id = result.data.uid;
                     hideWindow("login_window");
                     document.getElementById("maptiles_account_button").innerHTML = '<i class="fa-solid fa-user"></i>&nbsp;详情';
                     alert("用户" + result.data.email + "登录成功，上一次登录时间：" + result.data.last_login_time + "。");
@@ -654,10 +653,10 @@ async function initMap() {
                 const response = await fetch("/", { method: "POST", body: form_data});
                 if (response.status == 200) {
                     const result = await response.json();
-                    if (result.code === 0) {
+                    if (result.code === 0 && result.data !== null && result.data.uid == user_id) {
                         document.getElementById("profile_email").innerHTML = result.data.email;
                         document.getElementById("profile_register_time").innerHTML = result.data.register_time;
-                        document.getElementById("profile_running_task_count").innerHTML = result.data.running_task_count;
+                        document.getElementById("profile_running_task_count").innerHTML = result.data.running_tasks;
                     } else {
                         alert("获取用户信息失败：" + result.message);
                     }

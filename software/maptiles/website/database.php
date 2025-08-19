@@ -63,12 +63,21 @@
         }
 
         public static function getUserByEmail($email) {
-            $sql = "SELECT id, email, password, role, register_time, last_login_time FROM users WHERE email = ?";
+            $sql = "SELECT id AS uid, email, password, role, register_time, last_login_time FROM users WHERE email = ?";
             return self::query($sql, 's', [$email]);
         }
 
         public static function getUserById($userId) {
-            $sql = "SELECT id, email, role, register_time, last_login_time FROM users WHERE id = ?";
+            $sql = "SELECT id AS uid, email, role, register_time, last_login_time FROM users WHERE id = ?";
+            return self::query($sql, 'i', [$userId]);
+        }
+
+        public static function getUserProfile($userId) {
+            $sql = "SELECT u.id AS uid, u.email, u.role, u.register_time, u.last_login_time, COUNT(t.id) AS running_tasks 
+                    FROM users u 
+                    LEFT JOIN tasks t ON u.id = t.uid AND t.progress < 100 
+                    WHERE u.id = ? 
+                    GROUP BY u.id";
             return self::query($sql, 'i', [$userId]);
         }
 
@@ -79,6 +88,26 @@
 
         public static function updateUser($userId) {
             $sql = "UPDATE users SET last_login_time = CURRENT_TIMESTAMP WHERE id = ?";
+            return self::query($sql, 'i', [$userId]);
+        }
+
+        public static function addTask($userId, $taskName, $west, $north, $east, $south, $zoomMin, $zoomMax, $url, $folder) {
+            $sql = "INSERT INTO tasks (uid, name, west, north, east, south, zoom_min, zoom_max, url, folder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            return self::query($sql, 'isddddiiss', [$userId, $taskName, $west, $north, $east, $south, $zoomMin, $zoomMax, $url, $folder]);
+        }
+
+        public static function getTaskById($taskId) {
+            $sql = "SELECT id AS tid, uid, name, west, north, east, south, zoom_min, zoom_max, url, progress, folder FROM tasks WHERE id = ?";
+            return self::query($sql, 'i', [$taskId]);
+        }
+
+        public static function updateTask($taskId, $progress) {
+            $sql = "UPDATE tasks SET progress = ? WHERE id = ?";
+            return self::query($sql, 'di', [$progress, $taskId]);
+        }
+
+        public static function getUserTasks($userId) {
+            $sql = "SELECT id AS tid, uid, name, west, north, east, south, zoom_min, zoom_max, url, progress FROM tasks WHERE uid = ?";
             return self::query($sql, 'i', [$userId]);
         }
 
@@ -115,8 +144,9 @@
                 return $data;
             } else if (stripos($sql, 'INSERT') === 0) {
                 $insertId = self::$m_connection->insert_id;
+                $rowCount = $stmt->affected_rows;
                 $stmt->close();
-                return ['insert_id' => $insertId, 'affected_rows' => $stmt->affected_rows];
+                return ['insert_id' => $insertId, 'affected_rows' => $rowCount];
             } else {
                 $affectedRows = $stmt->affected_rows;
                 $stmt->close();

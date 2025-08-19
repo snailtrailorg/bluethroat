@@ -2,29 +2,30 @@
 # Description: This script downloads map tiles of a specified area from a specified server.
 
 import argparse
-import json
 import logging
 import math
 import mysql.connector
 import os
 import shutil
+import sys
 import tarfile
 import urllib.request
 import urllib.parse
 
 from logging.handlers import RotatingFileHandler
 from mysql.connector import Error
-from ..config.db_config import DB_CONFIG
+
+from config.db_config import DB_CONFIG
 
 def initLogger(logFile, maxBytes, backupCount, encoding, logLevel):
     os.makedirs(os.path.dirname(logFile), exist_ok=True)
     
     logger = logging.getLogger()
     logger.setLevel(logLevel)
-    
+
     if not logger.handlers:
         file_handler = RotatingFileHandler(filename=logFile, maxBytes=maxBytes, backupCount=backupCount, encoding=encoding)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
+        formatter = logging.Formatter('%(process)d %(asctime)s %(levelname)s: %(filename)s(%(lineno)d): %(message)s')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
