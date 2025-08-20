@@ -101,11 +101,6 @@
             return self::query($sql, 'i', [$taskId]);
         }
 
-        public static function updateTask($taskId, $progress) {
-            $sql = "UPDATE tasks SET progress = ? WHERE id = ?";
-            return self::query($sql, 'di', [$progress, $taskId]);
-        }
-
         public static function getUserTasks($userId) {
             $sql = "SELECT id AS tid, uid, name, west, north, east, south, zoom_min, zoom_max, url, progress FROM tasks WHERE uid = ?";
             return self::query($sql, 'i', [$userId]);

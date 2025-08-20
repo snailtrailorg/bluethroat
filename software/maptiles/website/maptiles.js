@@ -541,7 +541,7 @@ async function initMap() {
             if (response.status == 200) {
                 const result = await response.json();
                 if (result.code === 0) {
-                    user_id = result.data.uid;
+                    user_id = result.data.user_id;
                     hideWindow("login_window");
                     document.getElementById("maptiles_account_button").innerHTML = '<i class="fa-solid fa-user"></i>&nbsp;详情';
                     alert("用户" + result.data.email + "登录成功，上一次登录时间：" + result.data.last_login_time + "。");

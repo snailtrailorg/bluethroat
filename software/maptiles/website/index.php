@@ -34,6 +34,10 @@
         }
 
         $task = $task[0];
+        if (!isset($task['uid']) || !isset($task['tid']) || !isset($task['west']) || !isset($task['north']) || !isset($task['east']) || !isset($task['south']) || !isset($task['zoom_min']) || !isset($task['zoom_max']) || !isset($task['url']) || !isset($task['folder'])) {
+            error_log("任务参数不完整");
+            return false;
+        }
 
         $uid = $task['uid'];
         if ($uid !== $_SESSION['user_id']) {
@@ -41,32 +45,20 @@
             return false;
         }
 
-        $tid = $task['tid'];
-        $west = $task['west'];
-        $north = $task['north'];
-        $east = $task['east'];
-        $south = $task['south'];
-        $zoom_min = $task['zoom_min'];
-        $zoom_max = $task['zoom_max'];
-        $url = $task['url'];
-        $folder = $task['folder'] . '/' . $uid . '/' . $tid;
-        if (!isset($west) || !isset($north) || !isset($east) || !isset($south) || !isset($zoom_min) || !isset($zoom_max) || !isset($url) || !isset($folder)) {
-            error_log("任务参数不完整");
+        global $DOWNLOAD_SCRIPT;
+        global $SETSID;
+        $command = sprintf('%s -z %d %d -u %s -o %s -t %d %f %f %f %f', $DOWNLOAD_SCRIPT, $task['zoom_min'], $task['zoom_max'], escapeshellarg($task['url']), escapeshellarg($task['folder']), $task['tid'], $task['west'], $task['north'], $task['east'], $task['south']);
+        $dummy = [];
+        $exec_cmd = sprintf('%s %s > /tmp/download.log 2>&1 &', $SETSID, $command);
+        exec($exec_cmd, $dummy, $code);
+        if ($code !== 0) {
+            error_log("任务执行失败：" . $code);
             return false;
         } else {
-            global $DOWNLOAD_SCRIPT;
-            global $SETSID;
-            $command = sprintf('%s -z %d %d -u %s -o %s -t %d %f %f %f %f', $DOWNLOAD_SCRIPT, $zoom_min, $zoom_max, escapeshellarg($url), escapeshellarg($folder), $tid, $west, $north, $east, $south);
-            $dummy = [];
-            $exec_cmd = sprintf('%s %s > /tmp/download.log 2>&1 &', escapeshellcmd($SETSID), escapeshellcmd($command));
-            exec($exec_cmd, $dummy, $code);
-            if ($code !== 0) {
-                error_log("任务执行失败：" . $code);
-                return false;
-            } else {
-                error_log($exec_cmd);
-                return true;
-            }
+            error_log($task['url']);
+            error_log($command);// 记录执行命令
+            error_log($exec_cmd);// 记录执行命令shanchu
+            return true;
         }
     }
 
@@ -102,7 +94,7 @@
                         die(json_encode(['code' => __LINE__, 'message' => '用户不存在']));
                     }
                     else {
-                        $user_id = $result[0]['id'];
+                        $user_id = $result[0]['uid'];
                         $email = $result[0]['email'];
                         $role = $result[0]['role'];
                         $register_time = $result[0]['register_time'];
@@ -223,7 +215,14 @@
                         die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
                     }
 
-                    $result = Database::addTask($_POST['user_id'], $task_name, $west, $north, $east, $south, $zoom_min, $zoom_max, $url, $TASK_ROOT_FOLDER);
+                    for (
+                        $folder = $TASK_ROOT_FOLDER . '/' . bin2hex(hash('sha256', microtime(true) . random_bytes(16), true));
+                        file_exists($folder);
+                        $folder = $TASK_ROOT_FOLDER . '/' . bin2hex(hash('sha256', microtime(true) . random_bytes(16), true))
+                    );
+                    mkdir($folder, 0755, true);
+
+                    $result = Database::addTask($_POST['user_id'], $task_name, $west, $north, $east, $south, $zoom_min, $zoom_max, $url, $folder);
                     if ($result === false) {
                         die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
                     } else {
