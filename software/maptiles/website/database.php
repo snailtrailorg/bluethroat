@@ -1,4 +1,6 @@
 <?php
+    require_once __DIR__ . '/config/config.php';
+
     class Database {
         private static $m_connection = null;
         private static $m_error_message = '';
@@ -18,16 +20,8 @@
         }
 
         private static function connect(): bool {
-            $config = [];
-            if (!file_exists(__DIR__ . '/config/db_config.php')) {
-                self::set_error_message("Missing database configuration file");
-                return false;
-            } else {
-                $config = include __DIR__ . '/config/db_config.php';
-            }
-
             try {
-                self::$m_connection = new mysqli('p:'.$config['host'], $config['user'], $config['pass'], $config['name']);
+                self::$m_connection = new mysqli('p:'. DB_CONFIG['host'], DB_CONFIG['user'], DB_CONFIG['pass'], DB_CONFIG['name']);
             } catch (mysqli_sql_exception $e) {
                 self::set_error_message("Connect database failed: " . $e->getMessage());
                 self::$m_connection = null;
@@ -41,7 +35,7 @@
                 return false;
             }
             
-            if (!self::$m_connection->set_charset($config['charset'] ?? 'utf8mb4')) {
+            if (!self::$m_connection->set_charset(DB_CONFIG['charset'])) {
                 self::set_error_message("Set database charset failed: " . self::$m_connection->error);
                 self::$m_connection->close();
                 self::$m_connection = null;

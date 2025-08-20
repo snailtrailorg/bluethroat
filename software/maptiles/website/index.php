@@ -45,11 +45,9 @@
             return false;
         }
 
-        global $DOWNLOAD_SCRIPT;
-        global $SETSID;
-        $command = sprintf('%s -z %d %d -u %s -o %s -t %d %f %f %f %f', $DOWNLOAD_SCRIPT, $task['zoom_min'], $task['zoom_max'], escapeshellarg($task['url']), escapeshellarg($task['folder']), $task['tid'], $task['west'], $task['north'], $task['east'], $task['south']);
+        $command = sprintf('%s -z %d %d -u %s -o %s -t %d %f %f %f %f', DOWNLOAD_SCRIPT, $task['zoom_min'], $task['zoom_max'], escapeshellarg($task['url']), escapeshellarg($task['folder']), $task['tid'], $task['west'], $task['north'], $task['east'], $task['south']);
         $dummy = [];
-        $exec_cmd = sprintf('%s %s > /tmp/download.log 2>&1 &', $SETSID, $command);
+        $exec_cmd = sprintf('%s %s > /tmp/download.log 2>&1 &', SETSID, $command);
         exec($exec_cmd, $dummy, $code);
         if ($code !== 0) {
             error_log("任务执行失败：" . $code);
@@ -216,9 +214,9 @@
                     }
 
                     for (
-                        $folder = $TASK_ROOT_FOLDER . '/' . bin2hex(hash('sha256', microtime(true) . random_bytes(16), true));
+                        $folder = TASK_ROOT_FOLDER . '/' . bin2hex(hash('sha256', microtime(true) . random_bytes(16), true));
                         file_exists($folder);
-                        $folder = $TASK_ROOT_FOLDER . '/' . bin2hex(hash('sha256', microtime(true) . random_bytes(16), true))
+                        $folder = TASK_ROOT_FOLDER . '/' . bin2hex(hash('sha256', microtime(true) . random_bytes(16), true))
                     );
                     mkdir($folder, 0755, true);
 
