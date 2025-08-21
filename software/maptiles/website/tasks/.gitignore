@@ -1,0 +1,4 @@
+#Ignore all files and folder in this directory
+*
+!.htaccess
+!.gitignore

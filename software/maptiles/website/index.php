@@ -53,9 +53,6 @@
             error_log("任务执行失败：" . $code);
             return false;
         } else {
-            error_log($task['url']);
-            error_log($command);// 记录执行命令
-            error_log($exec_cmd);// 记录执行命令shanchu
             return true;
         }
     }
