@@ -19,4 +19,6 @@
 
 	$DB_CONFIG = ['host' => 'localhost', 'user' => 'maptiles', 'pass' => '4pEm(YFWXZi5!1NO', 'name' => 'maptiles', 'charset' => 'utf8mb4'];
 	define('DB_CONFIG', $DB_CONFIG);
+
+	define('DOWNLOAD_OUTPUT_FILE', '/tmp/download_tile.output');
 ?>

@@ -16,17 +16,17 @@ from mysql.connector import Error
 from pathlib import Path
 from urllib.parse import urlparse
 
-from config.config import DB_CONFIG
+from config.config import DB_CONFIG, LOG_CONFIG, TILE_DESCRIPTION_FILE
 
-def initLogger(logFile, maxBytes, backupCount, encoding, logLevel):
-    os.makedirs(os.path.dirname(logFile), exist_ok=True)
+def initLogger(file=LOG_CONFIG['log_file'], bytes=LOG_CONFIG['max_bytes'], backup=LOG_CONFIG['backup_count'], coding=LOG_CONFIG['encoding'], level=LOG_CONFIG['level'], format=LOG_CONFIG['format'], date_format=LOG_CONFIG['datefmt']):
+    os.makedirs(os.path.dirname(file), exist_ok=True)
     
     logger = logging.getLogger()
-    logger.setLevel(logLevel)
+    logger.setLevel(level)
 
     if not logger.handlers:
-        file_handler = RotatingFileHandler(filename=logFile, maxBytes=maxBytes, backupCount=backupCount, encoding=encoding)
-        formatter = logging.Formatter('%(process)d %(asctime)s %(levelname)s: %(filename)s(%(lineno)d): %(message)s')
+        file_handler = RotatingFileHandler(filename=file, maxBytes=bytes, backupCount=backup, encoding=coding)
+        formatter = logging.Formatter(fmt=format, datefmt=date_format)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
@@ -41,9 +41,9 @@ class maptilesDB:
             try:
                 self.connection = mysql.connector.connect(** self.config)
                 self.cursor = self.connection.cursor()
-                logging.info("Database connection established.")
+                logging.debug(f"Update task {task_id}, database connection established.")
             except Error as e:
-                logging.error(f"Database connection failed: {str(e)}")
+                logging.error(f"Update task {task_id}, database connection failed: {str(e)}")
                 return False
         try:
             sql = """
@@ -55,7 +55,7 @@ class maptilesDB:
             self.connection.commit()
             
             if self.cursor.rowcount == 0:
-                logging.debug(f"Task {task_id} does not exist, no update performed.")
+                logging.warning(f"Task {task_id} does not exist, no update performed.")
                 return False
                 
             logging.debug(f"Task {task_id} progress updated to {percentage}")
@@ -71,7 +71,7 @@ class maptilesDB:
                 self.cursor.close()
                 self.connection.close()
             except Error as e:
-                logging.error(f"Close connection failed: {str(e)}")
+                logging.error(f"Close database connection failed: {str(e)}")
 
 def get_extension_from_url(url):
     temp_url = url.format(x=0, y=0, z=0)
@@ -85,7 +85,7 @@ def download_file(url:str, destination:str):
         tmp_path, _ = urllib.request.urlretrieve(url)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         shutil.move(tmp_path, destination)
-        logging.info("Download %s form %s success." % (destination, url))
+        logging.debug("Download %s form %s success." % (destination, url))
     except Exception as e:
         logging.error("Download %s form %s failed." % (destination, url), str(e))
 
@@ -95,7 +95,8 @@ def get_tile_index(longitude:float, latitude:float, zoom:int) -> list[int]:
     return [x_index, y_index]
 
 if __name__ == '__main__':
-    initLogger('logs/download_tiles.log', 1024*1024*10, 10, 'utf-8', logging.INFO)
+    initLogger()
+    logging.info("Download tiles script started.")
 
     parser = argparse.ArgumentParser(description='Download map tiles of a specified area.')
 
@@ -103,16 +104,24 @@ if __name__ == '__main__':
     parser.add_argument('-z', '--zoom', type=int, nargs=2, help='Zoom level range of the map tiles (min, max)', default=[12, 17])
     parser.add_argument('-u', '--url', type=str, help='Server URL ({x}, {y} and {z} will be replaced with the tile index), e.g.: https://tile.example.org/{z}/{x}/{y}.png?key=12345')
     parser.add_argument('-o', '--output-folder', type=str, help='Destination folder to save map tiles', default='.')
-    parser.add_argument('-e', '--extension', type=str, help='File extension of the map tiles', default='')
     parser.add_argument('-t','--task-id', type=int, help='Task ID in the database', default=-1)
     parser.add_argument('--overwrite', action='store_true', help='Overwrite existing files', default=False)
 
     args = parser.parse_args()
+    logging.debug(args)
+    print(args)
 
-    if args.extension == '':
-        args.extension = get_extension_from_url(args.url)
+    clean_url = args.url
+    if clean_url:
+        p = urlparse(clean_url)
+        clean_url = f"{p.scheme}://{p.netloc}{p.path}"
 
-    logging.info(args)
+    os.makedirs(args.output_folder, exist_ok=True)
+    with open(os.path.join(args.output_folder, TILE_DESCRIPTION_FILE), 'w') as f:
+        f.write(f"Range coordinates[west, south, east, north]: {args.coordinates}\n")
+        f.write(f"Zoom[min, max]: {args.zoom}\n")
+        f.write(f"Server URL: {clean_url}\n")
+        f.write(f"Task-ID: {args.task_id}")
 
     tasks = {'total': 0, 'downloaded': 0, 'tiles': {}}
     db = None
@@ -148,14 +157,9 @@ if __name__ == '__main__':
             if os.path.exists(tasks['tiles'][tile]['destination']):
                 tasks['tiles'][tile]['status'] = 1
                 tasks['downloaded'] += 1
-                logging.info(f"Download {tasks['tiles'][tile]['url']} to {tasks['tiles'][tile]['destination']} success.")
                 if (args.task_id > 0 and db):
                     percentage = (tasks['downloaded'] / tasks['total'] * 100) if tasks['total'] else 0
                     db.update_progress(args.task_id, percentage)
-            else:
-                logging.error(f"Download {tasks['tiles'][tile]['url']} to {tasks['tiles'][tile]['destination']} failed")
-        else:
-            logging.debug(f"Tile {tile} already exists, skip.")
 
     if (tasks['downloaded'] == tasks['total']):
         tgz_file = f'{args.output_folder}/tiles.tar.gz'
@@ -163,9 +167,9 @@ if __name__ == '__main__':
             for subdir in Path(args.output_folder).iterdir():
                 if subdir.is_dir():
                     tar.add(subdir, subdir.name)
-        logging.info(f"All {tasks['total']} map tiles downloaded. Tar file: {tgz_file}")
+        logging.info(f"All of {tasks['total']} map tiles downloaded. Tar file: {tgz_file}")
     else:
-        logging.warning(f"Part {tasks['downloaded']} of {tasks['total']} map tiles downloaded.")
+        logging.warning(f"Partial {tasks['downloaded']} of {tasks['total']} map tiles downloaded.")
 
     if (args.task_id > 0 and db):
         del db

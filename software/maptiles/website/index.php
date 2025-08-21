@@ -47,7 +47,7 @@
 
         $command = sprintf('%s -z %d %d -u %s -o %s -t %d %f %f %f %f', DOWNLOAD_SCRIPT, $task['zoom_min'], $task['zoom_max'], escapeshellarg($task['url']), escapeshellarg($task['folder']), $task['tid'], $task['west'], $task['north'], $task['east'], $task['south']);
         $dummy = [];
-        $exec_cmd = sprintf('%s %s > /tmp/download.log 2>&1 &', SETSID, $command);
+        $exec_cmd = sprintf('%s %s > %s 2>&1 &', SETSID, $command, DOWNLOAD_OUTPUT_FILE);
         exec($exec_cmd, $dummy, $code);
         if ($code !== 0) {
             error_log("任务执行失败：" . $code);
