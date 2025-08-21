@@ -10,7 +10,7 @@ DB_CONFIG = {
 TILE_DESCRIPTION_FILE = ".description"
 
 LOG_CONFIG = {
-    "log_file": f"{Path(__file__).parent.parent}/logs/python_scripts.log",
+    "log_file": f"{Path(__file__).resolve().parent.parent}/logs/python_scripts.log",
     "max_bytes": 1024 * 1024 * 10,
     "backup_count": 5,
     "encoding": "utf-8",

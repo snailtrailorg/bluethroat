@@ -116,12 +116,15 @@ if __name__ == '__main__':
         p = urlparse(clean_url)
         clean_url = f"{p.scheme}://{p.netloc}{p.path}"
 
-    os.makedirs(args.output_folder, exist_ok=True)
-    with open(os.path.join(args.output_folder, TILE_DESCRIPTION_FILE), 'w') as f:
-        f.write(f"Range coordinates[west, south, east, north]: {args.coordinates}\n")
-        f.write(f"Zoom[min, max]: {args.zoom}\n")
-        f.write(f"Server URL: {clean_url}\n")
-        f.write(f"Task-ID: {args.task_id}")
+    try:
+        os.makedirs(args.output_folder, exist_ok=True)
+        with open(os.path.join(args.output_folder, TILE_DESCRIPTION_FILE), 'w') as f:
+            f.write(f"Range coordinates[west, south, east, north]: {args.coordinates}\n")
+            f.write(f"Zoom[min, max]: {args.zoom}\n")
+            f.write(f"Server URL: {clean_url}\n")
+            f.write(f"Task-ID: {args.task_id}\n")
+    except Exception as e:
+        logging.error(f"Write tile description file failed: {str(e)}")
 
     tasks = {'total': 0, 'downloaded': 0, 'tiles': {}}
     db = None
