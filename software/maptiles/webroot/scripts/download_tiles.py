@@ -53,11 +53,7 @@ class maptilesDB:
             """
             self.cursor.execute(sql, (percentage, task_id))
             self.connection.commit()
-            
-            if self.cursor.rowcount == 0:
-                logging.warning(f"Task {task_id} does not exist, no update performed.")
-                return False
-                
+
             logging.debug(f"Task {task_id} progress updated to {percentage}")
             return True
         except Error as e:
@@ -155,6 +151,7 @@ if __name__ == '__main__':
                     'status': status,
                 }
 
+    last_percentage = 0
     for tile in tasks['tiles']:
         if tasks['tiles'][tile]['status'] == 0:
             download_file(tasks['tiles'][tile]['url'], tasks['tiles'][tile]['destination'])
@@ -163,7 +160,9 @@ if __name__ == '__main__':
                 tasks['downloaded'] += 1
                 if (args.task_id > 0 and db):
                     percentage = (tasks['downloaded'] / tasks['total'] * 100) if tasks['total'] else 0
-                    db.update_progress(args.task_id, percentage)
+                    if percentage - last_percentage >= 0.01:
+                        db.update_progress(args.task_id, percentage)
+                        last_percentage = percentage
 
     if (tasks['downloaded'] == tasks['total']):
         tgz_file = f'{args.output_folder}/tiles.tar.gz'
