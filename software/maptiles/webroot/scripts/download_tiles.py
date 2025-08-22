@@ -85,6 +85,7 @@ def download_file(url:str, destination:str):
         tmp_path, _ = urllib.request.urlretrieve(url)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         shutil.move(tmp_path, destination)
+        os.chmod(destination, 0o644)
         logging.debug("Download %s form %s success." % (destination, url))
     except Exception as e:
         logging.error("Download %s form %s failed." % (destination, url), str(e))
