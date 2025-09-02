@@ -715,6 +715,33 @@ async function initMap() {
         event.preventDefault();
         hideWindow("profile_window");
     });
+
+    document.getElementById("task_window").addEventListener("show", async function() {
+        if (user_id === null) {
+            hideWindow("task_window");
+            alert("用户未登录，请先登录");
+            showWindow("login_window");
+        } else {
+            const form_data = new FormData();
+            form_data.set("action", "get_tasks");
+            form_data.set("user_id", user_id);
+            try {
+                const response = await fetch("/", { method: "POST", body: form_data});
+                if (response.status == 200) {
+                    const result = await response.json();
+                    if (result.code === 0 && result.data !== null) {
+                        document.getElementById("task_list").innerHTML = result.data;
+                    } else {
+                        alert("获取任务列表失败：" + result.message);
+                    }
+                } else {
+                    alert("获取任务列表失败：" + response.status + " " + response.statusText);
+                }
+            } catch (error) {
+                alert("获取任务列表失败：" + error.message);
+            }
+        }
+    });
 }
 
 initMap();

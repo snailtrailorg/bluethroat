@@ -326,7 +326,7 @@
 
         <div class="pop-window" id="task_window">
             <div class="title-bar"><span class="title">下载任务列表</span></div>
-            <div class="content">
+            <div class="content" id="task_list">
                 <div class="label-grid"><span class="label">小径湾滑翔伞基地周边OSM地图12-18级</span></div>
                 <div class="input-grid">
                     <div class="progress-container"><div class="progress-bar" style="width: 75%">75%</div></div>
