@@ -229,9 +229,30 @@
                     }
                 }
                 break;
+            case 'get_tasks':
+                {
+                    if (!isset($_POST['user_id'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $_POST['user_id']) {
+                        die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
+                    }
+
+                    if (!isset($_POST['offset'], $_POST['limit']) || !is_numeric($_POST['offset']) || !is_numeric($_POST['limit']) || (int)$_POST['offset'] < 0 || (int)$_POST['limit'] <= 0) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $result = Database::getUserTasks($_POST['user_id'], $_POST['offset'], $_POST['limit']);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else {
+                        echo json_encode(['code' => 0, 'message' => '获取任务列表成功', 'data' => $result]);
+                    }
+                }
+                break;
             default:
                 die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
-                break;
             }
         } else {
             die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
@@ -269,7 +290,7 @@
             .left-margin{margin-left:10px;}
             .link{color: darkblue;text-decoration:none;white-space:nowrap;}
             .link:hover{cursor:pointer;color:blue;text-decoration:underline;}
-            .progress-container{width:100px;background-color:dimgray;border-radius:4px;overflow:hidden;}
+            .progress-container{width:300px;background-color:dimgray;border-radius:4px;overflow:hidden;}
             .progress-bar{height:24px;background-color:#4CAF50;width:0%;text-align:center;line-height:24px;color:white;transition:width 0.5s ease;}
         </style>
     </head>
@@ -326,18 +347,15 @@
 
         <div class="pop-window" id="task_window">
             <div class="title-bar"><span class="title">下载任务列表</span></div>
-            <div class="content" id="task_list">
-                <div class="label-grid"><span class="label">小径湾滑翔伞基地周边OSM地图12-18级</span></div>
-                <div class="input-grid">
-                    <div class="progress-container"><div class="progress-bar" style="width: 75%">75%</div></div>
-                    <span class="label link left-margin"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
-                    <span class="label link left-margin"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</span>
-                </div>
-            </div>
+            <div class="content" id="task_list"></div>
             <form id="task_form" method="post">
-                <input type="hidden" name="task" value="1">
+                <input type="hidden" name="action" value="get_tasks">
+                <input type="hidden" id="task_form_user_id" name="user_id" value="">
+                <input type="hidden" id="task_form_offset" name="offset" value="0">
                 <div class="footer-bar">
-                    <button id="task_form_previous" class="button" type="submit"><i class="fa-solid fa-arrow-left"></i>&nbsp;上页</button>
+                    <span class="label">每页条目数：</span>
+                    <input class="input left-margin" type="number" name="limit" value="10" min="1" max="20">
+                    <button id="task_form_previous" class="button left-margin" type="submit"><i class="fa-solid fa-arrow-left"></i>&nbsp;上页</button>
                     <button id="task_form_next" class="button left-margin" type="submit"><i class="fa-solid fa-arrow-right"></i>&nbsp;下页</button>
                     <button id="task_form_refresh" class="button left-margin" type="submit"><i class="fa-solid fa-rotate-right"></i>&nbsp;刷新</button>
                     <button id="task_form_cancel" class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>

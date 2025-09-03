@@ -1,0 +1,5 @@
+1) update offset after fetch
+2) calculate offset while reach tail
+3) add offset to result
+4) add timer while task window show and destroy timer while hide
+5) update download link state while get tasks list

@@ -191,6 +191,22 @@ function showWindow(window_id) {
     window.dispatchEvent(new Event("show"));
 }
 
+function showTaskDetails(task_id) {
+    // Show the task details window
+    showWindow("task_details_window");
+    // Set the task details
+    document.getElementById("task_details_task_name").textContent = task_name;
+    document.getElementById("task_details_task_id").textContent = task_id;
+}
+
+function downloadMaptiles(task_name, task_id) {
+    // Send a request to the server to download the map tiles
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "maptiles.php");
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("action=download&task_id=" + task_id + "&task_name=" + task_name);
+}
+
 // Initialize the map
 async function initMap() {
     // The home location
@@ -722,25 +738,76 @@ async function initMap() {
             alert("用户未登录，请先登录");
             showWindow("login_window");
         } else {
-            const form_data = new FormData();
-            form_data.set("action", "get_tasks");
-            form_data.set("user_id", user_id);
-            try {
-                const response = await fetch("/", { method: "POST", body: form_data});
-                if (response.status == 200) {
-                    const result = await response.json();
-                    if (result.code === 0 && result.data !== null) {
-                        document.getElementById("task_list").innerHTML = result.data;
-                    } else {
-                        alert("获取任务列表失败：" + result.message);
-                    }
-                } else {
-                    alert("获取任务列表失败：" + response.status + " " + response.statusText);
-                }
-            } catch (error) {
-                alert("获取任务列表失败：" + error.message);
-            }
+            document.getElementById("task_form_previous").disabled = false;
+            document.getElementById("task_form_next").disabled = false;
+            document.getElementById("task_form_refresh").disabled = false;
+            document.getElementById("task_form_user_id").value = user_id;
+            document.getElementById("task_form_refresh").click();
         }
+    });
+
+    document.getElementById("task_form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const previousButton = document.getElementById("task_form_previous");
+        const nextButton = document.getElementById("task_form_next");
+        const refreshButton = document.getElementById("task_form_refresh");
+        previousButton.disabled = true;
+        nextButton.disabled = true;
+        refreshButton.disabled = true;
+
+        const form_data = new FormData(this);
+        switch (event.submitter.id) {
+            case "task_form_previous":
+                offset = form_data.get("offset") - form_data.get("limit");
+                offset = Math.max(offset, 0);
+                form_data.set("offset", offset);
+                break;
+            case "task_form_next":
+                offset = form_data.get("offset") + form_data.get("limit");
+                form_data.set("offset", offset);
+                break;
+            case "task_form_refresh":
+                break;
+            default:
+                console.log("任务表单提交事件参数错误");
+        }
+        console.log(form_data);
+        try {
+            const response = await fetch("/", { method: "POST", body: form_data});
+            if (response.status == 200) {
+                const result = await response.json();
+                if (result.code === 0 && result.data !== null) {
+                    let inner_html = "";
+                    for (let i = 0; i < result.data.length; i++) {
+                        const task = result.data[i];
+                        inner_html += `
+                            <div class="label-grid"><span class="label">${task.name}</span></div>
+                            <div class="input-grid">
+                                <div class="progress-container"><div class="progress-bar" style="width: ${task.progress}%">${task.progress}%</div></div>
+                                <span class="label link left-margin" onclick="showTaskDetails('${task.id}')"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
+                                <span class="label link left-margin" onclick="downloadMaptiles('${task.name}', '${task.id}')"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</span>
+                            </div>
+                        `;
+                    }
+                    document.getElementById("task_list").innerHTML = inner_html;
+                } else {
+                    alert("获取任务列表失败：" + result.message);
+                }
+            } else {
+                alert("获取任务列表失败：" + response.status + " " + response.statusText);
+            }
+        } catch (error) {
+            alert("获取任务列表失败：" + error.message);
+        }
+    
+        previousButton.disabled = false;
+        nextButton.disabled = false;
+        refreshButton.disabled = false;
+    });
+
+    document.getElementById("task_form").addEventListener("reset", (event) => {
+        event.preventDefault();
+        hideWindow("task_window");
     });
 }
 
