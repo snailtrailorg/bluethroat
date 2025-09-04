@@ -3,3 +3,6 @@
 3) add offset to result
 4) add timer while task window show and destroy timer while hide
 5) update download link state while get tasks list
+6) clear selected range after download task successfully started
+7) implement download task file to local storage, delete task from server after download
+8) implement task detail window with restart and delete button

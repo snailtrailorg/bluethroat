@@ -243,11 +243,18 @@
                         die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
                     }
 
-                    $result = Database::getUserTasks($_POST['user_id'], $_POST['offset'], $_POST['limit']);
+                    $offset = (int)$_POST['offset'];
+                    $limit = (int)$_POST['limit'];
+                    $result = Database::getUserTasks($_POST['user_id'], $offset, $limit);
+                    $count = count($result);
+                    if ($count < $limit && $offset > 0) {
+                        $offset -= min($offset, $limit - $count);
+                        $result = Database::getUserTasks($_POST['user_id'], $offset, $limit);
+                    }
                     if ($result === false) {
                         die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
                     } else {
-                        echo json_encode(['code' => 0, 'message' => '获取任务列表成功', 'data' => $result]);
+                        echo json_encode(['code' => 0, 'message' => '获取任务列表成功', 'data' => ['offset' => $offset, 'tasks' => $result]]);
                     }
                 }
                 break;
@@ -352,6 +359,7 @@
                 <input type="hidden" name="action" value="get_tasks">
                 <input type="hidden" id="task_form_user_id" name="user_id" value="">
                 <input type="hidden" id="task_form_offset" name="offset" value="0">
+                <input type="hidden" id="task_form_count" value="0">
                 <div class="footer-bar">
                     <span class="label">每页条目数：</span>
                     <input class="input left-margin" type="number" name="limit" value="10" min="1" max="20">

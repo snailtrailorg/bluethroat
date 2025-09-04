@@ -16,7 +16,7 @@ from mysql.connector import Error
 from pathlib import Path
 from urllib.parse import urlparse
 
-from config.config import DB_CONFIG, LOG_CONFIG, TILE_DESCRIPTION_FILE
+from config.config import DB_CONFIG, LOG_CONFIG, TILE_DESCRIPTION_FILE, PID_FILE
 
 def initLogger(file=LOG_CONFIG['log_file'], bytes=LOG_CONFIG['max_bytes'], backup=LOG_CONFIG['backup_count'], coding=LOG_CONFIG['encoding'], level=LOG_CONFIG['level'], format=LOG_CONFIG['format'], date_format=LOG_CONFIG['datefmt']):
     os.makedirs(os.path.dirname(file), exist_ok=True)
@@ -92,9 +92,6 @@ def get_tile_index(longitude:float, latitude:float, zoom:int) -> list[int]:
     return [x_index, y_index]
 
 if __name__ == '__main__':
-    initLogger()
-    logging.info("Download tiles script started.")
-
     parser = argparse.ArgumentParser(description='Download map tiles of a specified area.')
 
     parser.add_argument('coordinates', type=float, nargs=4, help='Coordinates of the boundary of area (order: west, south, east, north)')
@@ -106,7 +103,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     logging.debug(args)
-    print(args)
+
+    initLogger()
+    logging.info("Download tiles script started.")
 
     clean_url = args.url
     if clean_url:
@@ -120,6 +119,8 @@ if __name__ == '__main__':
             f.write(f"Zoom[min, max]: {args.zoom}\n")
             f.write(f"Server URL: {clean_url}\n")
             f.write(f"Task-ID: {args.task_id}\n")
+        with open(os.path.join(args.output_folder, PID_FILE), 'w') as f:
+            f.write(f"{os.getpid()}")
     except Exception as e:
         logging.error(f"Write tile description file failed: {str(e)}")
 
@@ -165,12 +166,23 @@ if __name__ == '__main__':
                         last_percentage = percentage
 
     if (tasks['downloaded'] == tasks['total']):
+        logging.info(f"All of {tasks['total']} map tilesdownloaded.")
         tgz_file = f'{args.output_folder}/tiles.tar.gz'
-        with tarfile.open(tgz_file, 'w:gz') as tar:
+        try:
+            with tarfile.open(tgz_file, 'w:gz') as tar:
+                for subdir in Path(args.output_folder).iterdir():
+                    if subdir.is_dir():
+                        tar.add(subdir, subdir.name)
+            logging.info(f"All of {tasks['total']} map tiles packed to tar file: {tgz_file}")
+        except Exception as e:
+            logging.error(f"Create tar file failed: {str(e)}")
+        try:
             for subdir in Path(args.output_folder).iterdir():
                 if subdir.is_dir():
-                    tar.add(subdir, subdir.name)
-        logging.info(f"All of {tasks['total']} map tiles downloaded. Tar file: {tgz_file}")
+                    shutil.rmtree(subdir)
+            logging.info(f"Temporary tile folder removed.")
+        except Exception as e:
+            logging.error(f"Remove temporary tile folder failed: {str(e)}")
     else:
         logging.warning(f"Partial {tasks['downloaded']} of {tasks['total']} map tiles downloaded.")
 

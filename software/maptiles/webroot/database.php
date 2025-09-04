@@ -96,7 +96,7 @@
         }
 
         public static function getUserTasks($userId, $offset, $limit) {
-            $sql = "SELECT id AS tid, uid, name, west, north, east, south, zoom_min, zoom_max, url, progress FROM tasks WHERE uid = ? LIMIT ?, ?";
+            $sql = "SELECT id AS tid, uid, name, west, north, east, south, zoom_min, zoom_max, url, progress FROM tasks WHERE uid = ? ORDER BY create_time DESC LIMIT ?, ?";
             return self::query($sql, 'iii', [$userId, $offset, $limit]);
         }
 

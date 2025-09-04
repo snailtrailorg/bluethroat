@@ -732,6 +732,7 @@ async function initMap() {
         hideWindow("profile_window");
     });
 
+    var tasks_timer = null;
     document.getElementById("task_window").addEventListener("show", async function() {
         if (user_id === null) {
             hideWindow("task_window");
@@ -742,7 +743,20 @@ async function initMap() {
             document.getElementById("task_form_next").disabled = false;
             document.getElementById("task_form_refresh").disabled = false;
             document.getElementById("task_form_user_id").value = user_id;
-            document.getElementById("task_form_refresh").click();
+            if (tasks_timer !== null) {
+                clearInterval(tasks_timer);
+            }
+            tasks_timer = setInterval(function refresh_task() {
+                document.getElementById("task_form_refresh").click();
+                return refresh_task;
+            }(), 10000);
+        }
+    });
+
+    document.getElementById("task_window").addEventListener("hide", () => {
+        if (tasks_timer !== null) {
+            clearInterval(tasks_timer);
+            tasks_timer = null;
         }
     });
 
@@ -758,13 +772,10 @@ async function initMap() {
         const form_data = new FormData(this);
         switch (event.submitter.id) {
             case "task_form_previous":
-                offset = form_data.get("offset") - form_data.get("limit");
-                offset = Math.max(offset, 0);
-                form_data.set("offset", offset);
+                form_data.set("offset", Math.max(Number(form_data.get("offset")) - Number(form_data.get("limit")), 0));
                 break;
             case "task_form_next":
-                offset = form_data.get("offset") + form_data.get("limit");
-                form_data.set("offset", offset);
+                form_data.set("offset", Number(form_data.get("offset")) + Number(document.getElementById("task_form_count").value));
                 break;
             case "task_form_refresh":
                 break;
@@ -777,15 +788,17 @@ async function initMap() {
             if (response.status == 200) {
                 const result = await response.json();
                 if (result.code === 0 && result.data !== null) {
+                    document.getElementById("task_form_offset").value = result.data.offset;
+                    document.getElementById("task_form_count").value = result.data.tasks.length;
                     let inner_html = "";
-                    for (let i = 0; i < result.data.length; i++) {
-                        const task = result.data[i];
+                    for (let i = 0; i < result.data.tasks.length; i++) {
+                        const task = result.data.tasks[i];
                         inner_html += `
                             <div class="label-grid"><span class="label">${task.name}</span></div>
                             <div class="input-grid">
                                 <div class="progress-container"><div class="progress-bar" style="width: ${task.progress}%">${task.progress}%</div></div>
-                                <span class="label link left-margin" onclick="showTaskDetails('${task.id}')"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
-                                <span class="label link left-margin" onclick="downloadMaptiles('${task.name}', '${task.id}')"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</span>
+                                <span class="label link left-margin" onclick="showTaskDetails('${task.tid}')"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
+                                <span class="label ${Number(task.progress) == 100 ? "link " : ""}left-margin" onclick="${Number(task.progress) == 100 ? "downloadMaptiles('${task.name}', '${task.tid}');" : "return false;"}"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</span>
                             </div>
                         `;
                     }

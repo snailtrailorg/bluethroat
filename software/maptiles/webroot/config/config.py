@@ -8,6 +8,7 @@ DB_CONFIG = {
 }
 
 TILE_DESCRIPTION_FILE = ".description"
+PID_FILE = ".pid"
 
 LOG_CONFIG = {
     "log_file": f"{Path(__file__).resolve().parent.parent}/logs/python_scripts.log",
