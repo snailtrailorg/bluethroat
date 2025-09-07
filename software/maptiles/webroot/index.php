@@ -21,7 +21,7 @@
     }
 
     function runTask($taskId) {
-        $task = Database::getTaskById($taskId);
+        $task = Database::getTask($taskId);
 
         if ($task === false) {
             error_log("获取任务失败：" . Database::getErrorMessage());
@@ -258,10 +258,114 @@
                     }
                 }
                 break;
+            case 'get_task_info':
+                {
+                    if (!isset($_POST['task_id'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $result = Database::getTask($_POST['task_id']);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else {
+                        $task = $result[0];
+                        if (!isset($task['uid']) || !isset($_SESSION['user_id']) || $task['uid'] != $_SESSION['user_id']) {
+                            die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
+                        } else {
+                            echo json_encode(['code' => 0, 'message' => '获取任务信息成功', 'data' => $task]);
+                        }
+                    }
+                }
+                break;
+            case 'delete_task':
+                {
+                    if (!isset($_POST['task_id'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $result = Database::getTask($_POST['task_id']);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else {
+                        $task = $result[0];
+                        if (!isset($task['uid']) || !isset($_SESSION['user_id']) || $task['uid'] != $_SESSION['user_id']) {
+                            die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
+                        }
+                    }
+
+                    if (isset($task['folder']) || file_exists($task['folder'])) {
+                        $task_file = $task['folder'] . '/tiles.tar.gz';
+                        if (file_exists($task_file)) {
+                            unlink($task_file);
+                        }
+                    }
+
+                    $result = Database::deleteTask($_POST['task_id']);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else {
+                        echo json_encode(['code' => 0, 'message' => '删除任务成功']);
+                    }
+                }
+                break;
+            case 'restart_task':
+                {
+                    if (!isset($_POST['task_id'])) {
+                        die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                    }
+
+                    $result = Database::getTask($_POST['task_id']);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else {
+                        $task = $result[0];
+                        if (!isset($task['uid']) || !isset($_SESSION['user_id']) || $task['uid'] != $_SESSION['user_id']) {
+                            die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
+                        }
+                    }
+
+                    die(json_encode(['code' => __LINE__, 'message' => '功能尚未实现']));
+                }
+                break;
             default:
                 die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
             }
         } else {
+                die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+            }
+    } else if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
+        switch ($_GET['action']) {
+        case 'get_task_file':
+            {
+                if (!isset($_GET['task_id'])) {
+                    die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
+                } else {
+                    $result = Database::getTask($_GET['task_id']);
+                    if ($result === false) {
+                        die(json_encode(['code' => __LINE__, 'message' => Database::getErrorMessage()]));
+                    } else {
+                        $task = $result[0];
+                        if (!isset($task['uid']) || !isset($_SESSION['user_id']) || $task['uid'] != $_SESSION['user_id']) {
+                            die(json_encode(['code' => __LINE__, 'message' => '用户未登录或会话已过期']));
+                        } else if (!isset($task['folder']) || !file_exists($task['folder'])) {
+                            die(json_encode(['code' => __LINE__, 'message' => '任务文件夹不存在']));
+                        } else {
+                            $file_path = $task['folder'] . '/tiles.tar.gz';
+                            if (!file_exists($file_path)) {
+                                die(json_encode(['code' => __LINE__, 'message' => '任务文件不存在']));
+                            } else {
+                                header('Content-Type: application/octet-stream');
+                                header('Content-Disposition: attachment; filename="' . rawurlencode($task['name']) . '.tar.gz"');
+                                header('Content-Length: ' . filesize($file_path));
+                                readfile($file_path);
+                                exit;
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        default:
             die(json_encode(['code' => __LINE__, 'message' => '请求参数错误']));
         }
     } else {
@@ -299,6 +403,7 @@
             .link:hover{cursor:pointer;color:blue;text-decoration:underline;}
             .progress-container{width:300px;background-color:dimgray;border-radius:4px;overflow:hidden;}
             .progress-bar{height:24px;background-color:#4CAF50;width:0%;text-align:center;line-height:24px;color:white;transition:width 0.5s ease;}
+            .text-value span {display:inline-block;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;width:300px;}
         </style>
     </head>
 
@@ -331,7 +436,7 @@
                 <div class="content">
                     <div class="label-grid"><span class="label" title="格式：[左侧经度, 顶部纬度, 右侧经度, 底部纬度]，根据选择区域自动计算，用户不可修改">地图区域坐标<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span></div>
                     <div class="input-grid"><span class="label" id="download_form_bounds">[114.903983, 22.677423, 114.969300, 22.638533]</span></div>
-                    <div class="label-grid"><span class="label">下载工作量：</span></div>
+                    <div class="label-grid"><span class="label">下载总瓦片数量：</span></div>
                     <div class="input-grid"><span class="label" id="download_form_tile_count">计算中...</span></div>
                     <div class="label-grid"><span class="label">下载任务名称：</span></div>
                     <div class="input-grid"><input class="input" style="width:218px" type="text" name="task_name" placeholder="输入名称以区分不同任务..." maxlength="63" required></div>
@@ -365,8 +470,36 @@
                     <input class="input left-margin" type="number" name="limit" value="10" min="1" max="20">
                     <button id="task_form_previous" class="button left-margin" type="submit"><i class="fa-solid fa-arrow-left"></i>&nbsp;上页</button>
                     <button id="task_form_next" class="button left-margin" type="submit"><i class="fa-solid fa-arrow-right"></i>&nbsp;下页</button>
-                    <button id="task_form_refresh" class="button left-margin" type="submit"><i class="fa-solid fa-rotate-right"></i>&nbsp;刷新</button>
+                    <button id="task_form_refresh" class="button left-margin" type="submit" hidden><i class="fa-solid fa-rotate-right"></i>&nbsp;刷新</button>
                     <button id="task_form_cancel" class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="pop-window" id="task_details_window">
+            <div class="title-bar"><span class="title">下载任务详情</span></div>
+            <form id="task_details_form" method="post">
+                <input type="hidden" name="action" value="">
+                <input type="hidden" id="task_details_task_id" name="task_id" value="">
+                <div class="content" id="task_details">
+                    <div class="label-grid"><span class="label" title="格式：[左侧经度, 顶部纬度, 右侧经度, 底部纬度]">地图区域坐标<i class="fa-regular fa-circle-question" style="color:#4285F4;"></i>：</span></div>
+                    <div class="input-grid text-value"><span class="label" id="task_details_bounds"></span></div>
+                    <div class="label-grid"><span class="label">下载任务名称：</span></div>
+                    <div class="input-grid text-value"><span class="label" id="task_details_name"></span></div>
+                    <div class="label-grid"><span class="label">地图瓦片级别：</span></div>
+                    <div class="input-grid text-value"><span class="label" id="task_details_zoom_range"></span></div>
+                    <div class="label-grid"><span class="label">瓦片服务器URL：</span></div>
+                    <div class="input-grid text-value"><span class="label" id="task_details_url"></span></div>
+                    <div class="label-grid"><span class="label">下载总瓦片数量：</span></div>
+                    <div class="input-grid text-value"><span class="label" id="task_details_tile_count"></span></div>
+                    <div class="label-grid"><span class="label">下载进度：</span></div>
+                    <div class="input-grid text-value"><div class="progress-container"><div id="task_details_progress" class="progress-bar" style="width: 0%">0%</div></div></div>
+                </div>
+                <div class="footer-bar">
+                    <button id="task_details_refresh" class="button" type="submit" hidden><i class="fa-solid fa-rotate-right"></i>&nbsp;刷新</button>
+                    <button id="task_details_restart" class="button" type="submit"><i class="fa-solid fa-rotate-right"></i>&nbsp;重启</button>
+                    <button id="task_details_delete" class="button left-margin" type="submit"><i class="fa-solid fa-trash"></i>&nbsp;删除</button>
+                    <button id="task_details_cancel" class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
                 </div>
             </form>
         </div>

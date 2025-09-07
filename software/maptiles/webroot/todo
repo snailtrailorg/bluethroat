@@ -6,3 +6,4 @@
 6) clear selected range after download task successfully started
 7) implement download task file to local storage, delete task from server after download
 8) implement task detail window with restart and delete button
+9) task name rules must fit to filename rules

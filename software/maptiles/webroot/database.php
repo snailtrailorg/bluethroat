@@ -90,14 +90,19 @@
             return self::query($sql, 'isddddiiss', [$userId, $taskName, $west, $north, $east, $south, $zoomMin, $zoomMax, $url, $folder]);
         }
 
-        public static function getTaskById($taskId) {
+        public static function getTask($taskId) {
             $sql = "SELECT id AS tid, uid, name, west, north, east, south, zoom_min, zoom_max, url, progress, folder FROM tasks WHERE id = ?";
             return self::query($sql, 'i', [$taskId]);
         }
 
         public static function getUserTasks($userId, $offset, $limit) {
-            $sql = "SELECT id AS tid, uid, name, west, north, east, south, zoom_min, zoom_max, url, progress FROM tasks WHERE uid = ? ORDER BY create_time DESC LIMIT ?, ?";
+            $sql = "SELECT id AS tid, uid, name, west, north, east, south, zoom_min, zoom_max, url, progress FROM tasks WHERE uid = ? AND deleted = false ORDER BY create_time DESC LIMIT ?, ?";
             return self::query($sql, 'iii', [$userId, $offset, $limit]);
+        }
+
+        public static function deleteTask($taskId) {
+            $sql = "UPDATE tasks SET deleted = true WHERE id = ?";
+            return self::query($sql, 'i', [$taskId]);
         }
 
         private static function query($sql, $types, $params = []) {

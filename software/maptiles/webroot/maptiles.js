@@ -192,20 +192,10 @@ function showWindow(window_id) {
 }
 
 function showTaskDetails(task_id) {
-    // Show the task details window
+    document.getElementById("task_details_task_id").value = task_id;
     showWindow("task_details_window");
-    // Set the task details
-    document.getElementById("task_details_task_name").textContent = task_name;
-    document.getElementById("task_details_task_id").textContent = task_id;
 }
-
-function downloadMaptiles(task_name, task_id) {
-    // Send a request to the server to download the map tiles
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", "maptiles.php");
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("action=download&task_id=" + task_id + "&task_name=" + task_name);
-}
+window.showTaskDetails = showTaskDetails;
 
 // Initialize the map
 async function initMap() {
@@ -419,7 +409,7 @@ async function initMap() {
             showWindow("login_window");
             return;
         } else {
-            if (mapTiles == null || mapTiles.getBounds().isEmpty()) {
+            if (mapTiles == null || mapTiles.getBounds() == null || mapTiles.getBounds().isEmpty()) {
                 alert("请先标记地图范围。");
             } else {
                 showWindow("download_window");
@@ -797,8 +787,8 @@ async function initMap() {
                             <div class="label-grid"><span class="label">${task.name}</span></div>
                             <div class="input-grid">
                                 <div class="progress-container"><div class="progress-bar" style="width: ${task.progress}%">${task.progress}%</div></div>
-                                <span class="label link left-margin" onclick="showTaskDetails('${task.tid}')"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
-                                <span class="label ${Number(task.progress) == 100 ? "link " : ""}left-margin" onclick="${Number(task.progress) == 100 ? "downloadMaptiles('${task.name}', '${task.tid}');" : "return false;"}"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</span>
+                                <span class="label link left-margin" onclick="showTaskDetails(${task.tid})"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
+                                <a href="${Number(task.progress) == 100 ? "/?action=get_task_file&task_id=" + task.tid : "#"}" class="label ${Number(task.progress) == 100 ? "link " : ""}left-margin" download="${task.name}.tar.gz"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</a>
                             </div>
                         `;
                     }
@@ -822,6 +812,94 @@ async function initMap() {
         event.preventDefault();
         hideWindow("task_window");
     });
+
+    var task_details_timer = null;
+    document.getElementById("task_details_window").addEventListener("show", async function() {
+        document.getElementById("task_details_refresh").disabled = false;
+        const task_id = document.getElementById("task_details_task_id").value;
+        if (task_details_timer !== null) {
+            clearInterval(task_details_timer);
+        }
+        task_details_timer = setInterval(function refresh_task_details() {
+            document.getElementById("task_details_refresh").click();
+            return refresh_task_details;
+        }(), 10000);
+    })
+
+    document.getElementById("task_details_window").addEventListener("hide", function() {
+        if (task_details_timer !== null) {
+            clearInterval(task_details_timer);
+            task_details_timer = null;
+        }
+    })
+
+    document.getElementById("task_details_form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        document.getElementById("task_details_refresh").disabled = true;
+        document.getElementById("task_details_restart").disabled = true;
+        document.getElementById("task_details_delete").disabled = true;
+
+        const form_data = new FormData(this);
+        switch (event.submitter.id) {
+        case "task_details_refresh":
+            form_data.set("action", "get_task_info");
+            break;
+        case "task_details_restart":
+            form_data.set("action", "restart_task");
+            break;
+        case "task_details_delete":
+            form_data.set("action", "delete_task");
+            break;
+        default:
+            console.log("任务详情表单提交事件参数错误");
+        }
+        const response = await fetch("/", { method: "POST", body: form_data});
+        if (response.status == 200) {
+            const result = await response.json();
+            if (result.code === 0) {
+                const data = result.data;
+                switch (event.submitter.id) {
+                case "task_details_refresh":
+                    document.getElementById("task_details_name").innerText = data.name;
+                    document.getElementById("task_details_name").title = data.name;
+                    document.getElementById("task_details_bounds").innerText = `[${data.west}, ${data.north}, ${data.east}, ${data.south}]`;
+                    document.getElementById("task_details_bounds").title = `[${data.west}, ${data.north}, ${data.east}, ${data.south}]`;
+                    document.getElementById("task_details_zoom_range").innerText = `从${data.zoom_min}级至${data.zoom_max}级`;
+                    document.getElementById("task_details_progress").innerText = `${data.progress}%`;
+                    document.getElementById("task_details_progress").style = `width:${data.progress}%`;
+                    document.getElementById('task_details_url').innerText = data.url;
+                    document.getElementById('task_details_url').title = data.url;
+                    document.getElementById("task_details_tile_count").innerText = calculateTileCount(data.west, data.north, data.east, data.south, data.zoom_min, data.zoom_max);
+                    if (Number(data.progress) === 100) {
+                        clearInterval(task_details_timer);
+                        task_details_timer = null;
+                    }
+                    break;
+                case "task_details_restart":
+                    alert("任务重启失败：" + result.message);
+                    break;
+                case "task_details_delete":
+                    alert("任务成功删除");
+                    hideWindow("task_details_window");
+                    break;
+                default:
+                    console.log("任务详情表单提交事件参数错误");
+                }
+            } else {
+                alert("操作失败：" + result.message);
+            }
+        } else {
+            alert("操作失败：" + response.status + " " + response.statusText);
+        }
+        document.getElementById("task_details_refresh").disabled = false;
+        document.getElementById("task_details_restart").disabled = false;
+        document.getElementById("task_details_delete").disabled = false;
+    })
+
+    document.getElementById("task_details_form").addEventListener("reset", function(event) {
+        event.preventDefault();
+        hideWindow("task_details_window");
+    })
 }
 
 initMap();
