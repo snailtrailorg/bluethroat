@@ -189,4 +189,9 @@ if __name__ == '__main__':
     if (args.task_id > 0 and db):
         del db
 
+    try:
+        shutil.remove(os.path.join(args.output_folder, PID_FILE))
+    except Exception as e:
+        logging.error(f"Remove PID file failed: {str(e)}")
+
 # End of download_tiles.py
