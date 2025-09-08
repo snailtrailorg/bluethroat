@@ -309,7 +309,7 @@
                         if (file_exists($task_file)) {
                             unlink($task_file);
                         }
-                        
+
                         system("ls -d " . escapeshellarg($task['folder']) . "/*/ | xargs rm -rf");
                     }
 
@@ -466,8 +466,8 @@
                     <div class="input-grid"><input class="input" style="width:500px" type="text" name="url" placeholder="https://tile.server.com/{z}/{x}/{y}.png?key=SERVER_KEY" maxlength="511" required></div>
                 </div>
                 <div class="footer-bar">
-                    <button id="download_form_cancel" class="button" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
-                    <button id="download_form_submit" class="button left-margin" type="submit"><i class="fa-solid fa-check"></i>&nbsp;提交</button>
+                    <button id="download_form_submit" class="button" type="submit"><i class="fa-solid fa-check"></i>&nbsp;提交</button>
+                    <button id="download_form_cancel" class="button left-margin" type="reset"><i class="fa-solid fa-xmark"></i>&nbsp;取消</button>
                 </div>
             </form>
         </div>
