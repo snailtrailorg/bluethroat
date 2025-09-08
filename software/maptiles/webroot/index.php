@@ -364,13 +364,22 @@
                             die(json_encode(['code' => __LINE__, 'message' => '任务文件夹不存在']));
                         } else {
                             $file_path = $task['folder'] . '/tiles.tar.gz';
-                            if (!file_exists($file_path)) {
-                                die(json_encode(['code' => __LINE__, 'message' => '任务文件不存在']));
+                            if (!file_exists($file_path) || !is_file($file_path)) {
+                                http_response_code(404);
+                                die("文件不存在");
+                            } else if (!is_readable($file_path)) {
+                                http_response_code(403);
+                                die("没有权限读取该文件");
                             } else {
+                                $downloadFileName = rawurlencode($task['name']) . '.tar.gz';
+
+                                header('X-Sendfile: ' . $file_path);
                                 header('Content-Type: application/octet-stream');
-                                header('Content-Disposition: attachment; filename="' . rawurlencode($task['name']) . '.tar.gz"');
-                                header('Content-Length: ' . filesize($file_path));
-                                readfile($file_path);
+                                header('Content-Disposition: attachment; filename="' . $downloadFileName . '"');
+                                header('Accept-Ranges: bytes');
+                                header('Cache-Control: public, must-revalidate, max-age=0');
+                                header('Connection: close');
+
                                 exit;
                             }
                         }
