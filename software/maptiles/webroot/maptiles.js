@@ -787,8 +787,8 @@ async function initMap() {
                             <div class="label-grid"><span class="label">${task.name}</span></div>
                             <div class="input-grid">
                                 <div class="progress-container"><div class="progress-bar" style="width: ${task.progress}%">${task.progress}%</div></div>
-                                <span class="label link left-margin" onclick="showTaskDetails(${task.tid})"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
-                                <a href="${Number(task.progress) == 100 ? "/?action=get_task_file&task_id=" + task.tid : "#"}" class="label ${Number(task.progress) == 100 ? "link " : ""}left-margin" download="${task.name}.tar.gz"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</a>
+                                <span class="label link left-margin" onclick="showTaskDetails(${task.tid});"><i class="fa-solid fa-circle-info"></i>&nbsp;详情</span>
+                                <a href="${Number(task.progress) == 100 ? "/?action=get_task_file&task_id=" + task.tid : "#"}" class="label ${Number(task.progress) == 100 ? "link " : "fake-link "}left-margin" download="${task.name}.tar.gz"><i class="fa-solid fa-download"></i>&nbsp;下载到本地</a>
                             </div>
                         `;
                     }

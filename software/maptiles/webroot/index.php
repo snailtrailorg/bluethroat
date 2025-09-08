@@ -294,10 +294,23 @@
                     }
 
                     if (isset($task['folder']) || file_exists($task['folder'])) {
+                        $pid_file = $task['folder'] . '/.pid';
+                        if (file_exists($pid_file)) {
+                            $pid = (int)trim(file_get_contents($pidFile));
+                            if ($pid > 0 && file_exists("/proc/{$pid}")) {
+                                $cmdLine = file_get_contents("/proc/{$pid}/cmdline");
+                                if (stripos($cmdLine, $scriptPath) !== false) {
+                                    posix_kill($pid, 9);
+                                }
+                            }
+                        }
+
                         $task_file = $task['folder'] . '/tiles.tar.gz';
                         if (file_exists($task_file)) {
                             unlink($task_file);
                         }
+                        
+                        system("ls -d " . escapeshellarg($task['folder']) . "/*/ | xargs rm -rf");
                     }
 
                     $result = Database::deleteTask($_POST['task_id']);
@@ -404,6 +417,8 @@
             .progress-container{width:300px;background-color:dimgray;border-radius:4px;overflow:hidden;}
             .progress-bar{height:24px;background-color:#4CAF50;width:0%;text-align:center;line-height:24px;color:white;transition:width 0.5s ease;}
             .text-value span {display:inline-block;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;width:300px;}
+            .fake-link {text-decoration:none;color:inherit;outline:none;cursor:default;}
+            .fake-link:hover {text-decoration:none;color:inherit;}
         </style>
     </head>
 
