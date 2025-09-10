@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地图瓦片下载工具帮助中心</title>
+    <style>
+        :root {
+            --primary-color: #4A6CF7;
+            --secondary-color: #6C757D;
+            --success-color: #28A745;
+            --warning-color: #FFC107;
+            --danger-color: #DC3545;
+            --light-bg: #F8F9FA;
+            --white: #FFFFFF;
+            --dark-text: #343A40;
+            --border-radius: 8px;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+            background-color: var(--light-bg);
+            padding-top: 70px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            color: var(--dark-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #6B8AFD 100%);
+            color: var(--white);
+            padding: 60px 0;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #F0F2F5;
+            padding-bottom: 15px;
+        }
+        
+        .section h3 {
+            color: var(--dark-text);
+            margin: 30px 0 15px;
+            font-size: 1.3rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background-color: #F8F9FF;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark-text);
+        }
+        
+        .feature-description {
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+        
+        .step-guide {
+            margin-top: 20px;
+        }
+        
+        .step {
+            background-color: #F8F9FF;
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+        
+        .step-number {
+            background-color: var(--primary-color);
+            color: var(--white);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark-text);
+        }
+        
+        .faq-container {
+            margin-top: 20px;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #E9ECEF;
+            padding-bottom: 15px;
+        }
+        
+        .faq-question {
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            color: var(--dark-text);
+        }
+        
+        .faq-question::after {
+            content: '+';
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-question.active::after {
+            transform: rotate(45deg);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: var(--secondary-color);
+        }
+        
+        .faq-answer.active {
+            max-height: 200px;
+            margin-top: 10px;
+        }
+        
+        .note {
+            background-color: #FFF3CD;
+            border-left: 4px solid var(--warning-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+        
+        .note-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        
+        .note-content {
+            color: #856404;
+            font-size: 0.95rem;
+        }
+        
+        .contact-info {
+            background-color: #E3F2FD;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+        }
+        
+        .contact-title {
+            font-weight: 600;
+            color: #1565C0;
+            margin-bottom: 15px;
+        }
+        
+        .contact-details {
+            color: #1565C0;
+            font-size: 0.95rem;
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .button:hover {
+            background-color: #3A5BD8;
+        }
+        
+        footer {
+            background-color: var(--white);
+            padding: 40px 0;
+            margin-top: 60px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .copyright {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #E9ECEF;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 30px 20px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">地图瓦片下载工具</a>
+            <nav class="nav-menu">
+                <a href="#features" class="nav-link">功能介绍</a>
+                <a href="#guide" class="nav-link">使用指南</a>
+                <a href="#task-guide" class="nav-link">任务管理</a>
+                <a href="#faq" class="nav-link">常见问题</a>
+                <a href="#contact" class="nav-link">联系我们</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h1>欢迎使用地图瓦片下载工具</h1>
+            <p>地图瓦片下载工具是一个简单、安全的地图瓦片在线下载页面，您可以使用它来方便地标记和下载地图瓦片。</p>
+        </section>
+
+        <section id="features" class="section">
+            <h2>系统功能</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👤</div>
+                    <div class="feature-title">用户注册</div>
+                    <div class="feature-description">快速创建个人账户，开始使用我们的服务</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <div class="feature-title">安全登录</div>
+                    <div class="feature-description">使用您的账户安全登录，保护您的个人信息</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">个人中心</div>
+                    <div class="feature-description">查看和管理您的个人资料信息</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <div class="feature-title">地图标记</div>
+                    <div class="feature-description">在地图上标记您需要下载瓦片的区域</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📥</div>
+                    <div class="feature-title">任务管理</div>
+                    <div class="feature-description">创建和管理您的地图瓦片下载任务</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <div class="feature-title">瓦片下载</div>
+                    <div class="feature-description">下载已完成的地图瓦片到本地计算机</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="guide" class="section">
+            <h2>基础使用指南</h2>
+            
+            <h3>1. 用户注册</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">填写注册信息</div>
+                    <div>在注册页面输入您的用户名、电子邮箱和密码。请确保密码包含字母和数字，以提高安全性。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">提交注册</div>
+                    <div>点击"注册"按钮提交您的信息。系统会自动检查您的用户名和邮箱是否已被使用。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">注册成功</div>
+                    <div>注册成功后，您将收到成功提示，可以立即登录系统。</div>
+                </div>
+            </div>
+            
+            <h3>2. 用户登录</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">输入账户信息</div>
+                    <div>在登录页面输入您注册时使用的用户名和密码。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">点击登录</div>
+                    <div>确认信息无误后，点击"登录"按钮。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">访问系统</div>
+                    <div>登录成功后，您将可以访问系统的各项功能和您的个人中心。</div>
+                </div>
+            </div>
+            
+            <h3>3. 查看个人资料</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">登录系统</div>
+                    <div>使用您的账户信息登录系统。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">进入个人中心</div>
+                    <div>登录成功后，系统会自动跳转到您的个人中心页面。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">查看信息</div>
+                    <div>在个人中心页面，您可以查看您的用户名、邮箱和注册时间等信息。</div>
+                </div>
+            </div>
+            
+            <h3>4. 安全退出</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">点击退出</div>
+                    <div>在完成操作后，点击系统中的"退出登录"按钮。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">确认退出</div>
+                    <div>系统会提示您确认是否退出，点击确认后完成退出流程。</div>
+                </div>
+                <div class="note">
+                    <div class="note-title">安全提示</div>
+                    <div class="note-content">在公共电脑上使用时，请务必记得退出登录，以保护您的账户安全。</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="task-guide" class="section">
+            <h2>任务管理指南</h2>
+            
+            <h3>1. 在地图上标记区域</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">进入地图页面</div>
+                    <div>登录系统后，自动进入地图页面。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">搜索位置（可选）</div>
+                    <div>在搜索框中输入地址，点击搜索按钮快速定位到特定区域。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">开始标记</div>
+                    <div>点击"标记区域"按钮，然后在地图上按住鼠标左键并拖动，绘制您需要的区域。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">调整区域</div>
+                    <div>释放鼠标后，可以拖动区域边界或角落来调整大小和位置。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-title">清除标记（如果需要）</div>
+                    <div>如需要重新标记，点击"清除标记"按钮后重新开始。</div>
+                </div>
+            </div>
+            
+            <h3>2. 添加下载任务</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">标记区域</div>
+                    <div>按照前面的步骤在地图上标记您需要下载的区域。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">填写任务信息</div>
+                    <div>在弹出的任务信息表单中，输入任务名称、选择缩放级别范围，并输入地图瓦片URL模板。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">提交任务</div>
+                    <div>确认信息无误后，点击"提交任务"按钮。系统会自动计算瓦片数量并开始下载。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">任务创建成功</div>
+                    <div>系统提示任务创建成功，并显示任务ID。您可以在任务列表中查看任务进度。</div>
+                </div>
+            </div>
+            
+            <h3>3. 查看任务列表</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">进入任务列表</div>
+                    <div>在系统界面中，点击"任务列表"按钮或导航链接。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">浏览任务</div>
+                    <div>任务列表将显示您创建的所有任务，包括任务名称、创建时间、进度等信息。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">查看任务进度</div>
+                    <div>在任务列表中，您可以看到每个任务的当前下载进度百分比。</div>
+                </div>
+            </div>
+            
+            <h3>4. 查看任务详情</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">进入任务列表</div>
+                    <div>按照前面的步骤进入任务列表页面。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">选择任务</div>
+                    <div>在任务列表中，找到您想查看详情的任务，点击"查看详情"按钮。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">查看详细信息</div>
+                    <div>任务详情页面将显示任务的完整信息，包括标记区域的坐标、缩放级别范围、下载URL等。</div>
+                </div>
+            </div>
+            
+            <h3>5. 下载完成的任务</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">检查任务状态</div>
+                    <div>在任务列表中，确认任务进度已显示为100%完成。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">选择下载</div>
+                    <div>点击已完成任务对应的"下载"按钮。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">保存文件</div>
+                    <div>浏览器将自动开始下载打包好的地图瓦片文件（tar.gz格式），选择保存位置后即可完成下载。</div>
+                </div>
+                <div class="note">
+                    <div class="note-title">下载提示</div>
+                    <div class="note-content">地图瓦片文件可能会比较大，下载时间取决于您的网络速度和瓦片数量。请耐心等待下载完成。</div>
+                </div>
+            </div>
+            
+            <h3>6. 删除任务</h3>
+            <div class="step-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">进入任务列表</div>
+                    <div>按照前面的步骤进入任务列表页面。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">选择删除</div>
+                    <div>在任务列表中，找到您想删除的任务，点击"删除"按钮。</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">确认删除</div>
+                    <div>系统会提示您确认是否删除该任务，点击"确认"后任务将被删除。</div>
+                </div>
+                <div class="note">
+                    <div class="note-title">注意事项</div>
+                    <div class="note-content">删除任务后，相关的地图瓦片文件也将被删除，请确保您已下载所需的文件。</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="section">
+            <h2>常见问题</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">忘记密码了怎么办？</div>
+                    <div class="faq-answer">
+                        目前系统暂未提供密码找回功能。如有需要，请联系系统管理员协助您重置密码。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">用户名可以修改吗？</div>
+                    <div class="faq-answer">
+                        用户名一旦注册后暂不支持修改。请在注册时仔细选择您的用户名。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">注册时提示"用户名已存在"是什么意思？</div>
+                    <div class="faq-answer">
+                        这表示您所使用的用户名已经被其他用户注册。请尝试使用其他用户名进行注册。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">登录时提示"密码错误"怎么办？</div>
+                    <div class="faq-answer">
+                        请检查您输入的密码是否正确，注意区分大小写。如多次尝试仍无法登录，请联系系统管理员。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">账户安全吗？我的个人信息会被保护吗？</div>
+                    <div class="faq-answer">
+                        我们非常重视您的账户安全。系统采用加密技术保护您的密码和个人信息，防止未授权访问。请妥善保管您的账户信息，不要与他人分享。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">如何在地图上标记精确的区域？</div>
+                    <div class="faq-answer">
+                        您可以先使用搜索功能定位到大致区域，然后通过放大地图来提高精度。标记区域后，您还可以拖动区域的边界和角落来进行微调，以获得精确的区域范围。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">什么是缩放级别？我应该如何选择？</div>
+                    <div class="faq-answer">
+                        缩放级别决定了地图瓦片的详细程度。较低的缩放级别（如1-5级）显示的区域范围较大但细节较少，较高的缩放级别（如15-20级）显示的区域范围较小但细节非常丰富。请根据您的实际需求选择合适的缩放级别范围。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">我可以同时下载多个任务吗？</div>
+                    <div class="faq-answer">
+                        系统支持创建多个下载任务，但同一时间可能只能有一个任务在下载。您可以先创建多个任务，系统会按照创建顺序依次进行处理。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">下载的瓦片文件是什么格式的？如何使用？</div>
+                    <div class="faq-answer">
+                        下载的瓦片文件是tar.gz格式的压缩包，内部包含按缩放级别和行列号组织的地图瓦片图片文件。您可以使用标准的解压工具（如WinRAR、7-Zip等）解压后，通过支持XYZ瓦片格式的地图库（如Leaflet、OpenLayers等）加载使用。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">任务下载失败了怎么办？</div>
+                    <div class="faq-answer">
+                        如果任务下载失败，您可以尝试删除该任务并重新创建。如果问题持续存在，请联系系统管理员获取帮助。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <h2>联系我们</h2>
+            <p>如果您在使用过程中遇到任何问题或有任何建议，请随时联系我们的客服团队。</p>
+            <div class="contact-info">
+                <div class="contact-title">客服联系方式</div>
+                <div class="contact-details">
+                    电子邮件：<a href="mailto:michael@snailtrail.org">michael@snailtrail.org</a><br>
+                    工作时间：周一至周五 9:00-18:00
+                </div>
+            </div>
+            <a href="index.php" class="button">返回系统首页</a>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo">地图瓦片下载工具</div>
+                <div class="footer-links">
+                    <a href="#features" class="footer-link">功能介绍</a>
+                    <a href="#guide" class="footer-link">使用指南</a>
+                    <a href="#task-guide" class="footer-link">任务管理</a>
+                    <a href="#faq" class="footer-link">常见问题</a>
+                    <a href="#contact" class="footer-link">联系我们</a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 地图瓦片下载工具 版权所有
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ 折叠功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', () => {
+                    question.classList.toggle('active');
+                    const answer = question.nextElementSibling;
+                    answer.classList.toggle('active');
+                });
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
