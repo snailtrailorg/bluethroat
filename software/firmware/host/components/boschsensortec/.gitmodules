@@ -1,0 +1,9 @@
+[submodule "BMI270_SensorAPI"]
+	path = BMI270_SensorAPI
+	url = git@github.com:snailtrailorg/BMI270_SensorAPI.git
+[submodule "BMM150_SensorAPI"]
+	path = BMM150_SensorAPI
+	url = git@github.com:snailtrailorg/BMM150_SensorAPI.git
+[submodule "BMP280_driver"]
+	path = BMP280_driver
+	url = git@github.com:snailtrailorg/BMP280_driver.git
